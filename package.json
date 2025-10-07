@@ -1,0 +1,40 @@
+{
+  "name": "chronos-timeline-md",
+  "version": "1.0.0",
+  "description": "A timeline visualization library for markdown-based chronological data",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "timeline",
+    "markdown",
+    "chronos",
+    "visualization",
+    "vis-timeline"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "vis-timeline": "^7.7.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "vis-timeline": ">=7.0.0"
+  }
+}
