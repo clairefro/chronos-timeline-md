@@ -345,4 +345,11 @@ export class ChronosTimeline {
       timeline.setWindow(range.start, range.end, { animation: true });
     }, 200);
   }
+
+  destroy() {
+    if (this.timeline && typeof this.timeline.destroy === "function") {
+      this.timeline.destroy();
+      this.timeline = undefined;
+    }
+  }
 }

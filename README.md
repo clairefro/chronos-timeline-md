@@ -1,6 +1,6 @@
 # Chronos Timeline MD
 
-A timeline visualization library for markdown-based chronological data using vis-timeline.
+A timeline visualization library for rendering interactive vis.js-timelines from markdown.
 
 ## Installation
 
@@ -68,6 +68,19 @@ npm run dev
 
 # Clean build artifacts
 npm run clean
+```
+
+### Publishing
+
+Update package.json metadata
+
+```bash
+npm pack
+
+# (first time only)
+npm login
+
+npm publish
 ```
 
 ## License

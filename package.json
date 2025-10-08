@@ -13,6 +13,7 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "clean": "rm -rf dist",
+    "sandbox": "node serve.cjs",
     "prepublishOnly": "npm run clean && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -26,13 +27,12 @@
   "author": "",
   "license": "ISC",
   "type": "module",
-  "dependencies": {
-    "vis-timeline": "^7.7.3"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/node": "^20.0.0",
     "tsup": "^8.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vis-timeline": "^7.7.3"
   },
   "peerDependencies": {
     "vis-timeline": ">=7.0.0"

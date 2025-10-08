@@ -8,5 +8,6 @@ export default defineConfig({
   clean: true,
   splitting: false,
   treeshake: true,
-  external: ["vis-timeline"],
+  // Explicitly bundle all dependencies
+  noExternal: ["vis-timeline"],
 });

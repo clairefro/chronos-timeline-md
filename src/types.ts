@@ -48,6 +48,17 @@ export interface ParseResult {
 	flags: Flags;
 }
 
+export type CoreParseOptions = {
+	selectedLocale?: string;
+	roundRanges?: boolean;
+	settings?: Partial<ChronosPluginSettings>;
+	callbacks?: {
+		setTooltip?: (el: Element, text: string) => void;
+	};
+	cssVars?: Record<string, string>;
+	cssRootClass?: string;
+};
+
 export type ConstructItemParams = {
 	content: string;
 	start: string;

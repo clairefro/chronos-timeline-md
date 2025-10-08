@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chronos Timeline Markdown Playground</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        height: 100vh;
+        background: #f8f9fa;
+      }
+
+      .header {
+        background: #24292e;
+        color: white;
+        padding: 1rem 2rem;
+        border-bottom: 1px solid #e1e4e8;
+      }
+
+      .header h1 {
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+
+      .header p {
+        color: #959da5;
+        margin-top: 0.5rem;
+      }
+
+      .container {
+        display: flex;
+        height: calc(100vh - 80px);
+      }
+
+      .input-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid #e1e4e8;
+        background: white;
+      }
+
+      .output-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: white;
+      }
+
+      .panel-header {
+        background: #f6f8fa;
+        border-bottom: 1px solid #e1e4e8;
+        padding: 0.75rem 1rem;
+        font-weight: 600;
+        color: #24292e;
+      }
+
+      .input-area {
+        flex: 1;
+        padding: 1rem;
+      }
+
+      #markdown-input {
+        width: 100%;
+        height: 100%;
+        border: none;
+        resize: none;
+        font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+        font-size: 14px;
+        line-height: 1.5;
+        background: #fafbfc;
+        padding: 1rem;
+        border-radius: 6px;
+        border: 1px solid #e1e4e8;
+        outline: none;
+      }
+
+      #markdown-input:focus {
+        border-color: #0366d6;
+        box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1);
+      }
+
+      .output-area {
+        flex: 1;
+        padding: 1rem;
+        overflow: auto;
+      }
+
+      #timeline-container {
+        width: 100%;
+        height: 100%;
+        border: 1px solid #e1e4e8;
+        border-radius: 6px;
+        background: white;
+      }
+
+      .controls {
+        padding: 1rem;
+        background: #f6f8fa;
+        border-bottom: 1px solid #e1e4e8;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .control-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .control-group label {
+        font-size: 14px;
+        color: #586069;
+      }
+
+      .control-group select,
+      .control-group input {
+        padding: 0.25rem 0.5rem;
+        border: 1px solid #e1e4e8;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      .error-message {
+        background: #ffeef0;
+        border: 1px solid #fdaeb7;
+        color: #d1242f;
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        margin: 1rem;
+        font-size: 14px;
+      }
+
+      .loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 200px;
+        color: #586069;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          flex-direction: column;
+        }
+
+        .input-panel {
+          border-right: none;
+          border-bottom: 1px solid #e1e4e8;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>Chronos Timeline Markdown Playground</h1>
+      <p>
+        Write chronological markdown on the left, see the timeline visualization
+        on the right
+      </p>
+    </div>
+
+    <div class="container">
+      <div class="input-panel">
+        <div class="panel-header">Markdown Input</div>
+        <div class="controls">
+          <div class="control-group">
+            <label for="locale-select">Locale:</label>
+            <select id="locale-select">
+              <option value="en">English</option>
+              <option value="es">Spanish</option>
+              <option value="fr">French</option>
+              <option value="de">German</option>
+              <option value="ja">Japanese</option>
+              <option value="zh">Chinese</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="round-ranges">
+              <input type="checkbox" id="round-ranges" /> Round Ranges
+            </label>
+          </div>
+          <div class="control-group">
+            <label for="alignment">Alignment:</label>
+            <select id="alignment">
+              <option value="left">Left</option>
+              <option value="center">Center</option>
+              <option value="right">Right</option>
+            </select>
+          </div>
+        </div>
+        <div class="input-area">
+          <textarea id="markdown-input">- [2025] test</textarea>
+        </div>
+      </div>
+
+      <div class="output-panel">
+        <div class="panel-header">Timeline Visualization</div>
+        <div class="output-area">
+          <div id="timeline-container">
+            <div class="loading">
+              Enter markdown content to see the timeline visualization
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Include vis-timeline from CDN -->
+    <script src="https://unpkg.com/vis-timeline@7.7.3/standalone/umd/vis-timeline-graph2d.min.js"></script>
+
+    <!-- Include your built library -->
+    <script type="module">
+      // Import the ChronosTimeline class and utility functions
+      import {
+        ChronosTimeline,
+        parseChronos,
+        renderChronos,
+        attachChronosStyles,
+      } from "./dist/index.js";
+
+      // DOM elements
+      const markdownInput = document.getElementById("markdown-input");
+      const timelineContainer = document.getElementById("timeline-container");
+      const localeSelect = document.getElementById("locale-select");
+      const roundRangesCheckbox = document.getElementById("round-ranges");
+      const alignmentSelect = document.getElementById("alignment");
+
+      let currentTimeline = null;
+      let debounceTimer = null;
+
+      // Initialize with default styles
+      attachChronosStyles();
+
+      function showError(message) {
+        timelineContainer.innerHTML = `<div class="error-message">Error: ${message}</div>`;
+      }
+
+      function showLoading() {
+        timelineContainer.innerHTML =
+          '<div class="loading">Generating timeline...</div>';
+      }
+
+      function renderTimeline() {
+        const markdownContent = markdownInput.value.trim();
+
+        if (!markdownContent) {
+          timelineContainer.innerHTML =
+            '<div class="loading">Enter markdown content to see the timeline visualization</div>';
+          return;
+        }
+
+        try {
+          showLoading();
+
+          // Clear previous timeline
+          if (currentTimeline) {
+            try {
+              if (
+                currentTimeline.timeline &&
+                typeof currentTimeline.timeline.destroy === "function"
+              ) {
+                currentTimeline.timeline.destroy();
+              } else if (
+                currentTimeline.destroy &&
+                typeof currentTimeline.destroy === "function"
+              ) {
+                currentTimeline.destroy();
+              }
+            } catch (e) {
+              console.warn("Error destroying previous timeline:", e);
+            }
+            currentTimeline = null;
+          }
+
+          // Clear container
+          timelineContainer.innerHTML = "";
+
+          const options = {
+            selectedLocale: localeSelect.value,
+            roundRanges: roundRangesCheckbox.checked,
+            settings: {
+              align: alignmentSelect.value,
+              selectedLocale: localeSelect.value,
+              clickToUse: false,
+              useUtc: true,
+              useAI: false,
+            },
+            callbacks: {
+              setTooltip: (el, text) => {
+                el.setAttribute("title", text);
+              },
+            },
+          };
+
+          // Render the timeline
+          currentTimeline = renderChronos(
+            timelineContainer,
+            markdownContent,
+            options
+          );
+
+          // If no items were parsed, show a helpful message
+          if (currentTimeline.parsed.items.length === 0) {
+            timelineContainer.innerHTML =
+              '<div class="loading">No timeline items found. Try adding dates in your markdown (e.g., "2023-01-01: Event description")</div>';
+          }
+        } catch (error) {
+          console.error("Timeline rendering error:", error);
+          showError(error.message || "Failed to render timeline");
+        }
+      }
+
+      function debouncedRender() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(renderTimeline, 300);
+      }
+
+      // Event listeners
+      markdownInput.addEventListener("input", debouncedRender);
+      localeSelect.addEventListener("change", renderTimeline);
+      roundRangesCheckbox.addEventListener("change", renderTimeline);
+      alignmentSelect.addEventListener("change", renderTimeline);
+
+      // Initial render with example content
+      const exampleContent = `- [2025] Test`;
+
+      markdownInput.value = exampleContent;
+      renderTimeline();
+
+      // Handle window resize
+      window.addEventListener("resize", () => {
+        if (
+          currentTimeline &&
+          currentTimeline.timeline &&
+          typeof currentTimeline.timeline.redraw === "function"
+        ) {
+          currentTimeline.timeline.redraw();
+        }
+      });
+    </script>
+  </body>
+</html>
