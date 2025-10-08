@@ -6,11 +6,11 @@ import {
   ConstructItemParams,
   Flags,
   ChronosPluginSettings,
-} from "./types";
-import { Color, Opacity } from "./enums";
-import { DEFAULT_LOCALE } from "./constants";
-import { toPaddedISOZ, toUTCDate, validateUTCDate } from "./utcUtil";
-import { FLAGS_PREFIX } from "./flags";
+} from "../utils/types";
+import { Color, Opacity } from "../utils/enums";
+import { DEFAULT_LOCALE } from "../utils/constants";
+import { toPaddedISOZ, toUTCDate, validateUTCDate } from "../parser/utcUtil";
+import { FLAGS_PREFIX } from "../flags";
 
 export class ChronosMdParser {
   private errors: string[] = [];

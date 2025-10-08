@@ -1,6 +1,6 @@
 import { Timeline, TimelineOptions } from "vis-timeline";
 import { DataSet } from "vis-timeline/standalone";
-import crosshairsSvg from "./assets/icons/crosshairs.svg";
+import crosshairsSvg from "../assets/icons/crosshairs.svg";
 import {
   Marker,
   Group,
@@ -8,19 +8,19 @@ import {
   ChronosTimelineConstructor,
   ChronosDataItem,
   ChronosDataSetDataItem,
-} from "./types";
-import { enDateStrToISO } from "./enDateStrToISO";
-import { smartDateRange } from "./smartDateRange";
+} from "../utils/types";
+import { enDateStrToISO } from "../parser/enDateStrToISO";
+import { smartDateRange } from "../parser/smartDateRange";
 import { ChronosMdParser } from "./ChronosMdParser";
-import { orderFunctionBuilder } from "./flags";
+import { orderFunctionBuilder } from "../flags";
 import { chronosMoment } from "./chronosMoment";
 import {
   cheatsheet,
   templateBlank,
   templateBasic,
   templateAdvanced,
-} from "./snippets";
-import { systemPrompt } from "./static/prompts";
+} from "../ui/snippets";
+import { systemPrompt } from "../utils/prompts";
 
 const MS_UNTIL_REFIT = 100;
 

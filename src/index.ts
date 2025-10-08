@@ -1,8 +1,12 @@
-import { ChronosMdParser } from "./ChronosMdParser";
-import { DEFAULT_LOCALE } from "./constants";
-import type { ParseResult, ChronosPluginSettings, CoreParseOptions } from "./types";
-import { ChronosTimeline } from "./ChronosTimeline";
-import { CHRONOS_DEFAULT_CSS } from "./defaultStyles";
+import { ChronosMdParser } from "./core/ChronosMdParser";
+import { DEFAULT_LOCALE } from "./utils/constants";
+import type {
+  ParseResult,
+  ChronosPluginSettings,
+  CoreParseOptions,
+} from "./utils/types";
+import { ChronosTimeline } from "./core/ChronosTimeline";
+import { CHRONOS_DEFAULT_CSS } from "./ui/defaultStyles";
 
 function parseChronos(
   source: string,
@@ -117,10 +121,10 @@ export type {
   ChronosPluginSettings,
   ChronosTimelineConstructor,
   CoreParseOptions,
-} from "./types";
+} from "./utils/types";
 
 // Main export - ChronosTimeline class
-export { ChronosTimeline } from "./ChronosTimeline";
+export { ChronosTimeline } from "./core/ChronosTimeline";
 
 // Utility functions
 export { parseChronos, renderChronos, attachChronosStyles };
