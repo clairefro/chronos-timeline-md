@@ -429,8 +429,8 @@ export class ChronosMdParser {
     if (namedColorMap[color]) {
       // Use CSS variables for named colors
       return opacity === "solid"
-        ? `var(--color-${namedColorMap[color]})`
-        : `rgba(var(--color-${namedColorMap[color]}-rgb), var(--chronos-opacity))`;
+        ? `var(--chronos-color-${namedColorMap[color]})`
+        : `rgba(var(--chronos-color-${namedColorMap[color]}-rgb), var(--chronos-opacity))`;
     }
 
     // Check if color is a hex code (6 characters, all hex digits)
@@ -446,10 +446,10 @@ export class ChronosMdParser {
     if (opacity === "solid") return color;
 
     // If it's already a CSS variable, convert to RGB variant
-    if (color.startsWith("var(--color-") && color.endsWith(")")) {
-      const varContent = color.match(/var\(--color-(\w+)\)/);
+    if (color.startsWith("var(--chronos-color-") && color.endsWith(")")) {
+      const varContent = color.match(/var\(--chronos-color-(\w+)\)/);
       if (varContent && varContent[1]) {
-        return `rgba(var(--color-${varContent[1]}-rgb), var(--chronos-opacity))`;
+        return `rgba(var(--chronos-color-${varContent[1]}-rgb), var(--chronos-opacity))`;
       }
     }
 

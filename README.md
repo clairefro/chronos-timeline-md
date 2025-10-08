@@ -354,9 +354,9 @@ Override chronos variables in your plugin's `styles.css`:
   --chronos-border: var(--background-modifier-border);
 
   /* Override specific colors */
-  --color-red: var(--text-error);
-  --color-green: var(--text-success);
-  --color-blue: var(--interactive-accent);
+  --chronos-color-red: var(--text-error);
+  --chronos-color-green: var(--text-success);
+  --chronos-color-blue: var(--interactive-accent);
 }
 
 /* Target specific timeline containers */

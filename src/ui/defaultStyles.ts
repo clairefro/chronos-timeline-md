@@ -20,22 +20,22 @@ export const CHRONOS_DEFAULT_CSS = `
   --chronos-icon-color: #586069;
   
   /* Color palette for timeline items */
-  --color-red: #dc3545;
-  --color-red-rgb: 220, 53, 69;
-  --color-green: #28a745;
-  --color-green-rgb: 40, 167, 69;
-  --color-blue: #007bff;
-  --color-blue-rgb: 0, 123, 255;
-  --color-yellow: #ffc107;
-  --color-yellow-rgb: 255, 193, 7;
-  --color-orange: #fd7e14;
-  --color-orange-rgb: 253, 126, 20;
-  --color-purple: #6f42c1;
-  --color-purple-rgb: 111, 66, 193;
-  --color-pink: #e83e8c;
-  --color-pink-rgb: 232, 62, 140;
-  --color-cyan: #17a2b8;
-  --color-cyan-rgb: 23, 162, 184;
+  --chronos-color-red: #dc3545;
+  --chronos-color-red-rgb: 220, 53, 69;
+  --chronos-color-green: #28a745;
+  --chronos-color-green-rgb: 40, 167, 69;
+  --chronos-color-blue: #007bff;
+  --chronos-color-blue-rgb: 0, 123, 255;
+  --chronos-color-yellow: #ffc107;
+  --chronos-color-yellow-rgb: 255, 193, 7;
+  --chronos-color-orange: #fd7e14;
+  --chronos-color-orange-rgb: 253, 126, 20;
+  --chronos-color-purple: #6f42c1;
+  --chronos-color-purple-rgb: 111, 66, 193;
+  --chronos-color-pink: #e83e8c;
+  --chronos-color-pink-rgb: 232, 62, 140;
+  --chronos-color-cyan: #17a2b8;
+  --chronos-color-cyan-rgb: 23, 162, 184;
 }
 
 .chronos-timeline-container {
@@ -207,22 +207,22 @@ export const CHRONOS_DEFAULT_CSS = `
     --chronos-icon-color: #8b949e;
     
     /* Dark theme color palette */
-    --color-red: #f85149;
-    --color-red-rgb: 248, 81, 73;
-    --color-green: #3fb950;
-    --color-green-rgb: 63, 185, 80;
-    --color-blue: #58a6ff;
-    --color-blue-rgb: 88, 166, 255;
-    --color-yellow: #d29922;
-    --color-yellow-rgb: 210, 153, 34;
-    --color-orange: #fb8500;
-    --color-orange-rgb: 251, 133, 0;
-    --color-purple: #a855f7;
-    --color-purple-rgb: 168, 85, 247;
-    --color-pink: #f0649c;
-    --color-pink-rgb: 240, 100, 156;
-    --color-cyan: #39d0d8;
-    --color-cyan-rgb: 57, 208, 216;
+    --chronos-color-red: #f85149;
+    --chronos-color-red-rgb: 248, 81, 73;
+    --chronos-color-green: #3fb950;
+    --chronos-color-green-rgb: 63, 185, 80;
+    --chronos-color-blue: #58a6ff;
+    --chronos-color-blue-rgb: 88, 166, 255;
+    --chronos-color-yellow: #d29922;
+    --chronos-color-yellow-rgb: 210, 153, 34;
+    --chronos-color-orange: #fb8500;
+    --chronos-color-orange-rgb: 251, 133, 0;
+    --chronos-color-purple: #a855f7;
+    --chronos-color-purple-rgb: 168, 85, 247;
+    --chronos-color-pink: #f0649c;
+    --chronos-color-pink-rgb: 240, 100, 156;
+    --chronos-color-cyan: #39d0d8;
+    --chronos-color-cyan-rgb: 57, 208, 216;
   }
 }
 `;
