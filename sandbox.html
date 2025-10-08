@@ -139,6 +139,35 @@
         font-size: 14px;
       }
 
+      .export-controls {
+        padding: 1rem;
+        background: #f6f8fa;
+        border-top: 1px solid #e1e4e8;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .export-btn {
+        background: #0366d6;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .export-btn:hover {
+        background: #005cc5;
+      }
+
+      .export-btn:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+      }
+
       .loading {
         display: flex;
         align-items: center;
@@ -211,6 +240,15 @@
             </div>
           </div>
         </div>
+        <div class="export-controls">
+          <button id="export-png-btn" class="export-btn" disabled>
+            Export as PNG
+          </button>
+          <span
+            id="export-status"
+            style="color: #586069; font-size: 14px"
+          ></span>
+        </div>
       </div>
     </div>
 
@@ -233,6 +271,8 @@
       const localeSelect = document.getElementById("locale-select");
       const roundRangesCheckbox = document.getElementById("round-ranges");
       const alignmentSelect = document.getElementById("alignment");
+      const exportPngBtn = document.getElementById("export-png-btn");
+      const exportStatus = document.getElementById("export-status");
 
       let currentTimeline = null;
       let debounceTimer = null;
@@ -312,10 +352,69 @@
           if (currentTimeline.parsed.items.length === 0) {
             timelineContainer.innerHTML =
               '<div class="loading">No timeline items found. Try adding dates in your markdown (e.g., "2023-01-01: Event description")</div>';
+            exportPngBtn.disabled = true;
+          } else {
+            exportPngBtn.disabled = false;
           }
         } catch (error) {
           console.error("Timeline rendering error:", error);
           showError(error.message || "Failed to render timeline");
+          exportPngBtn.disabled = true;
+        }
+      }
+
+      async function exportTimelineAsPNG() {
+        if (!currentTimeline || !currentTimeline.timeline) {
+          exportStatus.textContent = "No timeline to export";
+          return;
+        }
+
+        try {
+          exportStatus.textContent = "Generating PNG...";
+          exportPngBtn.disabled = true;
+
+          // Find the vis-timeline canvas element
+          const timelineElement =
+            timelineContainer.querySelector(".vis-timeline");
+          if (!timelineElement) {
+            throw new Error("Timeline element not found");
+          }
+
+          // Use html2canvas to capture the timeline
+          const { default: html2canvas } = await import(
+            "https://cdn.skypack.dev/html2canvas"
+          );
+
+          const canvas = await html2canvas(timelineElement, {
+            backgroundColor: "#ffffff",
+            scale: 2, // Higher resolution
+            useCORS: true,
+            allowTaint: true,
+            logging: false,
+          });
+
+          // Create download link
+          const link = document.createElement("a");
+          link.download = `chronos-timeline-${Date.now()}.png`;
+          link.href = canvas.toDataURL("image/png");
+
+          // Trigger download
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          exportStatus.textContent = "PNG exported successfully!";
+          setTimeout(() => {
+            exportStatus.textContent = "";
+          }, 3000);
+        } catch (error) {
+          console.error("Export error:", error);
+          exportStatus.textContent = "Export failed: " + error.message;
+          setTimeout(() => {
+            exportStatus.textContent = "";
+          }, 5000);
+        } finally {
+          exportPngBtn.disabled = false;
         }
       }
 
@@ -329,6 +428,7 @@
       localeSelect.addEventListener("change", renderTimeline);
       roundRangesCheckbox.addEventListener("change", renderTimeline);
       alignmentSelect.addEventListener("change", renderTimeline);
+      exportPngBtn.addEventListener("click", exportTimelineAsPNG);
 
       // Initial render with example content
       const exampleContent = `- [2025] Test`;
