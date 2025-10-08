@@ -37,15 +37,19 @@ function renderChronos(
     ...options?.settings,
   } as ChronosPluginSettings;
 
-  // apply CSS variables if provided
-  if (options?.cssVars || options?.cssRootClass) {
-    attachChronosStyles(
-      document,
-      undefined,
-      options.cssVars,
-      options.cssRootClass
-    );
-  }
+  // Handle enhanced theme configuration
+  const themeConfig = settings?.theme;
+  const cssVars = options.cssVars || themeConfig?.cssVariables;
+  const disableDefaultStyles = themeConfig?.disableDefaultStyles;
+
+  // Always attach styles unless explicitly disabled
+  attachChronosStyles(
+    document,
+    undefined,
+    cssVars,
+    options.cssRootClass,
+    disableDefaultStyles
+  );
 
   const timeline = new ChronosTimeline({
     container,
@@ -67,8 +71,34 @@ function attachChronosStyles(
   doc: Document = document,
   css: string = CHRONOS_DEFAULT_CSS,
   cssVars?: Record<string, string>,
-  cssRootClass?: string
+  cssRootClass?: string,
+  disableDefaultStyles?: boolean
 ) {
+  // If default styles are disabled, only apply custom CSS variables
+  if (disableDefaultStyles) {
+    if (cssVars) {
+      const existingCustomStyle = doc.querySelector(
+        'style[data-chronos-custom="1"]'
+      );
+      if (!existingCustomStyle) {
+        const style = doc.createElement("style");
+        style.setAttribute("data-chronos-custom", "1");
+        const vars = Object.entries(cssVars)
+          .map(([k, v]) => `  --${k}: ${v};`)
+          .join("\n");
+        style.textContent = `:root {\n${vars}\n}`;
+        doc.head.appendChild(style);
+      }
+    }
+    return;
+  }
+
+  // Check if styles are already attached to avoid duplicates
+  const existingStyle = doc.querySelector('style[data-chronos-core="1"]');
+  if (existingStyle) {
+    return; // Styles already attached
+  }
+
   const style = doc.createElement("style");
   style.setAttribute("data-chronos-core", "1");
   let finalCss = css ?? CHRONOS_DEFAULT_CSS;

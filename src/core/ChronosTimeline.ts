@@ -137,8 +137,13 @@ export class ChronosTimeline {
     groups: Group[];
     flags: any;
   }) {
-    const options = this._getTimelineOptions();
+    // Add the chronos-timeline-container class to the container
+    this.container.classList.add("chronos-timeline-container");
 
+    // Apply theme configurations
+    this._applyThemeConfig();
+
+    const options = this._getTimelineOptions();
     if (flags?.orderBy) {
       options.order = orderFunctionBuilder(flags);
     }
@@ -350,6 +355,32 @@ export class ChronosTimeline {
     if (this.timeline && typeof this.timeline.destroy === "function") {
       this.timeline.destroy();
       this.timeline = undefined;
+    }
+  }
+
+  private _applyThemeConfig() {
+    const themeConfig = this.settings?.theme;
+    if (!themeConfig) return;
+
+    // Apply custom CSS class if specified
+    if (themeConfig.customClass) {
+      this.container.classList.add(themeConfig.customClass);
+    }
+
+    // Apply CSS variable overrides
+    if (themeConfig.cssVariables) {
+      Object.entries(themeConfig.cssVariables).forEach(([property, value]) => {
+        // Ensure the property starts with -- for CSS custom properties
+        const cssProperty = property.startsWith("--")
+          ? property
+          : `--${property}`;
+        this.container.style.setProperty(cssProperty, value);
+      });
+    }
+
+    // If default styles are disabled, add a class to indicate this
+    if (themeConfig.disableDefaultStyles) {
+      this.container.classList.add("chronos-no-default-styles");
     }
   }
 }

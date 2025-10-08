@@ -386,12 +386,36 @@ export class ChronosMdParser {
   }
 
   private _mapToThemeColor(color: Color, opacity: Opacity) {
-    // Allow host to override color mapping via settings.colorMap
-    if (this.settings?.colorMap && this.settings.colorMap[color]) {
-      return this.settings.colorMap[color];
+    // Enhanced theme-based color mapping
+    const themeConfig = this.settings?.theme;
+
+    // Check enhanced theme colorMap first
+    if (themeConfig?.colorMap?.[color]) {
+      const colorConfig = themeConfig.colorMap[color];
+
+      if (typeof colorConfig === "string") {
+        // Simple string format (backward compatibility)
+        return this._applyOpacityToColor(colorConfig, opacity);
+      } else if (typeof colorConfig === "object") {
+        // Enhanced format with solid/transparent variants
+        if (opacity === "solid" && colorConfig.solid) {
+          return colorConfig.solid;
+        } else if (opacity !== "solid" && colorConfig.transparent) {
+          return colorConfig.transparent;
+        } else if (colorConfig.solid) {
+          // Fallback: use solid color with opacity if transparent not provided
+          return this._applyOpacityToColor(colorConfig.solid, opacity);
+        }
+      }
     }
 
-    const colorMap: Record<string, string> = {
+    // Fall back to legacy colorMap for backward compatibility
+    if (this.settings?.colorMap && this.settings.colorMap[color]) {
+      return this._applyOpacityToColor(this.settings.colorMap[color], opacity);
+    }
+
+    // Check if color is a named color in our default color map
+    const namedColorMap: Record<string, string> = {
       red: "red",
       green: "green",
       blue: "blue",
@@ -402,14 +426,60 @@ export class ChronosMdParser {
       cyan: "cyan",
     };
 
-    if (!colorMap[color]) {
-      console.warn(`Color "${color}" not recognized.`);
-      return undefined;
+    if (namedColorMap[color]) {
+      // Use CSS variables for named colors
+      return opacity === "solid"
+        ? `var(--color-${namedColorMap[color]})`
+        : `rgba(var(--color-${namedColorMap[color]}-rgb), var(--chronos-opacity))`;
     }
 
-    return opacity === "solid"
-      ? `var(--color-${colorMap[color]})`
-      : `rgba(var(--color-${colorMap[color]}-rgb), var(--chronos-opacity))`;
+    // Check if color is a hex code (6 characters, all hex digits)
+    if (/^[0-9A-Fa-f]{6}$/.test(color)) {
+      return this._hexToColor(color, opacity);
+    }
+
+    console.warn(`Color "${color}" not recognized as named color or hex code.`);
+    return undefined;
+  }
+
+  private _applyOpacityToColor(color: string, opacity: Opacity): string {
+    if (opacity === "solid") return color;
+
+    // If it's already a CSS variable, convert to RGB variant
+    if (color.startsWith("var(--color-") && color.endsWith(")")) {
+      const varContent = color.match(/var\(--color-(\w+)\)/);
+      if (varContent && varContent[1]) {
+        return `rgba(var(--color-${varContent[1]}-rgb), var(--chronos-opacity))`;
+      }
+    }
+
+    // If it's a hex color (with or without #), convert to rgba
+    const hexMatch = color.match(/^#?([0-9A-Fa-f]{6})$/);
+    if (hexMatch) {
+      return this._hexToColor(hexMatch[1], opacity);
+    }
+
+    // If it's rgb(), convert to rgba()
+    if (color.match(/^rgb\(/)) {
+      return color
+        .replace("rgb(", "rgba(")
+        .replace(")", `, var(--chronos-opacity))`);
+    }
+
+    // For unknown formats, return as-is
+    return color;
+  }
+
+  private _hexToColor(hex: string, opacity: Opacity): string {
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+
+    if (opacity === "solid") {
+      return `rgb(${r}, ${g}, ${b})`;
+    } else {
+      return `rgba(${r}, ${g}, ${b}, var(--chronos-opacity))`;
+    }
   }
 
   private _ensureChronologicalDates(
