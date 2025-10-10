@@ -4,11 +4,11 @@ A library for rendering interactive timelines from simple Markdown, anywhere. Ma
 
 Powered by [vis.js](https://visjs.org/)
 
-📖 **[Complete Syntax Guide](./CHRONOS_SYNTAX_GUIDE.md)**
+**[Complete Syntax Guide](./CHRONOS_SYNTAX_GUIDE.md)**
 
-🎮 **[Live Playground](https://clairefro.github.io/chronos-timeline-md/)**
+**[Live Playground](https://clairefro.github.io/chronos-timeline-md/)**
 
-🪨 **[Obsidian Plugin](https://obsidian.md/plugins?search=chronos+timeline)**
+**[Obsidian Plugin](https://obsidian.md/plugins?search=chronos+timeline)**
 
 ```
 - [2020] A year
@@ -150,15 +150,7 @@ attachChronosStyles();
 
 Want to add Chronos markdown syntax highlighting to your code editor, IDE, or web application?
 
-📋 **[Syntax Highlighting Implementation Guide](./SYNTAX_HIGHLIGHTING_GUIDE.md)**
-
-The guide covers:
-
-- **Language definitions** for highlight.js, Prism, CodeMirror, and Monaco Editor
-- **Color schemes** and CSS styling patterns
-- **Integration examples** for popular editors and frameworks
-- **Custom highlighting** implementation patterns
-- **Real-time highlighting** for web applications
+**[Syntax Highlighting Implementation Guide](./SYNTAX_HIGHLIGHTING_GUIDE.md)**
 
 ### Quick highlight.js Integration
 
