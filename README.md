@@ -146,6 +146,35 @@ const { timeline, parsed } = renderChronos(container, source, options);
 attachChronosStyles();
 ```
 
+## Syntax Highlighting for Developers
+
+Want to add Chronos markdown syntax highlighting to your code editor, IDE, or web application?
+
+📋 **[Syntax Highlighting Implementation Guide](./SYNTAX_HIGHLIGHTING_GUIDE.md)**
+
+The guide covers:
+
+- **Language definitions** for highlight.js, Prism, CodeMirror, and Monaco Editor
+- **Color schemes** and CSS styling patterns
+- **Integration examples** for popular editors and frameworks
+- **Custom highlighting** implementation patterns
+- **Real-time highlighting** for web applications
+
+### Quick highlight.js Integration
+
+```typescript
+import { ui } from "chronos-timeline-md";
+
+// Register Chronos language with highlight.js
+ui.registerChronosLanguage(hljs);
+
+// Inject CSS styling
+ui.injectChronosHighlightCSS();
+
+// Highlight markdown text
+const highlighted = ui.highlightChronosText(markdownSource, hljs);
+```
+
 ## Chronos Syntax (Quick Reference)
 
 For complete syntax documentation, see **[CHRONOS_SYNTAX_GUIDE.md](./CHRONOS_SYNTAX_GUIDE.md)**
