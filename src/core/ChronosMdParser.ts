@@ -386,10 +386,9 @@ export class ChronosMdParser {
   }
 
   private _mapToThemeColor(color: Color, opacity: Opacity) {
-    // Enhanced theme-based color mapping
     const themeConfig = this.settings?.theme;
 
-    // Check enhanced theme colorMap first
+    // check enhanced theme colorMap first
     if (themeConfig?.colorMap?.[color]) {
       const colorConfig = themeConfig.colorMap[color];
 
@@ -409,12 +408,11 @@ export class ChronosMdParser {
       }
     }
 
-    // Fall back to legacy colorMap for backward compatibility
+    // fall back to legacy colorMap for backward compatibility
     if (this.settings?.colorMap && this.settings.colorMap[color]) {
       return this._applyOpacityToColor(this.settings.colorMap[color], opacity);
     }
 
-    // Check if color is a named color in our default color map
     const namedColorMap: Record<string, string> = {
       red: "red",
       green: "green",
