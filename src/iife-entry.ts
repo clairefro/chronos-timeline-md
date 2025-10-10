@@ -1,6 +1,7 @@
 // IIFE entry point - exports all necessary functions for sandbox usage
 import { ChronosTimeline } from "./core/ChronosTimeline";
 import { parseChronos, renderChronos, attachChronosStyles } from "./index";
+import * as ui from "./ui";
 
 // Import version from package.json
 // @ts-ignore
@@ -15,6 +16,7 @@ const ChronosTimelineLibrary = {
   parseChronos,
   renderChronos,
   attachChronosStyles,
+  ui,
 };
 
 // Export the complete library for IIFE build

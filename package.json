@@ -1,7 +1,7 @@
 {
   "name": "chronos-timeline-md",
   "version": "1.0.2",
-  "description": "A timeline visualization library for markdown-based chronological data",
+  "description": "Render interactive timelines from simple markdown",
   "main": "dist/cjs-entry.cjs",
   "module": "dist/index.js",
   "browser": "dist/iife-entry.global.js",
@@ -31,7 +31,8 @@
     "markdown",
     "chronos",
     "visualization",
-    "vis-timeline"
+    "vis-timeline",
+    "vis-js"
   ],
   "author": "Claire Froelich <claire.froelich@gmail.com>",
   "license": "ISC",
