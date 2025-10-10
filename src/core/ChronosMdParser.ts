@@ -111,8 +111,6 @@ export class ChronosMdParser {
         description,
       ] = match;
 
-      console.log({ match });
-
       const now = new Date().toISOString().split("T")[0];
 
       const contentLink = content ? this._extractWikiLink(content) : null;
