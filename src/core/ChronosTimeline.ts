@@ -57,12 +57,43 @@ export class ChronosTimeline {
   items: ChronosDataItem[] | undefined;
   timeline: Timeline | undefined;
 
-  constructor({
-    container,
-    settings,
-    callbacks,
-    cssRootClass,
-  }: ChronosTimelineConstructor) {
+  constructor(
+    containerOrOptions: HTMLElement | ChronosTimelineConstructor,
+    optionsOrUndefined?: ChronosPluginSettings
+  ) {
+    // Support both constructor signatures:
+    // new ChronosTimeline(container, options)
+    // new ChronosTimeline({container, settings, ...})
+
+    let container: HTMLElement;
+    let settings: ChronosPluginSettings;
+    let callbacks:
+      | { setTooltip?: (el: Element, text: string) => void }
+      | undefined;
+    let cssRootClass: string | undefined;
+
+    if (containerOrOptions instanceof HTMLElement) {
+      // Method 2: new ChronosTimeline(container, options)
+      container = containerOrOptions;
+      settings = optionsOrUndefined || {
+        selectedLocale: "en",
+        align: "left",
+        clickToUse: false,
+        roundRanges: false,
+        useUtc: true,
+        useAI: false,
+      };
+      callbacks = undefined;
+      cssRootClass = undefined;
+    } else {
+      // Original constructor: new ChronosTimeline({container, settings, ...})
+      const options = containerOrOptions;
+      container = options.container;
+      settings = options.settings;
+      callbacks = options.callbacks;
+      cssRootClass = options.cssRootClass;
+    }
+
     this.container = container;
     this.settings = settings;
     this.parser = new ChronosMdParser(this.settings.selectedLocale);
@@ -72,6 +103,17 @@ export class ChronosTimeline {
     // Initialize tooltip setter: prefer injected callback, fallback to local helper
     this.setTooltip =
       (this.callbacks && this.callbacks.setTooltip) || setTooltipFallback;
+  }
+
+  // Static render method for Method 1: ChronosTimeline.render(container, source, options)
+  static render(
+    container: HTMLElement,
+    source: string,
+    options?: ChronosPluginSettings
+  ): ChronosTimeline {
+    const timeline = new ChronosTimeline(container, options);
+    timeline.render(source);
+    return timeline;
   }
 
   render(source: string) {

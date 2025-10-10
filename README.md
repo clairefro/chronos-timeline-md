@@ -12,24 +12,12 @@ Note: `vis-timeline` is a peer dependency and must be installed separately.
 
 ## Quick Start
 
-### New Constructor API (Recommended)
+### Method 1: Static Function
 
 ```typescript
 import { ChronosTimeline } from "chronos-timeline-md";
 
-// Create timeline instance
-const timeline = new ChronosTimeline({
-  container: document.getElementById("timeline-container"),
-  settings: {
-    selectedLocale: "en",
-    align: "left",
-    roundRanges: true,
-    useUtc: true,
-    useAI: false,
-  },
-});
-
-// Render timeline from markdown
+// Render timeline directly
 const markdownSource = `
 - [2020] Event 1
 - [2021-06-15] Event 2 | Description
@@ -38,25 +26,27 @@ const markdownSource = `
 = [2020-12-31] Marker 1
 `;
 
-timeline.render(markdownSource);
+ChronosTimeline.render(
+  document.getElementById("timeline-container"),
+  markdownSource
+);
 
 // Access version info
 console.log(ChronosTimeline.version); // "1.0.0"
 ```
 
-### Utility Function API
+### Method 2: Constructor API
 
 ```typescript
-import { renderChronos } from "chronos-timeline-md";
+import { ChronosTimeline } from "chronos-timeline-md";
 
-const container = document.getElementById("timeline-container");
-renderChronos(container, markdownSource, {
-  selectedLocale: "en",
-  settings: {
-    align: "left",
-    roundRanges: true,
-  },
-});
+// Create timeline instance
+const timeline = new ChronosTimeline(
+  document.getElementById("timeline-container")
+);
+
+// Render timeline from markdown
+timeline.render(markdownSource);
 ```
 
 ## API Reference
@@ -96,9 +86,9 @@ console.log(result.groups); // Item groups
 console.log(result.flags); // Parsing flags
 ```
 
-#### Legacy Functions
+#### Utility Functions
 
-The following functions are still supported for backward compatibility, but the `ChronosTimeline` constructor is recommended for new projects.
+For backward compatibility and alternative usage patterns, these utility functions are also available:
 
 **`renderChronos(container, source, options?)`**
 
@@ -157,13 +147,32 @@ Injects default CSS styles into the document head.
 
 #### `ChronosTimeline`
 
-Main timeline class for advanced usage scenarios. This is the recommended way to use the library.
+Main timeline class with two ways to create and render timelines.
 
-**Constructor:**
+**Method 1: Static Function**
 
 ```typescript
 import { ChronosTimeline } from "chronos-timeline-md";
 
+const timeline = ChronosTimeline.render(
+  document.getElementById("timeline"),
+  "- [2025] My Event",
+  {
+    selectedLocale: "en",
+    align: "left",
+    roundRanges: true,
+    useUtc: true,
+    useAI: false,
+  }
+);
+```
+
+**Method 2: Constructor API**
+
+```typescript
+import { ChronosTimeline } from "chronos-timeline-md";
+
+// Object-based constructor
 const timeline = new ChronosTimeline({
   container: document.getElementById("timeline"),
   settings: {
@@ -180,7 +189,14 @@ const timeline = new ChronosTimeline({
   cssRootClass: "my-timeline",
 });
 
-// Render markdown content
+// OR Simple constructor
+const timeline = new ChronosTimeline(document.getElementById("timeline"), {
+  selectedLocale: "en",
+  align: "left",
+  roundRanges: true,
+});
+
+// Then render
 timeline.render("- [2025] My Event");
 ```
 
