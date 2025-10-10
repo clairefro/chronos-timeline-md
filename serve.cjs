@@ -28,7 +28,7 @@ const server = http.createServer((req, res) => {
   let filePath = "." + urlPath;
 
   if (filePath === "./") {
-    filePath = "./sandbox.html";
+    filePath = "./index.html";
   }
 
   const extname = String(path.extname(filePath)).toLowerCase();

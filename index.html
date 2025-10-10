@@ -44,8 +44,8 @@
         flex: 1;
         display: flex;
         flex-direction: column;
-        border-right: 1px solid #e1e4e8;
         background: white;
+        min-width: 200px;
       }
 
       .output-panel {
@@ -53,6 +53,34 @@
         display: flex;
         flex-direction: column;
         background: white;
+        min-width: 200px;
+      }
+
+      .divider {
+        width: 8px;
+        background: #f6f8fa;
+        border-left: 1px solid #e1e4e8;
+        border-right: 1px solid #e1e4e8;
+        cursor: col-resize;
+        position: relative;
+        transition: background-color 0.2s;
+      }
+
+      .divider:hover {
+        background: #e1e4e8;
+      }
+
+      .divider::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 3px;
+        height: 20px;
+        background: #c6c8cc;
+        border-radius: 1px;
+        box-shadow: -2px 0 0 #c6c8cc, 2px 0 0 #c6c8cc;
       }
 
       .panel-header {
@@ -111,6 +139,7 @@
         background: #f6f8fa;
         border-bottom: 1px solid #e1e4e8;
         display: flex;
+        flex-wrap: wrap;
         gap: 1rem;
         align-items: center;
       }
@@ -119,6 +148,8 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        white-space: nowrap;
+        flex-shrink: 0;
       }
 
       .control-group label {
@@ -192,8 +223,11 @@
           flex-direction: column;
         }
 
+        .divider {
+          display: none;
+        }
+
         .input-panel {
-          border-right: none;
           border-bottom: 1px solid #e1e4e8;
         }
       }
@@ -249,6 +283,8 @@
           <textarea id="markdown-input">- [2025] test</textarea>
         </div>
       </div>
+
+      <div class="divider" id="divider"></div>
 
       <div class="output-panel">
         <div class="panel-header">Timeline</div>
@@ -306,6 +342,11 @@
             // GitHub Pages - use CDN
             envIndicator.textContent = "GitHub Pages";
             console.log("Loading from CDN...");
+
+            // Show loading message in timeline container for GitHub Pages
+            document.getElementById("timeline-container").innerHTML =
+              '<div class="loading">Loading...</div>';
+
             await loadScript(
               "https://unpkg.com/chronos-timeline-md@latest/dist/iife-entry.global.js"
             );
@@ -429,9 +470,71 @@
         const examplesSelect = document.getElementById("examples-select");
         const exportPngBtn = document.getElementById("export-png-btn");
         const exportStatus = document.getElementById("export-status");
+        const divider = document.getElementById("divider");
+        const inputPanel = document.querySelector(".input-panel");
+        const outputPanel = document.querySelector(".output-panel");
+        const container = document.querySelector(".container");
 
         let currentTimeline = null;
         let debounceTimer = null;
+
+        // Resizable divider functionality
+        let isResizing = false;
+
+        function initializeResizer() {
+          divider.addEventListener("mousedown", startResizing);
+          document.addEventListener("mousemove", handleResize);
+          document.addEventListener("mouseup", stopResizing);
+        }
+
+        function startResizing(e) {
+          isResizing = true;
+          document.body.style.cursor = "col-resize";
+          document.body.style.userSelect = "none";
+          e.preventDefault();
+        }
+
+        function handleResize(e) {
+          if (!isResizing) return;
+
+          const containerRect = container.getBoundingClientRect();
+          const mouseX = e.clientX - containerRect.left;
+
+          // Calculate percentages
+          const totalWidth = containerRect.width - 8; // Subtract divider width
+          const leftPercent = Math.max(
+            20,
+            Math.min(80, (mouseX / containerRect.width) * 100)
+          );
+          const rightPercent = 100 - leftPercent;
+
+          // Apply the new flex basis
+          inputPanel.style.flexBasis = `${leftPercent}%`;
+          outputPanel.style.flexBasis = `${rightPercent}%`;
+
+          // Ensure panels don't shrink below flex basis
+          inputPanel.style.flexShrink = "0";
+          outputPanel.style.flexShrink = "0";
+        }
+
+        function stopResizing() {
+          if (isResizing) {
+            isResizing = false;
+            document.body.style.cursor = "";
+            document.body.style.userSelect = "";
+
+            // Trigger timeline redraw after resize
+            if (
+              currentTimeline &&
+              currentTimeline.timeline &&
+              typeof currentTimeline.timeline.redraw === "function"
+            ) {
+              setTimeout(() => {
+                currentTimeline.timeline.redraw();
+              }, 100);
+            }
+          }
+        }
 
         // Undo functionality
         let history = [];
@@ -915,6 +1018,7 @@
         document.addEventListener("keydown", handleKeyboardShortcuts);
 
         // Initialize
+        initializeResizer();
         populateExamplesDropdown();
         const hasURLContent = loadFromURL();
         if (!hasURLContent) {
