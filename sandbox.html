@@ -225,6 +225,12 @@
               <option value="right">Right</option>
             </select>
           </div>
+          <div class="control-group">
+            <label for="examples-select">Examples:</label>
+            <select id="examples-select">
+              <option value="">Insert Example...</option>
+            </select>
+          </div>
         </div>
         <div class="input-area">
           <textarea id="markdown-input">- [2025] test</textarea>
@@ -271,11 +277,249 @@
       const localeSelect = document.getElementById("locale-select");
       const roundRangesCheckbox = document.getElementById("round-ranges");
       const alignmentSelect = document.getElementById("alignment");
+      const examplesSelect = document.getElementById("examples-select");
       const exportPngBtn = document.getElementById("export-png-btn");
       const exportStatus = document.getElementById("export-status");
 
       let currentTimeline = null;
       let debounceTimer = null;
+
+      // Undo functionality
+      let history = [];
+      let historyIndex = -1;
+      const MAX_HISTORY = 50; // Limit history to prevent memory issues
+
+      // URL state management
+      function updateURL() {
+        const content = markdownInput.value;
+        const url = new URL(window.location);
+
+        if (content.trim()) {
+          url.searchParams.set("content", content);
+        } else {
+          url.searchParams.delete("content");
+        }
+
+        // Update URL without triggering page reload
+        window.history.replaceState({}, "", url);
+      }
+
+      function loadFromURL() {
+        const url = new URL(window.location);
+        const content = url.searchParams.get("content");
+
+        if (content) {
+          markdownInput.value = content;
+          return true;
+        }
+        return false;
+      }
+
+      // History management for undo functionality
+      function addToHistory(content) {
+        // Remove any entries after current index (when we're not at the end)
+        if (historyIndex < history.length - 1) {
+          history = history.slice(0, historyIndex + 1);
+        }
+
+        // Add new entry
+        history.push(content);
+
+        // Limit history size
+        if (history.length > MAX_HISTORY) {
+          history = history.slice(1);
+          historyIndex = Math.max(0, historyIndex - 1);
+        }
+
+        historyIndex = history.length - 1;
+      }
+
+      function undo() {
+        if (historyIndex > 0) {
+          historyIndex--;
+          const previousContent = history[historyIndex];
+          markdownInput.value = previousContent;
+          updateURL();
+          renderTimeline();
+          return true;
+        }
+        return false;
+      }
+
+      function redo() {
+        if (historyIndex < history.length - 1) {
+          historyIndex++;
+          const nextContent = history[historyIndex];
+          markdownInput.value = nextContent;
+          updateURL();
+          renderTimeline();
+          return true;
+        }
+        return false;
+      }
+
+      // Hardcoded examples from the cheatsheet
+      const chronosExamples = [
+        {
+          title: "Date Formats",
+          content: `- [2020] A year
+- [2020-02] A month
+- [2020-02-28] A day
+- [2020-02-28T12] An hour
+- [2020-02-28T12:30] A minute
+- [2020-02-28T12:30:09] A second`,
+        },
+        {
+          title: "Single Event (-)",
+          content: `- [1879-03-14] Einstein born`,
+        },
+        {
+          title: "Date Range",
+          content: `- [1991~2001] Time I believed in Santa`,
+        },
+        {
+          title: "Event with Description (|)",
+          content: `- [1991~2001] Time I believed in Santa | ended when my brother tried to videotape Santa with a hidden camera
+          # Hover on a timeline item to see its description`,
+        },
+        {
+          title: "Colored Events (#color)",
+          content: `- [2001~2009] #red Bush
+- [2009~2017] #blue Obama
+- [2017~2021] #red Trump
+- [2021~2025] #blue Biden`,
+        },
+        {
+          title: "Groups Example ({})",
+          content: `@ [1892-10-08~1941-08-31] {Marina Tsvetaeva} 1892-1941
+- [1916] {Marina Tsvetaeva} "Подруга"
+- [1928] {Marina Tsvetaeva}  "Поэма концов"
+- [1941] {Marina Tsvetaeva} "Записки о поэзии"
+
+@ [1899-08-24~1986-06-14] {Jorge Luis Borges} 1899-1986
+- [1944] {Jorge Luis Borges} "Ficciones"
+- [1949] {Jorge Luis Borges} "El Aleph"
+- [1962] {Jorge Luis Borges} "Labyrinths"`,
+        },
+        {
+          title: "Periods (@)",
+          content: `@ [-300~250] Yayoi Period
+- [-100] Introduction of rice cultivation
+- [-57] Japan's first recorded contact with China`,
+        },
+        {
+          title: "Colored Periods",
+          content: `@ [-300~250] #red Yayoi Period
+- [-100] Introduction of rice cultivation
+- [-57] Japan's first recorded contact with China
+
+@ [250~538] Kofun Period
+- [250] Construction of keyhole-shaped kofun burial mounds begins
+- [369] Yamato state sends envoys to Korea`,
+        },
+        {
+          title: "Points (*)",
+          content: `- [2024-02-26~2024-03-10] Tournament
+* [2024-02-26] Game 1 | Austin
+* [2024-02-28] Game 2 | Los Angeles
+* [2024-03-06] Game 3 | Tokyo
+* [2024-03-10] Game 4 | Jakarta`,
+        },
+        {
+          title: "Markers (=)",
+          content: `= [1440] Invention of the Gutenberg Press
+
+- [1455] Gutenberg Bible Printed
+@ [1501~1600] The Spread of Printing
+- [1517] Martin Luther's 95 Theses`,
+        },
+        {
+          title: "Ordering by Start",
+          content: `> ORDERBY start
+
+- [2026~2028] Event D
+- [2024~2028] Event B
+- [2025~2030] #red Event C
+- [2020~2030] #red Event A`,
+        },
+        {
+          title: "Options: Ordering by Color and Start date",
+          content: `> ORDERBY color|start
+
+- [2026~2028] Event D
+- [2024~2028] Event B
+- [2025~2030] #red Event C
+- [2020~2030] #red Event A`,
+        },
+        {
+          title: "Options: Default View",
+          content: `> DEFAULTVIEW -3000|3000
+
+- [2024] AGI`,
+        },
+        {
+          title: "Cold War Timeline",
+          content: `- [1945-07-17] {Europe} Potsdam Conference | where post-WWII Europe is divided
+- [1947-03-12] {USA} Truman Doctrine | committing the U.S. to containing communism
+- [1948-06-24~1949-05-12] {Europe} Berlin Blockade | and Airlift in response to Soviet actions in Berlin
+- [1949-04-04] {Europe} Formation of NATO
+
+@ [1957~1969] #cyan {USSR} Space Race
+@ [1957~1969] #cyan {USA} Space Race
+- [1950-06-25~1953-07-27] {Asia} Korean War | between North and South Korea
+- [1955-05-14] {USSR} Warsaw Pact | in response to NATO
+- [1957-10-04] #cyan {USSR} Sputnik launched | initiating the Space Race
+- [1961-04-17] {Cuba} Bay of Pigs Invasion | in Cuba
+
+- [1962-10-16] {Cuba} Cuban Missile Crisis | a peak confrontation between the U.S. and USSR
+- [1963-08-05] {Global} Partial Nuclear Test Ban Treaty signed
+- [1969-07-20] #cyan {USA} Apollo 11 Moon landing | U.S. wins the Space Race
+- [1972-05-26] {Global} SALT I signed | first Strategic Arms Limitation Treaty
+
+- [1979-12-24~1989-02-15] {USSR} Soviet-Afghan War | straining Soviet resources
+- [1983-03-23] {USA} Reagan announces the Strategic Defense Initiative (SDI)
+- [1986-04-26] {USSR} Chernobyl nuclear disaster
+- [1987-12-08] {Global} INF Treaty | signed, eliminating intermediate-range nuclear missiles
+
+- [1989-11-09] {Europe} Fall of the Berlin Wall | symbolizing the end of Cold War tensions
+- [1991-07-31] {Global} START I Treaty signed | further arms reduction
+- [1991-12-26] {USSR} Dissolution of the Soviet Union | officially ending the Cold War
+
+= [1991-12-26] End of the Cold War`,
+        },
+      ];
+
+      // Populate examples dropdown
+      function populateExamplesDropdown() {
+        // Clear existing options except the first one
+        examplesSelect.innerHTML =
+          '<option value="">Insert Example...</option>';
+
+        chronosExamples.forEach((example, index) => {
+          const option = document.createElement("option");
+          option.value = index;
+          option.textContent = example.title;
+          examplesSelect.appendChild(option);
+        });
+      }
+
+      // Handle example insertion
+      function insertExample() {
+        const selectedIndex = examplesSelect.value;
+        if (selectedIndex === "") return;
+
+        const example = chronosExamples[selectedIndex];
+        if (example) {
+          // Add current content to history before changing
+          addToHistory(markdownInput.value);
+
+          markdownInput.value = example.content;
+          renderTimeline(); // This will also update the URL
+        }
+
+        // Reset dropdown
+        examplesSelect.value = "";
+      }
 
       // Initialize with default styles
       attachChronosStyles();
@@ -423,17 +667,89 @@
         debounceTimer = setTimeout(renderTimeline, 300);
       }
 
+      function debouncedURLUpdate() {
+        clearTimeout(debounceTimer);
+        // Update URL immediately for better responsiveness
+        updateURL();
+        debounceTimer = setTimeout(renderTimeline, 300);
+      }
+
+      // Handle keyboard shortcuts
+      function handleKeyboardShortcuts(event) {
+        // Ctrl+Z (Cmd+Z on Mac) for undo
+        if (
+          (event.ctrlKey || event.metaKey) &&
+          event.key === "z" &&
+          !event.shiftKey
+        ) {
+          event.preventDefault();
+          undo();
+        }
+        // Ctrl+Shift+Z (Cmd+Shift+Z on Mac) for redo
+        else if (
+          (event.ctrlKey || event.metaKey) &&
+          event.key === "z" &&
+          event.shiftKey
+        ) {
+          event.preventDefault();
+          redo();
+        }
+        // Ctrl+Y (Cmd+Y on Mac) for redo (alternative)
+        else if ((event.ctrlKey || event.metaKey) && event.key === "y") {
+          event.preventDefault();
+          redo();
+        }
+      }
+
+      // Track changes for history
+      let lastContent = "";
+      let changeTimer = null;
+
+      function trackContentChanges() {
+        const currentContent = markdownInput.value;
+
+        // Only add to history if content actually changed and it's not just from undo/redo
+        if (
+          currentContent !== lastContent &&
+          currentContent !== (history[historyIndex] || "")
+        ) {
+          clearTimeout(changeTimer);
+          changeTimer = setTimeout(() => {
+            addToHistory(currentContent);
+            lastContent = currentContent;
+          }, 1000); // Wait 1 second after user stops typing to add to history
+        }
+      }
+
       // Event listeners
-      markdownInput.addEventListener("input", debouncedRender);
+      markdownInput.addEventListener("input", () => {
+        debouncedURLUpdate();
+        trackContentChanges();
+      });
       localeSelect.addEventListener("change", renderTimeline);
       roundRangesCheckbox.addEventListener("change", renderTimeline);
       alignmentSelect.addEventListener("change", renderTimeline);
+      examplesSelect.addEventListener("change", insertExample);
       exportPngBtn.addEventListener("click", exportTimelineAsPNG);
 
-      // Initial render with example content
-      const exampleContent = `- [2025] Test`;
+      // Add keyboard shortcut listener
+      document.addEventListener("keydown", handleKeyboardShortcuts);
 
-      markdownInput.value = exampleContent;
+      // Initialize
+      populateExamplesDropdown();
+
+      // Load content from URL or use default
+      const hasURLContent = loadFromURL();
+      if (!hasURLContent) {
+        // Only use default content if no URL content is present
+        const exampleContent = `- [2025] Test`;
+        markdownInput.value = exampleContent;
+      }
+
+      // Initialize history with the starting content
+      addToHistory(markdownInput.value);
+      lastContent = markdownInput.value;
+
       renderTimeline();
 
       // Handle window resize
