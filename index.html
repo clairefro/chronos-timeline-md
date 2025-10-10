@@ -370,8 +370,83 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-direction: column;
         height: 200px;
         color: #586069;
+        gap: 1rem;
+        animation: pulse 2s infinite;
+      }
+
+      .loading::before {
+        content: "⏳";
+        font-size: 2rem;
+        animation: spin 3s linear infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 0.7;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .error-message {
+        padding: 2rem;
+        background: #fff5f5;
+        border: 1px solid #fed7d7;
+        border-radius: 8px;
+        margin: 1rem;
+        color: #742a2a;
+        max-width: 600px;
+        margin: 1rem auto;
+      }
+
+      .error-message h3 {
+        color: #c53030;
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+      }
+
+      .error-message ul {
+        margin: 1rem 0;
+        padding-left: 1.5rem;
+      }
+
+      .error-message li {
+        margin: 0.5rem 0;
+      }
+
+      .error-message details {
+        margin-top: 1rem;
+        padding: 0.5rem;
+        background: #f7fafc;
+        border-radius: 4px;
+      }
+
+      .error-message summary {
+        cursor: pointer;
+        font-weight: 500;
+      }
+
+      .error-message code {
+        display: block;
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        background: white;
+        border-radius: 3px;
+        word-break: break-all;
       }
 
       .env-indicator {
@@ -588,30 +663,42 @@
               chronosLibrary = window.ChronosTimeline;
             }
           } else if (isGitHubPages) {
-            // GitHub Pages - use CDN
-            envIndicator.textContent = "";
-            console.log("Loading chronos from CDN...");
+            // GitHub Pages - use enhanced CDN loading
+            envIndicator.style.display = "none";
+            console.log("🌐 GitHub Pages detected - loading from CDN...");
 
-            // Show loading message in timeline container for GitHub Pages
-            document.getElementById("timeline-container").innerHTML =
-              '<div class="loading">Loading...</div>';
-
-            await loadScript(
-              "https://unpkg.com/chronos-timeline-md@latest/dist/iife-entry.global.js"
-            );
-            chronosLibrary = window.ChronosTimeline;
+            updateLoadingStatus("🔄 Loading Chronos Timeline library...");
+            chronosLibrary = await loadChronosLibrary();
           } else {
-            // Other hosting - try CDN first, fallback to local
+            // Other hosting - try CDN first with enhanced loading, then fallback to local
             envIndicator.textContent = "Production";
+
             try {
-              await loadScript(
-                "https://unpkg.com/chronos-timeline-md@latest/dist/iife-entry.global.js"
+              updateLoadingStatus(
+                "🔄 Loading Chronos Timeline library from CDN..."
               );
-              chronosLibrary = window.ChronosTimeline;
+              chronosLibrary = await loadChronosLibrary();
             } catch (cdnError) {
-              console.log("CDN failed, trying local...");
-              await loadScript("./dist/iife-entry.global.js");
-              chronosLibrary = window.ChronosTimeline;
+              console.log(
+                "🔄 All CDN sources failed, trying local fallback..."
+              );
+              updateLoadingStatus("🔄 CDN failed, trying local files...");
+
+              try {
+                await loadScript("./dist/iife-entry.global.js", 2, 1000);
+                chronosLibrary = window.ChronosTimeline;
+
+                if (!chronosLibrary) {
+                  throw new Error(
+                    "Local file loaded but ChronosTimeline not found"
+                  );
+                }
+                console.log("✅ Local fallback successful!");
+              } catch (localError) {
+                throw new Error(
+                  `Both CDN and local loading failed. CDN: ${cdnError.message}, Local: ${localError.message}`
+                );
+              }
             }
           }
 
@@ -677,24 +764,124 @@
             envIndicator.style.display = "none";
           }, 2000);
         } catch (error) {
-          console.error("Failed to load Chronos library:", error);
+          console.error("❌ Failed to load Chronos library:", error);
           envIndicator.textContent = "Error";
           envIndicator.style.background = "#dc3545";
-          document.getElementById(
-            "timeline-container"
-          ).innerHTML = `<div class="error-message">Failed to load Chronos library: ${error.message}</div>`;
+
+          const errorMessage = `
+            <div class="error-message">
+              <h3>🚫 Failed to Load Chronos Timeline</h3>
+              <p><strong>Don't worry!</strong> This usually happens when:</p>
+              <ul>
+                <li>📡 Network connection is slow or unstable</li>
+                <li>🔄 A new version was just released (CDN needs time to update)</li>
+                <li>🛡️ Browser cache is causing conflicts</li>
+              </ul>
+              <p><strong>Quick fixes:</strong></p>
+              <ul>
+                <li>🔄 <button onclick="location.reload()" style="background: #007bff; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer;">Refresh this page</button></li>
+                <li>🗑️ Clear browser cache and try again</li>
+                <li>⏱️ Wait a few minutes and retry (new releases take time to propagate)</li>
+              </ul>
+              <details>
+                <summary>📋 Technical details</summary>
+                <code style="font-size: 12px; color: #666;">${error.message}</code>
+              </details>
+            </div>
+          `;
+
+          updateLoadingStatus(errorMessage, true);
         }
       }
 
-      // Helper function to load scripts dynamically
-      function loadScript(src) {
+      // Helper function to load scripts dynamically with retry logic
+      function loadScript(src, retries = 3, delay = 1000) {
         return new Promise((resolve, reject) => {
           const script = document.createElement("script");
           script.src = src;
-          script.onload = resolve;
-          script.onerror = reject;
+
+          script.onload = () => {
+            console.log(`✅ Successfully loaded: ${src}`);
+            resolve();
+          };
+
+          script.onerror = (error) => {
+            console.warn(`❌ Failed to load: ${src}`);
+            document.head.removeChild(script);
+
+            if (retries > 0) {
+              console.log(
+                `🔄 Retrying in ${delay}ms... (${retries} attempts left)`
+              );
+              setTimeout(() => {
+                loadScript(src, retries - 1, delay * 2)
+                  .then(resolve)
+                  .catch(reject);
+              }, delay);
+            } else {
+              reject(
+                new Error(
+                  `Failed to load script after multiple attempts: ${src}`
+                )
+              );
+            }
+          };
+
           document.head.appendChild(script);
         });
+      }
+
+      // Enhanced script loader with multiple CDN fallbacks
+      async function loadChronosLibrary() {
+        const version = "latest"; // Could be made configurable
+        const timestamp = Date.now(); // Cache busting for new releases
+
+        const cdnSources = [
+          `https://unpkg.com/chronos-timeline-md@${version}/dist/iife-entry.global.js?t=${timestamp}`,
+          `https://cdn.jsdelivr.net/npm/chronos-timeline-md@${version}/dist/iife-entry.global.js?t=${timestamp}`,
+          `https://unpkg.com/chronos-timeline-md@${version}/dist/iife-entry.global.js`, // No cache bust as fallback
+          `https://cdn.jsdelivr.net/npm/chronos-timeline-md@${version}/dist/iife-entry.global.js`,
+        ];
+
+        for (let i = 0; i < cdnSources.length; i++) {
+          const src = cdnSources[i];
+          const isLastAttempt = i === cdnSources.length - 1;
+
+          try {
+            console.log(
+              `🔄 Attempting to load from CDN ${i + 1}/${
+                cdnSources.length
+              }: ${src}`
+            );
+            await loadScript(src, isLastAttempt ? 3 : 1, 1000);
+
+            // Verify the library loaded correctly
+            if (window.ChronosTimeline) {
+              console.log("✅ Chronos library loaded successfully!");
+              return window.ChronosTimeline;
+            } else {
+              throw new Error(
+                "Library loaded but ChronosTimeline not found on window object"
+              );
+            }
+          } catch (error) {
+            console.warn(`❌ CDN ${i + 1} failed:`, error.message);
+
+            if (isLastAttempt) {
+              throw new Error(
+                `All CDN sources failed. Last error: ${error.message}`
+              );
+            }
+            // Continue to next CDN
+          }
+        }
+      }
+
+      // Update loading status in UI
+      function updateLoadingStatus(message, isError = false) {
+        const timelineContainer = document.getElementById("timeline-container");
+        const statusClass = isError ? "error-message" : "loading";
+        timelineContainer.innerHTML = `<div class="${statusClass}">${message}</div>`;
       }
 
       // Initialize the application (same code for all environments)
