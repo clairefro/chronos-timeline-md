@@ -1,24 +1,32 @@
 # Chronos Timeline MD
 
-A timeline visualization library for rendering interactive vis.js timelines from markdown using a simple chronological syntax.
+A library for rendering interactive timelines from simple Markdown, anywhere. Make time make sense.
+
+Powered by [vis.js](https://visjs.org/)
 
 📖 **[Complete Syntax Guide](./CHRONOS_SYNTAX_GUIDE.md)**
 
 🎮 **[Live Playground](https://clairefro.github.io/chronos-timeline-md/)**
 
-🪨**[Obsidian Plugin](https://obsidian.md/plugins?search=chronos+timeline)**
+🪨 **[Obsidian Plugin](https://obsidian.md/plugins?search=chronos+timeline)**
 
 ## Installation
 
+### NPM
+
 ```bash
-npm install chronos-timeline-md vis-timeline
+npm install chronos-timeline-md
 ```
 
-Note: `vis-timeline` is a peer dependency and must be installed separately.
+### CDN
+
+```html
+<script src="https://unpkg.com/chronos-timeline-md@latest/dist/iife-entry.global.js"></script>
+```
 
 ## Quick Start
 
-### Method 1: Static Function
+### Method 1: Static Function (ES Modules)
 
 ```typescript
 import { ChronosTimeline } from "chronos-timeline-md";
@@ -37,7 +45,7 @@ ChronosTimeline.render(
 );
 ```
 
-### Method 2: Constructor API
+### Method 2: Constructor API (ES Modules)
 
 ```typescript
 import { ChronosTimeline } from "chronos-timeline-md";
@@ -47,6 +55,35 @@ const timeline = new ChronosTimeline({
 });
 
 timeline.render(markdownSource);
+```
+
+### Method 3: Browser (CDN)
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://unpkg.com/chronos-timeline-md@latest/dist/iife-entry.global.js"></script>
+  </head>
+  <body>
+    <div id="timeline-container"></div>
+
+    <script>
+      const markdownSource = `
+- [2020] Event 1
+- [2021-06-15] Event 2 | Description
+@ [2020~2022] Period 1
+* [2021-01-01] Point 1
+= [2020-12-31] Marker 1
+`;
+
+      ChronosTimeline.render(
+        document.getElementById("timeline-container"),
+        markdownSource
+      );
+    </script>
+  </body>
+</html>
 ```
 
 ## API Reference
@@ -305,6 +342,8 @@ npm run clean
 ```
 
 ### Publishing
+
+(Note to self :P)
 
 ```bash
 # Update version in package.json
