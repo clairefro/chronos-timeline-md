@@ -835,6 +835,73 @@
           renderTimeline();
         }
 
+        // PNG Export functionality
+        function exportToPNG() {
+          if (!currentTimeline || !currentTimeline.timeline) {
+            exportStatus.textContent = "No timeline to export";
+            return;
+          }
+
+          try {
+            exportStatus.textContent = "Generating PNG...";
+            exportPngBtn.disabled = true;
+
+            // Create a canvas from the timeline container
+            import(
+              "https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.esm.js"
+            )
+              .then(({ default: html2canvas }) => {
+                const timelineElement =
+                  timelineContainer.querySelector(".vis-timeline");
+                if (!timelineElement) {
+                  throw new Error("Timeline element not found");
+                }
+
+                return html2canvas(timelineElement, {
+                  backgroundColor: "#ffffff",
+                  scale: 2, // Higher resolution
+                  useCORS: true,
+                  allowTaint: true,
+                });
+              })
+              .then((canvas) => {
+                // Create download link
+                const link = document.createElement("a");
+                link.download = `chronos-timeline-${
+                  new Date().toISOString().split("T")[0]
+                }.png`;
+                link.href = canvas.toDataURL("image/png");
+
+                // Trigger download
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                exportStatus.textContent = "PNG exported successfully!";
+                setTimeout(() => {
+                  exportStatus.textContent = "";
+                }, 3000);
+              })
+              .catch((error) => {
+                console.error("PNG export failed:", error);
+                exportStatus.textContent = "Export failed. Try again.";
+                setTimeout(() => {
+                  exportStatus.textContent = "";
+                }, 3000);
+              })
+              .finally(() => {
+                exportPngBtn.disabled = false;
+              });
+          } catch (error) {
+            console.error("PNG export error:", error);
+            exportStatus.textContent = "Export failed. Try again.";
+            exportPngBtn.disabled = false;
+            setTimeout(() => {
+              exportStatus.textContent = "";
+            }, 3000);
+          }
+        }
+
         // Event listeners
         markdownInput.addEventListener("input", () => {
           debouncedURLUpdate();
@@ -844,6 +911,7 @@
         roundRangesCheckbox.addEventListener("change", renderTimeline);
         alignmentSelect.addEventListener("change", renderTimeline);
         examplesSelect.addEventListener("change", insertExample);
+        exportPngBtn.addEventListener("click", exportToPNG);
         document.addEventListener("keydown", handleKeyboardShortcuts);
 
         // Initialize
