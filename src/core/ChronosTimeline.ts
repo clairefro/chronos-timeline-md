@@ -30,6 +30,9 @@ function setTooltipFallback(el: Element, text: string) {
 }
 
 export class ChronosTimeline {
+  // Static version property (will be set in index.ts)
+  static version: string;
+
   // Static collection of named templates/snippets and prompts for hosts to reuse.
   static static: {
     cheatsheet: string;

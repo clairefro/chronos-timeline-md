@@ -1,3 +1,4 @@
+// CJS entry point - exports everything as named exports to avoid warning
 import { ChronosMdParser } from "./core/ChronosMdParser";
 import { DEFAULT_LOCALE } from "./utils/constants";
 import type {
@@ -160,14 +161,8 @@ export type {
   CoreParseOptions,
 } from "./utils/types";
 
-// Main export - ChronosTimeline class
-export { ChronosTimeline };
-
-// Named exports for utility functions
-export { parseChronos, renderChronos, attachChronosStyles };
-
-// Default export for convenience
-export default ChronosTimeline;
+// Export everything as named exports only (no default export for CJS)
+export { ChronosTimeline, parseChronos, renderChronos, attachChronosStyles };
 
 // Grouped re-exports for a cleaner public API surface
 export * as parser from "./parser";

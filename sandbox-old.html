@@ -176,22 +176,6 @@
         color: #586069;
       }
 
-      .env-indicator {
-        position: fixed;
-        top: 10px;
-        right: 10px;
-        background: #28a745;
-        color: white;
-        padding: 0.25rem 0.5rem;
-        border-radius: 4px;
-        font-size: 12px;
-        z-index: 1000;
-      }
-
-      .env-indicator.local {
-        background: #17a2b8;
-      }
-
       @media (max-width: 768px) {
         .container {
           flex-direction: column;
@@ -205,8 +189,6 @@
     </style>
   </head>
   <body>
-    <div id="env-indicator" class="env-indicator">Loading...</div>
-
     <div class="header">
       <h1>Chronos Timeline Markdown Playground</h1>
       <p>
@@ -279,141 +261,38 @@
     <!-- Include vis-timeline from CDN -->
     <script src="https://unpkg.com/vis-timeline@7.7.3/standalone/umd/vis-timeline-graph2d.min.js"></script>
 
-    <!-- Smart Loading Script -->
-    <script>
-      // Detect environment and load appropriate Chronos library
-      async function loadChronos() {
-        const isGitHubPages = window.location.hostname.includes("github.io");
-        const isLocalhost =
-          window.location.hostname === "localhost" ||
-          window.location.hostname === "127.0.0.1";
+    <!-- Include your built library -->
+    <script type="module">
+      // Add error handling for module loading
+      try {
+        // Import the ChronosTimeline class and utility functions
+        const {
+          ChronosTimeline,
+          parseChronos,
+          renderChronos,
+          attachChronosStyles,
+        } = await import("./dist/index.js");
 
-        // Update environment indicator
-        const envIndicator = document.getElementById("env-indicator");
-
-        try {
-          let chronosLibrary;
-
-          if (isLocalhost) {
-            // Local development - try ES modules first, fallback to IIFE
-            envIndicator.textContent = "Local Dev";
-            envIndicator.className = "env-indicator local";
-
-            try {
-              console.log("Loading local ES modules...");
-              chronosLibrary = await import("./dist/index.js");
-            } catch (esError) {
-              console.log("ES modules failed, trying local IIFE...");
-              await loadScript("./dist/iife-entry.global.js");
-              chronosLibrary = window.ChronosTimeline;
-            }
-          } else if (isGitHubPages) {
-            // GitHub Pages - use CDN
-            envIndicator.textContent = "GitHub Pages";
-            console.log("Loading from CDN...");
-            await loadScript(
-              "https://unpkg.com/chronos-timeline-md@latest/dist/iife-entry.global.js"
-            );
-            chronosLibrary = window.ChronosTimeline;
-          } else {
-            // Other hosting - try CDN first, fallback to local
-            envIndicator.textContent = "Production";
-            try {
-              await loadScript(
-                "https://unpkg.com/chronos-timeline-md@latest/dist/iife-entry.global.js"
-              );
-              chronosLibrary = window.ChronosTimeline;
-            } catch (cdnError) {
-              console.log("CDN failed, trying local...");
-              await loadScript("./dist/iife-entry.global.js");
-              chronosLibrary = window.ChronosTimeline;
-            }
-          }
-
-          if (!chronosLibrary) {
-            throw new Error("Failed to load Chronos library");
-          }
-
-          // Initialize the app
-          const {
-            ChronosTimeline,
-            parseChronos,
-            renderChronos,
-            attachChronosStyles,
-          } = chronosLibrary;
-          initializeApp({
-            ChronosTimeline,
-            parseChronos,
-            renderChronos,
-            attachChronosStyles,
-          });
-
-          // Hide environment indicator after successful load
-          setTimeout(() => {
-            envIndicator.style.display = "none";
-          }, 2000);
-        } catch (error) {
-          console.error("Failed to load Chronos library:", error);
-          envIndicator.textContent = "Error";
-          envIndicator.style.background = "#dc3545";
-          document.getElementById(
-            "timeline-container"
-          ).innerHTML = `<div class="error-message">Failed to load Chronos library: ${error.message}</div>`;
-        }
-      }
-
-      // Helper function to load scripts dynamically
-      function loadScript(src) {
-        return new Promise((resolve, reject) => {
-          const script = document.createElement("script");
-          script.src = src;
-          script.onload = resolve;
-          script.onerror = reject;
-          document.head.appendChild(script);
+        // Initialize the application after successful import
+        initializeApp({
+          ChronosTimeline,
+          parseChronos,
+          renderChronos,
+          attachChronosStyles,
         });
+      } catch (error) {
+        console.error("Failed to load Chronos library:", error);
+        document.getElementById(
+          "timeline-container"
+        ).innerHTML = `<div class="error-message">Failed to load Chronos library: ${error.message}</div>`;
       }
 
-      // Initialize the application (same code for all environments)
       function initializeApp({
         ChronosTimeline,
         parseChronos,
         renderChronos,
         attachChronosStyles,
       }) {
-        console.log("Initializing Chronos Timeline App...");
-
-        // Display version information if available
-        if (ChronosTimeline.version) {
-          console.log(`Chronos Timeline version: ${ChronosTimeline.version}`);
-
-          // Add version to header
-          const versionDisplay = document.createElement("div");
-          versionDisplay.style.cssText =
-            "position: absolute; top: 15px; right: 20px; color: #959da5; font-size: 0.85rem; z-index: 1000; background: rgba(0,0,0,0.1); padding: 2px 6px; border-radius: 3px;";
-          versionDisplay.textContent = `v${ChronosTimeline.version}`;
-          document.querySelector(".header").appendChild(versionDisplay);
-
-          // Also add version to page title
-          document.title = `Chronos Timeline v${ChronosTimeline.version} - Markdown Playground`;
-
-          // Update the header subtitle to include version
-          const headerP = document.querySelector(".header p");
-          if (headerP) {
-            headerP.innerHTML = `Write chronological markdown on the left, see the timeline visualization on the right <span style="color: #6a737d; font-size: 0.9em;">(v${ChronosTimeline.version})</span>`;
-          }
-        } else {
-          console.warn("ChronosTimeline.version not available");
-          // Add a fallback version indicator
-          const versionDisplay = document.createElement("div");
-          versionDisplay.style.cssText =
-            "position: absolute; top: 15px; right: 20px; color: #dc3545; font-size: 0.85rem; z-index: 1000; background: rgba(220,53,69,0.1); padding: 2px 6px; border-radius: 3px;";
-          versionDisplay.textContent = "version unknown";
-          document.querySelector(".header").appendChild(versionDisplay);
-        }
-
-        // All your existing JavaScript code goes here
-        // This is the SAME code for both local dev and GitHub Pages
-
         // DOM elements
         const markdownInput = document.getElementById("markdown-input");
         const timelineContainer = document.getElementById("timeline-container");
@@ -430,7 +309,7 @@
         // Undo functionality
         let history = [];
         let historyIndex = -1;
-        const MAX_HISTORY = 50;
+        const MAX_HISTORY = 50; // Limit history to prevent memory issues
 
         // URL state management
         function updateURL() {
@@ -438,16 +317,19 @@
           const url = new URL(window.location);
 
           if (content.trim()) {
+            // URLSearchParams.set() automatically handles encoding properly
             url.searchParams.set("content", content);
           } else {
             url.searchParams.delete("content");
           }
 
+          // Update URL without triggering page reload
           window.history.replaceState({}, "", url);
         }
 
         function loadFromURL() {
           try {
+            // Get the raw query string and parse it manually for better control
             const queryString = window.location.search;
             if (!queryString) return false;
 
@@ -460,6 +342,7 @@
             }
           } catch (error) {
             console.error("Error loading content from URL:", error);
+            // Try alternative parsing method
             try {
               const matches =
                 window.location.search.match(/[?&]content=([^&]*)/);
@@ -477,13 +360,15 @@
           return false;
         }
 
-        // History management
+        // History management for undo functionality compatible with example inserts
         function addToHistory(content) {
+          // remove any entries after current index (when we're not at the end)
           if (historyIndex < history.length - 1) {
             history = history.slice(0, historyIndex + 1);
           }
           history.push(content);
 
+          // Limit history size
           if (history.length > MAX_HISTORY) {
             history = history.slice(1);
             historyIndex = Math.max(0, historyIndex - 1);
@@ -516,7 +401,7 @@
           return false;
         }
 
-        // Examples
+        // Hardcoded examples from the cheatsheet
         const chronosExamples = [
           {
             title: "Date Formats",
@@ -649,9 +534,12 @@
           },
         ];
 
+        // Populate examples dropdown
         function populateExamplesDropdown() {
+          // Clear existing options except the first one
           examplesSelect.innerHTML =
             '<option value="">Insert Example...</option>';
+
           chronosExamples.forEach((example, index) => {
             const option = document.createElement("option");
             option.value = index;
@@ -660,21 +548,35 @@
           });
         }
 
+        // Handle example insertion
         function insertExample() {
           const selectedIndex = examplesSelect.value;
           if (selectedIndex === "") return;
 
           const example = chronosExamples[selectedIndex];
           if (example) {
+            // Add current content to history before changing
             addToHistory(markdownInput.value);
+
             markdownInput.value = example.content;
-            renderTimeline();
+            renderTimeline(); // This will also update the URL
           }
+
+          // Reset dropdown
           examplesSelect.value = "";
         }
 
-        // Initialize styles
+        // Initialize with default styles
         attachChronosStyles();
+
+        function showError(message) {
+          timelineContainer.innerHTML = `<div class="error-message">Error: ${message}</div>`;
+        }
+
+        function showLoading() {
+          timelineContainer.innerHTML =
+            '<div class="loading">Generating timeline...</div>';
+        }
 
         function renderTimeline() {
           const markdownContent = markdownInput.value.trim();
@@ -686,6 +588,9 @@
           }
 
           try {
+            showLoading();
+
+            // Clear previous timeline
             if (currentTimeline) {
               try {
                 if (
@@ -693,6 +598,11 @@
                   typeof currentTimeline.timeline.destroy === "function"
                 ) {
                   currentTimeline.timeline.destroy();
+                } else if (
+                  currentTimeline.destroy &&
+                  typeof currentTimeline.destroy === "function"
+                ) {
+                  currentTimeline.destroy();
                 }
               } catch (e) {
                 console.warn("Error destroying previous timeline:", e);
@@ -700,16 +610,16 @@
               currentTimeline = null;
             }
 
+            // Clear container
             timelineContainer.innerHTML = "";
 
-            // Create timeline using new constructor API
-            const timeline = new ChronosTimeline({
-              container: timelineContainer,
+            const options = {
+              selectedLocale: localeSelect.value,
+              roundRanges: roundRangesCheckbox.checked,
               settings: {
-                selectedLocale: localeSelect.value,
                 align: alignmentSelect.value,
+                selectedLocale: localeSelect.value,
                 clickToUse: false,
-                roundRanges: roundRangesCheckbox.checked,
                 useUtc: true,
                 useAI: false,
               },
@@ -718,41 +628,100 @@
                   el.setAttribute("title", text);
                 },
               },
-            });
-
-            // Render the timeline and store reference
-            timeline.render(markdownContent);
-
-            // Create compatibility structure for export functionality
-            currentTimeline = {
-              timeline,
-              parsed: {
-                items: timeline.items || [],
-              },
             };
 
+            // Render the timeline
+            currentTimeline = renderChronos(
+              timelineContainer,
+              markdownContent,
+              options
+            );
+
+            // If no items were parsed, show a helpful message
             if (currentTimeline.parsed.items.length === 0) {
               timelineContainer.innerHTML =
-                '<div class="loading">No timeline items found. Try adding dates in your markdown</div>';
+                '<div class="loading">No timeline items found. Try adding dates in your markdown (e.g., "2023-01-01: Event description")</div>';
               exportPngBtn.disabled = true;
             } else {
               exportPngBtn.disabled = false;
             }
           } catch (error) {
             console.error("Timeline rendering error:", error);
-            timelineContainer.innerHTML = `<div class="error-message">Error: ${error.message}</div>`;
+            showError(error.message || "Failed to render timeline");
             exportPngBtn.disabled = true;
           }
         }
 
+        async function exportTimelineAsPNG() {
+          if (!currentTimeline || !currentTimeline.timeline) {
+            exportStatus.textContent = "No timeline to export";
+            return;
+          }
+
+          try {
+            exportStatus.textContent = "Generating PNG...";
+            exportPngBtn.disabled = true;
+
+            // Find the vis-timeline canvas element
+            const timelineElement =
+              timelineContainer.querySelector(".vis-timeline");
+            if (!timelineElement) {
+              throw new Error("Timeline element not found");
+            }
+
+            // Use html2canvas to capture the timeline
+            const { default: html2canvas } = await import(
+              "https://cdn.skypack.dev/html2canvas"
+            );
+
+            const canvas = await html2canvas(timelineElement, {
+              backgroundColor: "#ffffff",
+              scale: 2, // Higher resolution
+              useCORS: true,
+              allowTaint: true,
+              logging: false,
+            });
+
+            // Create download link
+            const link = document.createElement("a");
+            link.download = `chronos-timeline-${Date.now()}.png`;
+            link.href = canvas.toDataURL("image/png");
+
+            // Trigger download
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            exportStatus.textContent = "PNG exported successfully!";
+            setTimeout(() => {
+              exportStatus.textContent = "";
+            }, 3000);
+          } catch (error) {
+            console.error("Export error:", error);
+            exportStatus.textContent = "Export failed: " + error.message;
+            setTimeout(() => {
+              exportStatus.textContent = "";
+            }, 5000);
+          } finally {
+            exportPngBtn.disabled = false;
+          }
+        }
+
+        function debouncedRender() {
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(renderTimeline, 300);
+        }
+
         function debouncedURLUpdate() {
           clearTimeout(debounceTimer);
+          // Update URL immediately for better responsiveness
           updateURL();
           debounceTimer = setTimeout(renderTimeline, 300);
         }
 
-        // Keyboard shortcuts
+        // Handle keyboard shortcuts
         function handleKeyboardShortcuts(event) {
+          // Ctrl+Z (Cmd+Z on Mac) for undo
           if (
             (event.ctrlKey || event.metaKey) &&
             event.key === "z" &&
@@ -760,14 +729,18 @@
           ) {
             event.preventDefault();
             undo();
-          } else if (
+          }
+          // Ctrl+Shift+Z (Cmd+Shift+Z on Mac) for redo
+          else if (
             (event.ctrlKey || event.metaKey) &&
             event.key === "z" &&
             event.shiftKey
           ) {
             event.preventDefault();
             redo();
-          } else if ((event.ctrlKey || event.metaKey) && event.key === "y") {
+          }
+          // Ctrl+Y (Cmd+Y on Mac) for redo (alternative)
+          else if ((event.ctrlKey || event.metaKey) && event.key === "y") {
             event.preventDefault();
             redo();
           }
@@ -779,6 +752,8 @@
 
         function trackContentChanges() {
           const currentContent = markdownInput.value;
+
+          // Only add to history if content actually changed and it's not just from undo/redo
           if (
             currentContent !== lastContent &&
             currentContent !== (history[historyIndex] || "")
@@ -787,7 +762,7 @@
             changeTimer = setTimeout(() => {
               addToHistory(currentContent);
               lastContent = currentContent;
-            }, 1000);
+            }, 1000); // Wait 1 second after user stops typing to add to history
           }
         }
 
@@ -800,16 +775,26 @@
         roundRangesCheckbox.addEventListener("change", renderTimeline);
         alignmentSelect.addEventListener("change", renderTimeline);
         examplesSelect.addEventListener("change", insertExample);
+        exportPngBtn.addEventListener("click", exportTimelineAsPNG);
+
+        // Add keyboard shortcut listener
         document.addEventListener("keydown", handleKeyboardShortcuts);
 
         // Initialize
         populateExamplesDropdown();
+
+        // Load content from URL or use default
         const hasURLContent = loadFromURL();
         if (!hasURLContent) {
-          markdownInput.value = `- [2025] Test`;
+          // Only use default content if no URL content is present
+          const exampleContent = `- [2025] Test`;
+          markdownInput.value = exampleContent;
         }
+
+        // Initialize history with the starting content
         addToHistory(markdownInput.value);
         lastContent = markdownInput.value;
+
         renderTimeline();
 
         // Handle window resize
@@ -822,10 +807,7 @@
             currentTimeline.timeline.redraw();
           }
         });
-      }
-
-      // Start the application
-      loadChronos();
+      } // End of initializeApp function
     </script>
   </body>
 </html>

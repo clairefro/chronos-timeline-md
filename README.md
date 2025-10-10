@@ -12,9 +12,24 @@ Note: `vis-timeline` is a peer dependency and must be installed separately.
 
 ## Quick Start
 
-```typescript
-import { renderChronos } from "chronos-timeline-md";
+### New Constructor API (Recommended)
 
+```typescript
+import { ChronosTimeline } from "chronos-timeline-md";
+
+// Create timeline instance
+const timeline = new ChronosTimeline({
+  container: document.getElementById("timeline-container"),
+  settings: {
+    selectedLocale: "en",
+    align: "left",
+    roundRanges: true,
+    useUtc: true,
+    useAI: false,
+  },
+});
+
+// Render timeline from markdown
 const markdownSource = `
 - [2020] Event 1
 - [2021-06-15] Event 2 | Description
@@ -22,6 +37,17 @@ const markdownSource = `
 * [2021-01-01] Point 1
 = [2020-12-31] Marker 1
 `;
+
+timeline.render(markdownSource);
+
+// Access version info
+console.log(ChronosTimeline.version); // "1.0.0"
+```
+
+### Utility Function API
+
+```typescript
+import { renderChronos } from "chronos-timeline-md";
 
 const container = document.getElementById("timeline-container");
 renderChronos(container, markdownSource, {
@@ -70,7 +96,11 @@ console.log(result.groups); // Item groups
 console.log(result.flags); // Parsing flags
 ```
 
-#### `renderChronos(container, source, options?)`
+#### Legacy Functions
+
+The following functions are still supported for backward compatibility, but the `ChronosTimeline` constructor is recommended for new projects.
+
+**`renderChronos(container, source, options?)`**
 
 Renders a complete timeline visualization to the specified DOM container.
 
@@ -127,7 +157,7 @@ Injects default CSS styles into the document head.
 
 #### `ChronosTimeline`
 
-Main timeline class for advanced usage scenarios.
+Main timeline class for advanced usage scenarios. This is the recommended way to use the library.
 
 **Constructor:**
 
@@ -149,6 +179,9 @@ const timeline = new ChronosTimeline({
   },
   cssRootClass: "my-timeline",
 });
+
+// Render markdown content
+timeline.render("- [2025] My Event");
 ```
 
 **Methods:**
@@ -160,6 +193,7 @@ const timeline = new ChronosTimeline({
 
 **Static Properties:**
 
+- `ChronosTimeline.version`: Current library version
 - `ChronosTimeline.static.templates`: Built-in template snippets
 - `ChronosTimeline.static.cheatsheet`: Complete syntax reference
 - `ChronosTimeline.static.prompts.system`: AI system prompt for timeline generation

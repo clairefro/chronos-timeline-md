@@ -2,9 +2,18 @@
   "name": "chronos-timeline-md",
   "version": "1.0.0",
   "description": "A timeline visualization library for markdown-based chronological data",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
+  "main": "dist/cjs-entry.cjs",
+  "module": "dist/index.js",
+  "browser": "dist/iife-entry.global.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/cjs-entry.cjs"
+    },
+    "./global": "./dist/iife-entry.global.js"
+  },
   "files": [
     "dist",
     "README.md"
@@ -24,8 +33,16 @@
     "visualization",
     "vis-timeline"
   ],
-  "author": "",
+  "author": "Claire Froelich <claire.froelich@gmail.com>",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/clairefro/chronos-timeline-md.git"
+  },
+  "homepage": "https://github.com/clairefro/chronos-timeline-md#readme",
+  "bugs": {
+    "url": "https://github.com/clairefro/chronos-timeline-md/issues"
+  },
   "type": "module",
   "dependencies": {},
   "devDependencies": {

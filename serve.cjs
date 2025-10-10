@@ -1,75 +1,63 @@
-#!/usr/bin/env node
-
-/** This server is for local dev on the sandbox */
-
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
-const { exec } = require("child_process");
 
-const PORT = 3000;
-const ROOT_DIR = __dirname;
-
-// MIME types
 const mimeTypes = {
   ".html": "text/html",
   ".js": "application/javascript",
   ".css": "text/css",
   ".json": "application/json",
   ".png": "image/png",
-  ".jpg": "image/jpeg",
+  ".jpg": "image/jpg",
   ".gif": "image/gif",
   ".svg": "image/svg+xml",
-  ".ico": "image/x-icon",
-  ".map": "application/json",
+  ".wav": "audio/wav",
+  ".mp4": "video/mp4",
+  ".woff": "application/font-woff",
+  ".ttf": "application/font-ttf",
+  ".eot": "application/vnd.ms-fontobject",
+  ".otf": "application/font-otf",
+  ".wasm": "application/wasm",
 };
 
-// Build the project first
-console.log("Building project...");
-exec("npm run build", (error, stdout, stderr) => {
-  if (error) {
-    console.error("Build failed:", error);
-    return;
+const server = http.createServer((req, res) => {
+  console.log(`${req.method} ${req.url}`);
+
+  // Parse URL and remove query parameters for file serving
+  const urlPath = req.url.split("?")[0];
+  let filePath = "." + urlPath;
+
+  if (filePath === "./") {
+    filePath = "./sandbox.html";
   }
-  console.log("Build completed successfully");
 
-  // Start the server
-  const server = http.createServer((req, res) => {
-    let filePath = path.join(
-      ROOT_DIR,
-      req.url === "/" ? "sandbox.html" : req.url
-    );
+  const extname = String(path.extname(filePath)).toLowerCase();
+  const mimeType = mimeTypes[extname] || "application/octet-stream";
 
-    // Security check
-    if (!filePath.startsWith(ROOT_DIR)) {
-      res.writeHead(403);
-      res.end("Forbidden");
-      return;
-    }
-
-    const extname = path.extname(filePath);
-    const contentType = mimeTypes[extname] || "application/octet-stream";
-
-    fs.readFile(filePath, (error, content) => {
-      if (error) {
-        if (error.code === "ENOENT") {
-          res.writeHead(404);
-          res.end("File not found");
-        } else {
-          res.writeHead(500);
-          res.end("Server error: " + error.code);
-        }
+  fs.readFile(filePath, (error, content) => {
+    if (error) {
+      if (error.code === "ENOENT") {
+        fs.readFile("./404.html", (error, content) => {
+          res.writeHead(404, { "Content-Type": "text/html" });
+          res.end(content || "404 Not Found", "utf-8");
+        });
       } else {
-        res.writeHead(200, { "Content-Type": contentType });
-        res.end(content, "utf-8");
+        res.writeHead(500);
+        res.end(`Server Error: ${error.code}`);
       }
-    });
+    } else {
+      res.writeHead(200, {
+        "Content-Type": mimeType,
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+      });
+      res.end(content, "utf-8");
+    }
   });
+});
 
-  server.listen(PORT, () => {
-    console.log(`\n🚀 Chronos Timeline Sandbox running at:`);
-    console.log(`   http://localhost:${PORT}`);
-    console.log(`\n📝 Edit sandbox.html to modify the playground`);
-    console.log(`🔧 Run 'npm run build' after changing source files\n`);
-  });
+const port = 3000;
+server.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}/`);
 });
