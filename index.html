@@ -161,32 +161,6 @@
         height: 100%;
       }
 
-      /* Edit icon that appears on hover */
-      .editor-container::before {
-        content: "✏️";
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        z-index: 3;
-        font-size: 1.2rem;
-        opacity: 0;
-        transition: opacity 0.2s ease;
-        pointer-events: none;
-        background: rgba(255, 255, 255, 0.9);
-        padding: 0.3rem;
-        border-radius: 4px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-
-      .editor-container:hover::before {
-        opacity: 1;
-      }
-
-      /* Also show when textarea is focused */
-      .editor-container:focus-within::before {
-        opacity: 0.7;
-      }
-
       #markdown-input {
         width: 100%;
         height: 100%;
@@ -1118,7 +1092,7 @@
           // Update the header subtitle to include version
           const headerP = document.querySelector(".header p");
           if (headerP) {
-            headerP.innerHTML = `Generate interactive timelines from simple markdown. See <a href="https://github.com/clairefro/chronos-timeline-md/blob/main/CHRONOS_SYNTAX_GUIDE.md" target="_blank" rel="nofollow noreferrer">docs</a>. Powered by <a href="https://visjs.org/" target="_blank" rel="nofollow noreferrer">vis-timeline</a>`;
+            headerP.innerHTML = `Generate interactive timelines from simple, shareable text. See <a href="https://github.com/clairefro/chronos-timeline-md/blob/main/CHRONOS_SYNTAX_GUIDE.md" target="_blank" rel="nofollow noreferrer">docs</a>. Powered by <a href="https://visjs.org/" target="_blank" rel="nofollow noreferrer">vis-timeline</a>`;
           }
         } else {
           console.warn("ChronosTimeline.version not available");
