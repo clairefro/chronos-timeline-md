@@ -3,8 +3,10 @@
 A timeline visualization library for rendering interactive vis.js timelines from markdown using a simple chronological syntax.
 
 📖 **[Complete Syntax Guide](./CHRONOS_SYNTAX_GUIDE.md)**
+
 🎮 **[Live Playground](https://clairefro.github.io/chronos-timeline-md/)**
-🪨**[Obsidian Plugin]**(https://obsidian.md/plugins?search=chronos+timeline)
+
+🪨**[Obsidian Plugin](https://obsidian.md/plugins?search=chronos+timeline)**
 
 ## Installation
 
