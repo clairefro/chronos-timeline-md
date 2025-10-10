@@ -15,6 +15,33 @@ Powered by [vis.js](https://visjs.org/)
 
 ![date example](./docs/ex-dates-optimize.gif)
 
+## Table of Contents
+
+- [Syntax Overview](#syntax-overview)
+  - [A note on dates](#a-note-on-dates)
+    - [Date ranges](#date-ranges)
+    - [BCE time](#bce-time)
+    - [Limitations](#limitations)
+- [Events `-`](#events--)
+  - [Events with a single date](#events-with-a-single-date)
+  - [Events with start and end dates](#events-with-start-and-end-dates)
+  - [Events with descriptions](#events-with-descriptions)
+- [Periods `@`](#periods-)
+- [Points `*`](#points-)
+- [Markers `=`](#markers-)
+- [Comments `#`](#comments-)
+- [Flags `>`](#flags-)
+  - [NOTODAY flag](#notoday-flag)
+  - [HEIGHT flag](#height-flag)
+  - [ORDERBY flag](#orderby-flag)
+  - [DEFAULTVIEW flag](#defaultview-flag)
+- [Modifiers](#modifiers)
+  - [Colors `#color`](#colors-color)
+  - [Groups `{}`](#groups-)
+- [Advanced example](#advanced-example)
+- [Actions](#actions)
+  - [Refit](#refit)
+
 # Syntax Overview
 
 Chronos parses Markdown in `chronos` code blocks into objects on a timeline
