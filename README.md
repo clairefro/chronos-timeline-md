@@ -194,9 +194,30 @@ timeline.render("- [2025] My Event");
 **Static Properties:**
 
 - `ChronosTimeline.version`: Current library version
-- `ChronosTimeline.static.templates`: Built-in template snippets
-- `ChronosTimeline.static.cheatsheet`: Complete syntax reference
-- `ChronosTimeline.static.prompts.system`: AI system prompt for timeline generation
+- `ChronosTimeline.templates`: Built-in template snippets
+- `ChronosTimeline.cheatsheet`: Complete syntax reference
+- `ChronosTimeline.prompts.system`: AI system prompt for timeline generation
+
+**Using Static Properties:**
+
+```typescript
+// Access version
+console.log(ChronosTimeline.version); // "1.0.0"
+
+// Use built-in templates
+const basicTemplate = ChronosTimeline.templates.basic;
+const blankTemplate = ChronosTimeline.templates.blank;
+const advancedTemplate = ChronosTimeline.templates.advanced;
+timeline.render(basicTemplate);
+
+// Get syntax reference
+const syntaxHelp = ChronosTimeline.cheatsheet;
+console.log(syntaxHelp); // Complete markdown syntax guide
+
+// Use AI system prompt
+const aiPrompt = ChronosTimeline.prompts.system;
+// Use this prompt with your AI service for timeline generation
+```
 
 ### Parser
 

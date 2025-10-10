@@ -386,6 +386,17 @@
         if (ChronosTimeline.version) {
           console.log(`Chronos Timeline version: ${ChronosTimeline.version}`);
 
+          // Log available static properties for developers
+          console.log(
+            "Available templates:",
+            Object.keys(ChronosTimeline.templates || {})
+          );
+          console.log("Cheatsheet available:", !!ChronosTimeline.cheatsheet);
+          console.log(
+            "AI prompt available:",
+            !!ChronosTimeline.prompts?.system
+          );
+
           // Add version to header
           const versionDisplay = document.createElement("div");
           versionDisplay.style.cssText =

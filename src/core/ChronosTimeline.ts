@@ -34,19 +34,13 @@ export class ChronosTimeline {
   static version: string;
 
   // Static collection of named templates/snippets and prompts for hosts to reuse.
-  static static: {
-    cheatsheet: string;
-    templates: Record<string, string>;
-    prompts: { system: string };
-  } = {
-    cheatsheet,
-    templates: {
-      blank: templateBlank,
-      basic: templateBasic,
-      advanced: templateAdvanced,
-    },
-    prompts: { system: systemPrompt },
+  static cheatsheet: string = cheatsheet;
+  static templates: Record<string, string> = {
+    blank: templateBlank,
+    basic: templateBasic,
+    advanced: templateAdvanced,
   };
+  static prompts: { system: string } = { system: systemPrompt };
   private container: HTMLElement;
   private settings: ChronosPluginSettings;
   private parser: ChronosMdParser;
