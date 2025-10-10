@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chronos Timeline Markdown Playground</title>
 
+    <!-- Include highlight.js for syntax highlighting -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
     <style>
       * {
         margin: 0;
@@ -54,6 +61,7 @@
       }
 
       .output-panel {
+        flex: 1;
         display: flex;
         flex-direction: column;
         background: white;
@@ -106,6 +114,12 @@
         position: relative;
       }
 
+      .editor-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+      }
+
       #markdown-input {
         width: 100%;
         height: 100%;
@@ -114,11 +128,19 @@
         font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
         font-size: 14px;
         line-height: 1.5;
-        background: #fafbfc;
+        background: transparent;
         padding: 1rem;
         border-radius: 6px;
         border: 1px solid #e1e4e8;
         outline: none;
+        position: relative;
+        z-index: 2;
+        color: transparent;
+        caret-color: #24292e;
+      }
+
+      #markdown-input::selection {
+        background: rgba(3, 102, 214, 0.3);
       }
 
       #markdown-input:focus {
@@ -126,8 +148,84 @@
         box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1);
       }
 
+      #highlight-backdrop {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 1rem;
+        pointer-events: none;
+        z-index: 1;
+        font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+        font-size: 14px;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        overflow: hidden;
+        background: #fafbfc;
+        border-radius: 6px;
+        border: 1px solid #e1e4e8;
+      }
+
+      /* Chronos syntax highlighting styles */
+      #highlight-backdrop .hljs-section {
+        color: #22863a;
+        font-weight: 600;
+      } /* Events (-) */
+      #highlight-backdrop .hljs-keyword {
+        color: #6f42c1;
+        font-weight: 600;
+      } /* Periods (@) */
+      #highlight-backdrop .hljs-attribute {
+        color: #005cc5;
+      } /* Points (*) */
+      #highlight-backdrop .hljs-built_in {
+        color: #e36209;
+        font-weight: 600;
+      } /* Markers (=) */
+      #highlight-backdrop .hljs-string {
+        color: #032f62;
+        font-weight: 500;
+      } /* Date brackets */
+      #highlight-backdrop .hljs-number {
+        color: #005cc5;
+        font-weight: 600;
+      } /* Dates */
+      #highlight-backdrop .hljs-operator {
+        color: #d73a49;
+        font-weight: bold;
+      } /* Range ~ */
+      #highlight-backdrop .hljs-literal {
+        color: #e36209;
+        font-weight: 600;
+      } /* Colors */
+      #highlight-backdrop .hljs-title {
+        color: #6f42c1;
+        font-weight: 500;
+      } /* Groups */
+      #highlight-backdrop .hljs-comment {
+        color: #6a737d;
+        opacity: 0.8;
+      } /* Comments */
+      #highlight-backdrop .hljs-meta {
+        color: #735c0f;
+        font-weight: 600;
+      } /* Flags */
+
+      /* Hover effects for highlighting */
+      #highlight-backdrop .hljs-literal:hover,
+      #highlight-backdrop .hljs-number:hover {
+        background-color: rgba(255, 212, 0, 0.15);
+        border-radius: 2px;
+      }
+
+      #highlight-backdrop .hljs-title:hover {
+        background-color: rgba(111, 66, 193, 0.1);
+        border-radius: 2px;
+      }
+
       .output-area {
-        flex: 1;
         padding: 1rem;
         overflow: auto;
       }
@@ -273,7 +371,7 @@
       <h1>Chronos Timeline Markdown Playground</h1>
       <p>
         Write chronological markdown on the left, see the timeline visualization
-        on the right
+        on the right. Now with syntax highlighting!
       </p>
     </div>
 
@@ -339,10 +437,13 @@
           </div>
         </div>
         <div class="input-area">
-          <textarea
-            id="markdown-input"
-            placeholder="Enter Chronos markdown here"
-          ></textarea>
+          <div class="editor-container">
+            <textarea
+              id="markdown-input"
+              placeholder="Enter Chronos markdown here"
+            ></textarea>
+            <div id="highlight-backdrop"></div>
+          </div>
         </div>
       </div>
 
@@ -360,11 +461,9 @@
         <div class="instructions-box">
           <h3>Interacting with the Timeline</h3>
           <ul>
-            <li>Click and drag the timeline left and right to shift view</li>
-            <li>Scroll to change zoom</li>
-            <li>
-              Click the crosshairs icon in lower right to re-fit the items
-            </li>
+            <li>Click and drag the timeline left and right</li>
+            <li>Scroll to zoom</li>
+            <li>Click the crosshairs icon in lower right to re-fit items</li>
             <li>Try the examples to get started</li>
           </ul>
         </div>
@@ -385,6 +484,196 @@
 
     <!-- Smart Loading Script -->
     <script>
+      // Register Chronos language with highlight.js
+      hljs.registerLanguage("chronos", function () {
+        return {
+          name: "chronos",
+          aliases: ["chronos-md", "chronos-markdown"],
+          case_insensitive: false,
+          keywords: {
+            built_in: "ORDERBY DEFAULTVIEW NOTODAY HEIGHT start end color",
+          },
+          contains: [
+            // Comments (markdown headers)
+            {
+              className: "comment",
+              begin: "^\\s*#+",
+              end: "$",
+              relevance: 0,
+            },
+            // Flags/Options
+            {
+              className: "meta",
+              begin: "^\\s*>\\s*(ORDERBY|DEFAULTVIEW|NOTODAY|HEIGHT)\\b",
+              end: "$",
+              keywords: "ORDERBY DEFAULTVIEW NOTODAY HEIGHT",
+            },
+            // Events (lines starting with -)
+            {
+              className: "section",
+              begin: "^\\s*-",
+              end: "$",
+              contains: [
+                // Date ranges in brackets
+                {
+                  className: "string",
+                  begin: "\\[",
+                  end: "\\]",
+                  contains: [
+                    // ISO dates and ranges
+                    {
+                      className: "number",
+                      begin:
+                        "-?\\d{1,4}(-\\d{2})?(-\\d{2})?(T\\d{2}(:\\d{2})?(:\\d{2})?)?",
+                    },
+                    // Range separator
+                    {
+                      className: "operator",
+                      begin: "~",
+                    },
+                  ],
+                },
+                // Colors
+                {
+                  className: "literal",
+                  begin: "#\\w+\\b",
+                  relevance: 5,
+                },
+                // Groups in curly braces
+                {
+                  className: "title",
+                  begin: "\\{",
+                  end: "\\}",
+                  relevance: 3,
+                },
+                // Descriptions after pipe
+                {
+                  className: "comment",
+                  begin: "\\|",
+                  end: "$",
+                  relevance: 2,
+                },
+              ],
+            },
+            // Periods (lines starting with @)
+            {
+              className: "keyword",
+              begin: "^\\s*@",
+              end: "$",
+              contains: [
+                // Same date/color/group patterns as events
+                {
+                  className: "string",
+                  begin: "\\[",
+                  end: "\\]",
+                  contains: [
+                    {
+                      className: "number",
+                      begin:
+                        "-?\\d{1,4}(-\\d{2})?(-\\d{2})?(T\\d{2}(:\\d{2})?(:\\d{2})?)?",
+                    },
+                    {
+                      className: "operator",
+                      begin: "~",
+                    },
+                  ],
+                },
+                {
+                  className: "literal",
+                  begin: "#\\w+\\b",
+                  relevance: 5,
+                },
+                {
+                  className: "title",
+                  begin: "\\{",
+                  end: "\\}",
+                  relevance: 3,
+                },
+              ],
+            },
+            // Points (lines starting with *)
+            {
+              className: "attribute",
+              begin: "^\\s*\\*",
+              end: "$",
+              contains: [
+                // Same patterns as above
+                {
+                  className: "string",
+                  begin: "\\[",
+                  end: "\\]",
+                  contains: [
+                    {
+                      className: "number",
+                      begin:
+                        "-?\\d{1,4}(-\\d{2})?(-\\d{2})?(T\\d{2}(:\\d{2})?(:\\d{2})?)?",
+                    },
+                  ],
+                },
+                {
+                  className: "literal",
+                  begin: "#\\w+\\b",
+                },
+                {
+                  className: "title",
+                  begin: "\\{",
+                  end: "\\}",
+                },
+              ],
+            },
+            // Markers (lines starting with =)
+            {
+              className: "built_in",
+              begin: "^\\s*=",
+              end: "$",
+              contains: [
+                {
+                  className: "string",
+                  begin: "\\[",
+                  end: "\\]",
+                  contains: [
+                    {
+                      className: "number",
+                      begin:
+                        "-?\\d{1,4}(-\\d{2})?(-\\d{2})?(T\\d{2}(:\\d{2})?(:\\d{2})?)?",
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        };
+      });
+
+      // Function to update syntax highlighting
+      function updateSyntaxHighlighting() {
+        const textarea = document.getElementById("markdown-input");
+        const backdrop = document.getElementById("highlight-backdrop");
+
+        if (textarea && backdrop) {
+          const content = textarea.value;
+          try {
+            const highlighted = hljs.highlight(content, {
+              language: "chronos",
+            }).value;
+            backdrop.innerHTML = highlighted;
+          } catch (error) {
+            console.warn("Syntax highlighting failed:", error);
+            backdrop.innerHTML = textarea.value;
+          }
+        }
+      }
+
+      // Function to sync scroll between textarea and backdrop
+      function syncScroll() {
+        const textarea = document.getElementById("markdown-input");
+        const backdrop = document.getElementById("highlight-backdrop");
+
+        if (textarea && backdrop) {
+          backdrop.scrollTop = textarea.scrollTop;
+          backdrop.scrollLeft = textarea.scrollLeft;
+        }
+      }
       // Detect environment and load appropriate Chronos library
       async function loadChronos() {
         const isGitHubPages = window.location.hostname.includes("github.io");
@@ -878,6 +1167,7 @@
             markdownInput.value = example.content;
             updateURL(); // Update URL when example is inserted
             renderTimeline();
+            updateSyntaxHighlighting();
           }
           examplesSelect.value = "";
         }
@@ -965,7 +1255,12 @@
         function debouncedURLUpdate() {
           clearTimeout(debounceTimer);
           updateURL();
-          debounceTimer = setTimeout(renderTimeline, 300);
+          // Update syntax highlighting immediately for instant feedback
+          updateSyntaxHighlighting();
+          // Debounce the timeline rendering to avoid performance issues
+          debounceTimer = setTimeout(() => {
+            renderTimeline();
+          }, 300);
         }
 
         // Keyboard shortcuts
@@ -1149,6 +1444,7 @@
           debouncedURLUpdate();
           trackContentChanges();
         });
+        markdownInput.addEventListener("scroll", syncScroll);
         localeSelect.addEventListener("change", handleLocaleChange);
         roundRangesCheckbox.addEventListener("change", renderTimeline);
         alignmentSelect.addEventListener("change", renderTimeline);
@@ -1173,6 +1469,7 @@
         // Ensure URL reflects current state
         updateURL();
         renderTimeline();
+        updateSyntaxHighlighting();
 
         // Handle window resize
         window.addEventListener("resize", () => {
