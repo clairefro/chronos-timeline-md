@@ -237,7 +237,7 @@ export class ChronosTimeline {
   }
 
   private _formatErrorMessages(error: Error): string {
-    return `Error(s) parsing chronos markdown. Hover to edit: \n\n${error.message
+    return `Error(s) parsing chronos markdown.\n\n${error.message
       .split(";;")
       .map((msg) => `  - ${msg}`)
       .join("\n\n")}`;

@@ -528,7 +528,7 @@ export class ChronosMdParser {
   }
 
   private _addParserError(lineNumber: number, message: string) {
-    this.errors.push(`Line ${lineNumber + 1}: ${message}`);
+    this.errors.push(`Line ${lineNumber}: ${message}`);
   }
 
   private _clearErrors() {

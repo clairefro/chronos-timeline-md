@@ -63,6 +63,11 @@
         color: #24292e;
       }
 
+      .chronos-error-message-container {
+        color: rgb(223, 0, 0) !important;
+        background-color: #ffd0d0;
+      }
+
       .input-area {
         flex: 1;
         padding: 1rem;
@@ -126,16 +131,6 @@
         padding: 0.25rem 0.5rem;
         border: 1px solid #e1e4e8;
         border-radius: 4px;
-        font-size: 14px;
-      }
-
-      .error-message {
-        background: #ffeef0;
-        border: 1px solid #fdaeb7;
-        color: #d1242f;
-        padding: 0.75rem 1rem;
-        border-radius: 6px;
-        margin: 1rem;
         font-size: 14px;
       }
 
@@ -766,7 +761,15 @@
               },
             };
 
-            if (currentTimeline.parsed.items.length === 0) {
+            // Check if there are parse errors first
+            const hasErrors = timelineContainer.querySelector(
+              ".chronos-error-message-container"
+            );
+
+            if (hasErrors) {
+              // Parse errors are already displayed by ChronosTimeline
+              exportPngBtn.disabled = true;
+            } else if (currentTimeline.parsed.items.length === 0) {
               timelineContainer.innerHTML =
                 '<div class="loading">No timeline items found. Try adding dates in your markdown</div>';
               exportPngBtn.disabled = true;
