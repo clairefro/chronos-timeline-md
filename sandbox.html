@@ -446,12 +446,19 @@
         // URL state management
         function updateURL() {
           const content = markdownInput.value;
+          const locale = localeSelect.value;
           const url = new URL(window.location);
 
           if (content.trim()) {
             url.searchParams.set("content", content);
           } else {
             url.searchParams.delete("content");
+          }
+
+          if (locale && locale !== "en") {
+            url.searchParams.set("locale", locale);
+          } else {
+            url.searchParams.delete("locale");
           }
 
           window.history.replaceState({}, "", url);
@@ -464,11 +471,26 @@
 
             const urlParams = new URLSearchParams(queryString);
             const content = urlParams.get("content");
+            const locale = urlParams.get("locale");
+            let hasContent = false;
 
+            // Load locale if present
+            if (locale && localeSelect) {
+              const option = localeSelect.querySelector(
+                `option[value="${locale}"]`
+              );
+              if (option) {
+                localeSelect.value = locale;
+              }
+            }
+
+            // Load content if present
             if (content) {
               markdownInput.value = content;
-              return true;
+              hasContent = true;
             }
+
+            return hasContent;
           } catch (error) {
             console.error("Error loading content from URL:", error);
             try {
@@ -679,6 +701,7 @@
           if (example) {
             addToHistory(markdownInput.value);
             markdownInput.value = example.content;
+            updateURL(); // Update URL when example is inserted
             renderTimeline();
           }
           examplesSelect.value = "";
@@ -802,12 +825,18 @@
           }
         }
 
+        // Handle locale changes
+        function handleLocaleChange() {
+          updateURL();
+          renderTimeline();
+        }
+
         // Event listeners
         markdownInput.addEventListener("input", () => {
           debouncedURLUpdate();
           trackContentChanges();
         });
-        localeSelect.addEventListener("change", renderTimeline);
+        localeSelect.addEventListener("change", handleLocaleChange);
         roundRangesCheckbox.addEventListener("change", renderTimeline);
         alignmentSelect.addEventListener("change", renderTimeline);
         examplesSelect.addEventListener("change", insertExample);
@@ -821,6 +850,9 @@
         }
         addToHistory(markdownInput.value);
         lastContent = markdownInput.value;
+
+        // Ensure URL reflects current state
+        updateURL();
         renderTimeline();
 
         // Handle window resize
