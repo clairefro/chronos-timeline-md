@@ -285,19 +285,82 @@ export class ChronosTimeline {
   }
 
   private _setupTooltip(timeline: Timeline, items: ChronosDataItem[]) {
+    // Store items for lookup
+    const itemsDataSet = new DataSet(items);
+
+    // Primary approach - use vis-timeline events
     timeline.on("itemover", (event) => {
-      const item = new DataSet(items).get(
-        event.item
-      ) as unknown as ChronosDataSetDataItem;
-      if (item) {
-        const text = `${item.content} (${smartDateRange(
-          item.start.toISOString(),
-          item.end?.toISOString() ?? null,
-          this.settings.selectedLocale
-        )})${item.cDescription ? " \n " + item.cDescription : ""}`;
-        this.setTooltip(event.event.target, text);
-      }
+      this._showTooltipForItem(event.item, event.event.target, itemsDataSet);
     });
+
+    timeline.on("itemout", (event) => {
+      this._hideTooltipForItem(event.event.target);
+    });
+
+    // Fallback approach - direct DOM event handling
+    // This handles cases where vis-timeline events don't fire properly for layered items
+    setTimeout(() => {
+      const timelineContainer = this.container.querySelector(".vis-timeline");
+      if (timelineContainer) {
+        // Add event listeners to all timeline items
+        const allItems = timelineContainer.querySelectorAll(".vis-item");
+        allItems.forEach((itemElement) => {
+          const itemId = itemElement.getAttribute("data-id");
+          if (itemId) {
+            itemElement.addEventListener("mouseenter", (e) => {
+              this._showTooltipForItem(
+                itemId,
+                e.target as HTMLElement,
+                itemsDataSet
+              );
+            });
+
+            itemElement.addEventListener("mouseleave", (e) => {
+              this._hideTooltipForItem(e.target as HTMLElement);
+            });
+          }
+        });
+      }
+    }, 150); // Small delay to ensure timeline is fully rendered
+  }
+
+  private _showTooltipForItem(
+    itemId: string,
+    targetElement: HTMLElement,
+    itemsDataSet: any
+  ) {
+    const item = itemsDataSet.get(itemId) as unknown as ChronosDataSetDataItem;
+    if (item) {
+      const text = `${item.content} (${smartDateRange(
+        item.start.toISOString(),
+        item.end?.toISOString() ?? null,
+        this.settings.selectedLocale
+      )})${item.cDescription ? " \n " + item.cDescription : ""}`;
+
+      // Find the actual timeline item element for better targeting
+      const timelineElement = this.container.querySelector(".vis-timeline");
+      let tooltipTarget = targetElement;
+
+      if (timelineElement) {
+        const itemElement =
+          timelineElement.querySelector(`[data-id="${itemId}"]`) ||
+          timelineElement.querySelector(`.vis-item[data-id="${itemId}"]`);
+        if (itemElement) {
+          tooltipTarget = itemElement as HTMLElement;
+        }
+      }
+
+      this.setTooltip(tooltipTarget, text);
+    }
+  }
+
+  private _hideTooltipForItem(targetElement: HTMLElement) {
+    // Clear tooltip - handle both title attribute and any custom tooltip systems
+    if (targetElement) {
+      targetElement.removeAttribute("title");
+      // If the host has provided a custom tooltip system that needs cleanup,
+      // they can override this method or handle it in their setTooltip callback
+    }
   }
 
   private _createRefitButton(timeline: Timeline) {

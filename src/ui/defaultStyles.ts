@@ -97,10 +97,30 @@ export const CHRONOS_DEFAULT_CSS = `
 
 .chronos-timeline-container .vis-item.vis-background {
   background-color: var(--chronos-accent-alpha);
+  z-index: 1 !important;
 }
 
 .chronos-timeline-container .vis-item.vis-background .vis-item-content {
   color: var(--chronos-bg-primary);
+}
+
+/* Ensure points and events appear above background periods */
+.chronos-timeline-container .vis-item.vis-point {
+  z-index: 10 !important;
+  pointer-events: auto !important;
+}
+
+.chronos-timeline-container .vis-item.vis-box,
+.chronos-timeline-container .vis-item.vis-range {
+  z-index: 5 !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure item content is hoverable */
+.chronos-timeline-container .vis-item-content {
+  pointer-events: auto !important;
+  position: relative;
+  z-index: inherit;
 }
 
 .chronos-timeline-container .vis-item.vis-selected {
@@ -120,6 +140,8 @@ export const CHRONOS_DEFAULT_CSS = `
   border-color: transparent;
   background-color: var(--chronos-interactive);
   color: var(--chronos-text-on-accent);
+  z-index: 5 !important;
+  pointer-events: auto !important;
 }
 
 .chronos-timeline-container .vis-range.with-caps {
@@ -147,6 +169,8 @@ export const CHRONOS_DEFAULT_CSS = `
 
 .chronos-timeline-container .vis-point {
   cursor: default;
+  z-index: 10 !important;
+  pointer-events: auto !important;
 }
 
 .chronos-timeline-container .vis-text {
