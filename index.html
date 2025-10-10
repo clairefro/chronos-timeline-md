@@ -327,7 +327,13 @@
           <h3>Instructions</h3>
           <ul>
             <li>
-              Write your timeline in the markdown editor on the left. See docs.
+              Write your timeline in the markdown editor on the left. See
+              <a
+                href="https://github.com/clairefro/obsidian-plugin-chronos?tab=readme-ov-file#syntax-overview"
+                target="_blank"
+                rel="nofollow noreferrer"
+                >docs</a
+              >.
             </li>
             <li>Click and drag the timeline left and right to shift view</li>
             <li>Scroll in the timeline to change zoom</li>
@@ -488,7 +494,7 @@
           // Update the header subtitle to include version
           const headerP = document.querySelector(".header p");
           if (headerP) {
-            headerP.innerHTML = `Write chronological markdown on the left, see the timeline visualization on the right <span style="color: #6a737d; font-size: 0.9em;">(v${ChronosTimeline.version})</span>`;
+            headerP.innerHTML = `Generate interactive timelines from simple markdown. See <a href="https://github.com/clairefro/chronos-timeline-md#readme" target="_blank" rel="nofollow noreferrer">docs</a>. Powered by <a href="https://visjs.org/" target="_blank" rel="nofollow noreferrer">vis-timeline</a>`;
           }
         } else {
           console.warn("ChronosTimeline.version not available");
