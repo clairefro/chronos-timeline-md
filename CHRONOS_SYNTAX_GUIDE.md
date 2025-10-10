@@ -4,9 +4,16 @@ Render interactive timelines from simple Markdown. Make time make sense.
 
 Powered by [vis.js](https://visjs.org/)
 
-![date example](./docs/ex-dates-optimize.gif)
+```
+- [2020] A year
+- [2020-02] A month
+- [2020-02-28] A day
+- [2020-02-28T12] An hour
+- [2020-02-28T12:30] A minute
+- [2020-02-28T12:30:09] A second
+```
 
-![date example](./docs/ex-points-many.png)
+![date example](./docs/ex-dates-optimize.gif)
 
 # Syntax Overview
 
