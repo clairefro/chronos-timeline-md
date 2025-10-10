@@ -378,7 +378,7 @@
       }
 
       .loading::before {
-        content: "⏳";
+        content: "🍠";
         font-size: 2rem;
         animation: spin 3s linear infinite;
       }
@@ -665,9 +665,9 @@
           } else if (isGitHubPages) {
             // GitHub Pages - use enhanced CDN loading
             envIndicator.style.display = "none";
-            console.log("🌐 GitHub Pages detected - loading from CDN...");
+            console.log("GitHub Pages detected - loading from CDN...");
 
-            updateLoadingStatus("🔄 Loading Chronos Timeline library...");
+            updateLoadingStatus("Loading Chronos Timeline library...");
             chronosLibrary = await loadChronosLibrary();
           } else {
             // Other hosting - try CDN first with enhanced loading, then fallback to local
@@ -801,12 +801,12 @@
           script.src = src;
 
           script.onload = () => {
-            console.log(`✅ Successfully loaded: ${src}`);
+            console.log(`Successfully loaded: ${src}`);
             resolve();
           };
 
           script.onerror = (error) => {
-            console.warn(`❌ Failed to load: ${src}`);
+            console.warn(`Failed to load: ${src}`);
             document.head.removeChild(script);
 
             if (retries > 0) {
@@ -865,7 +865,7 @@
               );
             }
           } catch (error) {
-            console.warn(`❌ CDN ${i + 1} failed:`, error.message);
+            console.warn(`CDN ${i + 1} failed:`, error.message);
 
             if (isLastAttempt) {
               throw new Error(
