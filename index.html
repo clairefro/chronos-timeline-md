@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chronos Timeline Markdown Playground</title>
+
     <style>
       * {
         margin: 0;
@@ -53,7 +54,6 @@
       }
 
       .output-panel {
-        flex: 1;
         display: flex;
         flex-direction: column;
         background: white;
@@ -103,6 +103,7 @@
       .input-area {
         flex: 1;
         padding: 1rem;
+        position: relative;
       }
 
       #markdown-input {
@@ -357,23 +358,14 @@
           </div>
         </div>
         <div class="instructions-box">
-          <h3>Instructions</h3>
+          <h3>Interacting with the Timeline</h3>
           <ul>
-            <li>
-              Write your timeline in the markdown editor on the left. See
-              <a
-                href="https://github.com/clairefro/obsidian-plugin-chronos?tab=readme-ov-file#syntax-overview"
-                target="_blank"
-                rel="nofollow noreferrer"
-                >docs</a
-              >.
-            </li>
             <li>Click and drag the timeline left and right to shift view</li>
-            <li>Scroll in the timeline to change zoom</li>
+            <li>Scroll to change zoom</li>
             <li>
-              Click the crosshairs icon in lower right to re-center the timeline
+              Click the crosshairs icon in lower right to re-fit the items
             </li>
-            <li>Try the examples in the dropdown menu to get started</li>
+            <li>Try the examples to get started</li>
           </ul>
         </div>
         <div class="export-controls">
