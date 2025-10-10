@@ -410,7 +410,6 @@
 
     <div class="header">
       <div class="header-links">
-        <span id="header-version" class="header-version">Loading...</span>
         <a
           href="https://github.com/clairefro/chronos-timeline-md"
           target="_blank"
@@ -437,6 +436,7 @@
           </svg>
           npm
         </a>
+        <span id="header-version" class="header-version">Loading...</span>
       </div>
       <h1>Chronos Timeline Markdown Playground</h1>
       <p>
@@ -723,7 +723,7 @@
           // Update the header subtitle to include version
           const headerP = document.querySelector(".header p");
           if (headerP) {
-            headerP.innerHTML = `Generate interactive timelines from simple markdown. See <a href="https://github.com/clairefro/obsidian-plugin-chronos?tab=readme-ov-file#syntax-overview" target="_blank" rel="nofollow noreferrer">docs</a>. Powered by <a href="https://visjs.org/" target="_blank" rel="nofollow noreferrer">vis-timeline</a>`;
+            headerP.innerHTML = `Generate interactive timelines from simple markdown. See <a href="https://github.com/clairefro/chronos-timeline-md/blob/main/CHRONOS_SYNTAX_GUIDE.md" target="_blank" rel="nofollow noreferrer">docs</a>. Powered by <a href="https://visjs.org/" target="_blank" rel="nofollow noreferrer">vis-timeline</a>`;
           }
         } else {
           console.warn("ChronosTimeline.version not available");
