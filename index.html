@@ -35,6 +35,7 @@
         color: white;
         padding: 1rem 2rem;
         border-bottom: 1px solid #e1e4e8;
+        position: relative;
       }
 
       .header h1 {
@@ -45,6 +46,46 @@
       .header p {
         color: #959da5;
         margin-top: 0.5rem;
+      }
+
+      .header-links {
+        position: absolute;
+        top: 1rem;
+        right: 2rem;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .header-version {
+        color: #959da5;
+        font-size: 0.8rem;
+        padding: 0.2rem 0.4rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+      }
+
+      .header-link {
+        color: #959da5;
+        text-decoration: none;
+        font-size: 0.9rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+
+      .header-link:hover {
+        color: white;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .header-link svg {
+        width: 16px;
+        height: 16px;
+        fill: currentColor;
       }
 
       .container {
@@ -168,7 +209,7 @@
         border: 1px solid #e1e4e8;
       }
 
-      /* Chronos syntax highlighting styles */
+      /* Chronos syntax highlighting styles - these will be replaced by library CSS */
       #highlight-backdrop .hljs-section {
         color: #22863a;
         font-weight: 600;
@@ -368,6 +409,35 @@
     <div id="env-indicator" class="env-indicator">Loading...</div>
 
     <div class="header">
+      <div class="header-links">
+        <span id="header-version" class="header-version">Loading...</span>
+        <a
+          href="https://github.com/clairefro/chronos-timeline-md"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="header-link"
+        >
+          <svg viewBox="0 0 16 16">
+            <path
+              d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
+            />
+          </svg>
+          GitHub
+        </a>
+        <a
+          href="https://www.npmjs.com/package/chronos-timeline-md"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="header-link"
+        >
+          <svg viewBox="0 0 16 16">
+            <path
+              d="M0 10h16v2H0v-2zm1-1h14V7H1v2zm1-3h12V4H2v2zm1-3h10V1H3v2z"
+            />
+          </svg>
+          npm
+        </a>
+      </div>
       <h1>Chronos Timeline Markdown Playground</h1>
       <p>
         Write chronological markdown on the left, see the timeline visualization
@@ -462,167 +532,6 @@
 
     <!-- Smart Loading Script -->
     <script>
-      // Register Chronos language with highlight.js
-      hljs.registerLanguage("chronos", function () {
-        return {
-          name: "chronos",
-          aliases: ["chronos-md", "chronos-markdown"],
-          case_insensitive: false,
-          keywords: {
-            built_in: "ORDERBY DEFAULTVIEW NOTODAY HEIGHT start end color",
-          },
-          contains: [
-            // Comments (markdown headers)
-            {
-              className: "comment",
-              begin: "^\\s*#+",
-              end: "$",
-              relevance: 0,
-            },
-            // Flags/Options
-            {
-              className: "meta",
-              begin: "^\\s*>\\s*(ORDERBY|DEFAULTVIEW|NOTODAY|HEIGHT)\\b",
-              end: "$",
-              keywords: "ORDERBY DEFAULTVIEW NOTODAY HEIGHT",
-            },
-            // Events (lines starting with -)
-            {
-              className: "section",
-              begin: "^\\s*-",
-              end: "$",
-              contains: [
-                // Date ranges in brackets
-                {
-                  className: "string",
-                  begin: "\\[",
-                  end: "\\]",
-                  contains: [
-                    // ISO dates and ranges
-                    {
-                      className: "number",
-                      begin:
-                        "-?\\d{1,4}(-\\d{2})?(-\\d{2})?(T\\d{2}(:\\d{2})?(:\\d{2})?)?",
-                    },
-                    // Range separator
-                    {
-                      className: "operator",
-                      begin: "~",
-                    },
-                  ],
-                },
-                // Colors
-                {
-                  className: "literal",
-                  begin: "#\\w+\\b",
-                  relevance: 5,
-                },
-                // Groups in curly braces
-                {
-                  className: "title",
-                  begin: "\\{",
-                  end: "\\}",
-                  relevance: 3,
-                },
-                // Descriptions after pipe
-                {
-                  className: "comment",
-                  begin: "\\|",
-                  end: "$",
-                  relevance: 2,
-                },
-              ],
-            },
-            // Periods (lines starting with @)
-            {
-              className: "keyword",
-              begin: "^\\s*@",
-              end: "$",
-              contains: [
-                // Same date/color/group patterns as events
-                {
-                  className: "string",
-                  begin: "\\[",
-                  end: "\\]",
-                  contains: [
-                    {
-                      className: "number",
-                      begin:
-                        "-?\\d{1,4}(-\\d{2})?(-\\d{2})?(T\\d{2}(:\\d{2})?(:\\d{2})?)?",
-                    },
-                    {
-                      className: "operator",
-                      begin: "~",
-                    },
-                  ],
-                },
-                {
-                  className: "literal",
-                  begin: "#\\w+\\b",
-                  relevance: 5,
-                },
-                {
-                  className: "title",
-                  begin: "\\{",
-                  end: "\\}",
-                  relevance: 3,
-                },
-              ],
-            },
-            // Points (lines starting with *)
-            {
-              className: "attribute",
-              begin: "^\\s*\\*",
-              end: "$",
-              contains: [
-                // Same patterns as above
-                {
-                  className: "string",
-                  begin: "\\[",
-                  end: "\\]",
-                  contains: [
-                    {
-                      className: "number",
-                      begin:
-                        "-?\\d{1,4}(-\\d{2})?(-\\d{2})?(T\\d{2}(:\\d{2})?(:\\d{2})?)?",
-                    },
-                  ],
-                },
-                {
-                  className: "literal",
-                  begin: "#\\w+\\b",
-                },
-                {
-                  className: "title",
-                  begin: "\\{",
-                  end: "\\}",
-                },
-              ],
-            },
-            // Markers (lines starting with =)
-            {
-              className: "built_in",
-              begin: "^\\s*=",
-              end: "$",
-              contains: [
-                {
-                  className: "string",
-                  begin: "\\[",
-                  end: "\\]",
-                  contains: [
-                    {
-                      className: "number",
-                      begin:
-                        "-?\\d{1,4}(-\\d{2})?(-\\d{2})?(T\\d{2}(:\\d{2})?(:\\d{2})?)?",
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        };
-      });
-
       // Function to update syntax highlighting
       function updateSyntaxHighlighting() {
         const textarea = document.getElementById("markdown-input");
@@ -680,8 +589,8 @@
             }
           } else if (isGitHubPages) {
             // GitHub Pages - use CDN
-            envIndicator.textContent = "GitHub Pages";
-            console.log("Loading from CDN...");
+            envIndicator.textContent = "";
+            console.log("Loading chronos from CDN...");
 
             // Show loading message in timeline container for GitHub Pages
             document.getElementById("timeline-container").innerHTML =
@@ -716,15 +625,55 @@
             parseChronos,
             renderChronos,
             attachChronosStyles,
+            ui,
           } = chronosLibrary;
+
+          // Use library's syntax highlighting if available
+          if (
+            ui &&
+            ui.registerChronosLanguage &&
+            ui.injectChronosHighlightCSS
+          ) {
+            console.log("Using library's syntax highlighting...");
+
+            // Register the language and inject CSS from library
+            ui.registerChronosLanguage(hljs);
+            ui.injectChronosHighlightCSS();
+
+            // Update the highlighting function to use library's version
+            const originalUpdateSyntaxHighlighting = updateSyntaxHighlighting;
+            updateSyntaxHighlighting = function () {
+              const textarea = document.getElementById("markdown-input");
+              const backdrop = document.getElementById("highlight-backdrop");
+
+              if (textarea && backdrop && ui.highlightChronosText) {
+                const content = textarea.value;
+                try {
+                  const highlighted = ui.highlightChronosText(content, hljs);
+                  backdrop.innerHTML = highlighted;
+                } catch (error) {
+                  console.warn(
+                    "Library syntax highlighting failed, using fallback:",
+                    error
+                  );
+                  originalUpdateSyntaxHighlighting();
+                }
+              } else {
+                originalUpdateSyntaxHighlighting();
+              }
+            };
+          } else {
+            console.log(
+              "Library syntax highlighting not available, using built-in fallback..."
+            );
+          }
+
           initializeApp({
             ChronosTimeline,
             parseChronos,
             renderChronos,
             attachChronosStyles,
-          });
-
-          // Hide environment indicator after successful load
+          }); // Hide environment indicator after successful load
           setTimeout(() => {
             envIndicator.style.display = "none";
           }, 2000);
@@ -756,29 +705,17 @@
         renderChronos,
         attachChronosStyles,
       }) {
-        console.log("Initializing Chronos Timeline App...");
+        console.log("Initializing Chronos Timeline...");
 
         // Display version information if available
         if (ChronosTimeline.version) {
           console.log(`Chronos Timeline version: ${ChronosTimeline.version}`);
 
-          // Log available static properties for developers
-          console.log(
-            "Available templates:",
-            Object.keys(ChronosTimeline.templates || {})
-          );
-          console.log("Cheatsheet available:", !!ChronosTimeline.cheatsheet);
-          console.log(
-            "AI prompt available:",
-            !!ChronosTimeline.prompts?.system
-          );
-
-          // Add version to header
-          const versionDisplay = document.createElement("div");
-          versionDisplay.style.cssText =
-            "position: absolute; top: 15px; right: 20px; color: #959da5; font-size: 0.85rem; z-index: 1000; background: rgba(0,0,0,0.1); padding: 2px 6px; border-radius: 3px;";
-          versionDisplay.textContent = `v${ChronosTimeline.version}`;
-          document.querySelector(".header").appendChild(versionDisplay);
+          // Update version in header links
+          const headerVersion = document.getElementById("header-version");
+          if (headerVersion) {
+            headerVersion.textContent = `v${ChronosTimeline.version}`;
+          }
 
           // Also add version to page title
           document.title = `Chronos Timeline v${ChronosTimeline.version} - Markdown Playground`;
@@ -790,12 +727,13 @@
           }
         } else {
           console.warn("ChronosTimeline.version not available");
-          // Add a fallback version indicator
-          const versionDisplay = document.createElement("div");
-          versionDisplay.style.cssText =
-            "position: absolute; top: 15px; right: 20px; color: #dc3545; font-size: 0.85rem; z-index: 1000; background: rgba(220,53,69,0.1); padding: 2px 6px; border-radius: 3px;";
-          versionDisplay.textContent = "version unknown";
-          document.querySelector(".header").appendChild(versionDisplay);
+          // Update fallback version
+          const headerVersion = document.getElementById("header-version");
+          if (headerVersion) {
+            headerVersion.textContent = "version unknown";
+            headerVersion.style.background = "rgba(220,53,69,0.1)";
+            headerVersion.style.color = "#dc3545";
+          }
         }
 
         // All your existing JavaScript code goes here
@@ -1093,7 +1031,7 @@
 - [2024] AGI`,
           },
           {
-            title: "Cold War Timeline",
+            title: "Advanced: Cold War Timeline",
             content: `- [1945-07-17] {Europe} Potsdam Conference | where post-WWII Europe is divided
 - [1947-03-12] {USA} Truman Doctrine | committing the U.S. to containing communism
 - [1948-06-24~1949-05-12] {Europe} Berlin Blockade | and Airlift in response to Soviet actions in Berlin
