@@ -161,6 +161,32 @@
         height: 100%;
       }
 
+      /* Edit icon that appears on hover */
+      .editor-container::before {
+        content: "✏️";
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        z-index: 3;
+        font-size: 1.2rem;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        pointer-events: none;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 0.3rem;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .editor-container:hover::before {
+        opacity: 1;
+      }
+
+      /* Also show when textarea is focused */
+      .editor-container:focus-within::before {
+        opacity: 0.7;
+      }
+
       #markdown-input {
         width: 100%;
         height: 100%;
@@ -465,17 +491,193 @@
         background: #17a2b8;
       }
 
-      @media (max-width: 768px) {
-        .container {
-          flex-direction: column;
+      /* Tablet and Mobile Responsive Design */
+      @media (max-width: 1024px) {
+        .header {
+          padding: 1rem;
+          text-align: center;
+          position: relative;
         }
 
+        .header h1 {
+          font-size: 1.25rem;
+          margin-bottom: 0.5rem;
+        }
+
+        .header-links {
+          position: static;
+          margin-top: 1rem;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+
+        .header-version {
+          order: -1;
+          margin-bottom: 0.5rem;
+        }
+
+        .container {
+          flex-direction: column;
+          height: auto;
+          min-height: calc(100vh - 120px);
+        }
+
+        .input-panel {
+          flex: none;
+          height: 50vh;
+          min-height: 300px;
+          border-bottom: 1px solid #e1e4e8;
+          border-right: none;
+        }
+
+        .output-panel {
+          flex: 1;
+          min-height: 50vh;
+        }
+
+        /* Hide horizontal divider on mobile */
         .divider {
           display: none;
         }
 
-        .input-panel {
+        /* Add vertical divider for mobile */
+        .input-panel::after {
+          content: "";
+          position: absolute;
+          bottom: -4px;
+          left: 0;
+          right: 0;
+          height: 8px;
+          background: #f6f8fa;
+          border-top: 1px solid #e1e4e8;
           border-bottom: 1px solid #e1e4e8;
+          cursor: row-resize;
+          z-index: 10;
+        }
+
+        .input-panel {
+          position: relative;
+        }
+
+        /* Mobile-specific form adjustments */
+        .controls {
+          padding: 0.75rem;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+        }
+
+        .control-group {
+          min-width: calc(50% - 0.25rem);
+        }
+
+        .control-group label {
+          font-size: 12px;
+        }
+
+        .control-group select,
+        .control-group input {
+          font-size: 14px;
+          padding: 0.35rem 0.5rem;
+        }
+
+        .export-controls {
+          padding: 0.75rem;
+          flex-direction: column;
+          gap: 0.75rem;
+        }
+
+        .export-btn {
+          width: 100%;
+          padding: 0.75rem;
+          font-size: 14px;
+        }
+
+        .instructions-box {
+          margin: 0.75rem;
+          padding: 0.75rem;
+        }
+
+        .instructions-box h3 {
+          font-size: 1rem;
+        }
+
+        /* Textarea adjustments for mobile */
+        .textarea-container textarea {
+          font-size: 14px;
+          line-height: 1.4;
+        }
+
+        /* Error message responsive */
+        .error-message {
+          margin: 0.75rem;
+          padding: 1rem;
+        }
+
+        .error-message h3 {
+          font-size: 1rem;
+        }
+
+        .error-message ul {
+          padding-left: 1rem;
+        }
+
+        /* Environment indicator mobile position */
+        .env-indicator {
+          top: 5px;
+          right: 5px;
+          font-size: 10px;
+          padding: 0.2rem 0.4rem;
+        }
+      }
+
+      /* Small mobile devices */
+      @media (max-width: 480px) {
+        .header {
+          padding: 0.75rem;
+        }
+
+        .header h1 {
+          font-size: 1.1rem;
+        }
+
+        .header-links {
+          gap: 0.5rem;
+        }
+
+        .header-link {
+          font-size: 0.8rem;
+          padding: 0.2rem 0.4rem;
+        }
+
+        .input-panel {
+          height: 45vh;
+          min-height: 250px;
+        }
+
+        .controls {
+          padding: 0.5rem;
+        }
+
+        .control-group {
+          min-width: 100%;
+        }
+
+        .textarea-container textarea {
+          font-size: 13px;
+          padding: 0.5rem;
+        }
+
+        .instructions-box {
+          margin: 0.5rem;
+          padding: 0.5rem;
+        }
+
+        .instructions-box h3 {
+          font-size: 0.9rem;
+        }
+
+        .instructions-box ul {
+          font-size: 0.85rem;
         }
       }
     </style>
@@ -577,7 +779,14 @@
         <div class="output-area">
           <div id="timeline-container">
             <div class="loading">
-              Enter markdown content to see the timeline visualization
+              Enter markdown to see a timeline. See
+              <a
+                href="https://github.com/clairefro/chronos-timeline-md/blob/main/CHRONOS_SYNTAX_GUIDE.md"
+                target="_blank"
+                rel="noopener noreferrer"
+                >docs</a
+              >
+              for syntax.
             </div>
           </div>
         </div>
@@ -945,41 +1154,121 @@
 
         // Resizable divider functionality
         let isResizing = false;
+        let isMobile = false;
+
+        function checkMobile() {
+          isMobile = window.innerWidth <= 1024;
+          return isMobile;
+        }
 
         function initializeResizer() {
-          divider.addEventListener("mousedown", startResizing);
+          checkMobile();
+
+          // Desktop horizontal divider
+          if (divider) {
+            divider.addEventListener("mousedown", startResizing);
+          }
+
+          // Mobile vertical divider (using input panel's ::after pseudo-element)
+          if (inputPanel) {
+            inputPanel.addEventListener("mousedown", startMobileResizing);
+            inputPanel.addEventListener("touchstart", startMobileResizing, {
+              passive: false,
+            });
+          }
+
           document.addEventListener("mousemove", handleResize);
+          document.addEventListener("touchmove", handleResize, {
+            passive: false,
+          });
           document.addEventListener("mouseup", stopResizing);
+          document.addEventListener("touchend", stopResizing);
+
+          // Update on window resize
+          window.addEventListener("resize", () => {
+            const wasMobile = isMobile;
+            checkMobile();
+
+            // Reset styles when switching between mobile/desktop
+            if (wasMobile !== isMobile) {
+              inputPanel.style.flexBasis = "";
+              outputPanel.style.flexBasis = "";
+              inputPanel.style.height = "";
+              outputPanel.style.height = "";
+              inputPanel.style.flexShrink = "";
+              outputPanel.style.flexShrink = "";
+            }
+          });
         }
 
         function startResizing(e) {
+          if (checkMobile()) return; // Don't handle horizontal resize on mobile
+
           isResizing = true;
           document.body.style.cursor = "col-resize";
           document.body.style.userSelect = "none";
           e.preventDefault();
         }
 
+        function startMobileResizing(e) {
+          if (!checkMobile()) return; // Only handle on mobile
+
+          // Check if click/touch is near bottom edge (where our pseudo-element divider is)
+          const rect = inputPanel.getBoundingClientRect();
+          const y = e.type.includes("touch") ? e.touches[0].clientY : e.clientY;
+          const bottomEdge = rect.bottom;
+
+          // Only start resizing if within 10px of bottom edge
+          if (Math.abs(y - bottomEdge) <= 10) {
+            isResizing = true;
+            document.body.style.cursor = "row-resize";
+            document.body.style.userSelect = "none";
+            e.preventDefault();
+          }
+        }
+
         function handleResize(e) {
           if (!isResizing) return;
 
-          const containerRect = container.getBoundingClientRect();
-          const mouseX = e.clientX - containerRect.left;
+          if (checkMobile()) {
+            // Mobile vertical resizing
+            const containerRect = container.getBoundingClientRect();
+            const y = e.type.includes("touch")
+              ? e.touches[0].clientY
+              : e.clientY;
+            const mouseY = y - containerRect.top;
 
-          // Calculate percentages
-          const totalWidth = containerRect.width - 8; // Subtract divider width
-          const leftPercent = Math.max(
-            20,
-            Math.min(80, (mouseX / containerRect.width) * 100)
-          );
-          const rightPercent = 100 - leftPercent;
+            // Calculate height percentages
+            const totalHeight = containerRect.height;
+            const topPercent = Math.max(
+              25,
+              Math.min(75, (mouseY / totalHeight) * 100)
+            );
 
-          // Apply the new flex basis
-          inputPanel.style.flexBasis = `${leftPercent}%`;
-          outputPanel.style.flexBasis = `${rightPercent}%`;
+            // Apply new heights
+            inputPanel.style.height = `${topPercent}vh`;
+            outputPanel.style.flexGrow = "1";
+          } else {
+            // Desktop horizontal resizing
+            const containerRect = container.getBoundingClientRect();
+            const mouseX = e.clientX - containerRect.left;
 
-          // Ensure panels don't shrink below flex basis
-          inputPanel.style.flexShrink = "0";
-          outputPanel.style.flexShrink = "0";
+            // Calculate width percentages
+            const totalWidth = containerRect.width - 8; // Subtract divider width
+            const leftPercent = Math.max(
+              20,
+              Math.min(80, (mouseX / containerRect.width) * 100)
+            );
+            const rightPercent = 100 - leftPercent;
+
+            // Apply the new flex basis
+            inputPanel.style.flexBasis = `${leftPercent}%`;
+            outputPanel.style.flexBasis = `${rightPercent}%`;
+
+            // Ensure panels don't shrink below flex basis
+            inputPanel.style.flexShrink = "0";
+            outputPanel.style.flexShrink = "0";
+          }
         }
 
         function stopResizing() {
@@ -1282,7 +1571,7 @@
 
           if (!markdownContent) {
             timelineContainer.innerHTML =
-              '<div class="loading">Enter markdown content to see the timeline visualization</div>';
+              '<div class="loading">Enter markdown content to see the timeline. See <a href="https://github.com/clairefro/chronos-timeline-md/blob/main/CHRONOS_SYNTAX_GUIDE.md" target="_blank" rel="noopener noreferrer">docs</a>for syntax.</div>';
             return;
           }
 
