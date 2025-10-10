@@ -299,6 +299,9 @@
           <button id="export-png-btn" class="export-btn" disabled>
             Export as PNG
           </button>
+          <button id="share-link-btn" class="export-btn">
+            Copy Share Link to Clipboard
+          </button>
           <span
             id="export-status"
             style="color: #586069; font-size: 14px"
@@ -466,6 +469,7 @@
         const alignmentSelect = document.getElementById("alignment");
         const examplesSelect = document.getElementById("examples-select");
         const exportPngBtn = document.getElementById("export-png-btn");
+        const shareLinkBtn = document.getElementById("share-link-btn");
         const exportStatus = document.getElementById("export-status");
         const divider = document.getElementById("divider");
         const inputPanel = document.querySelector(".input-panel");
@@ -1002,6 +1006,69 @@
           }
         }
 
+        // Share Link functionality
+        function shareLink() {
+          try {
+            // Ensure URL is up to date with current content
+            updateURL();
+
+            const currentUrl = window.location.href;
+
+            // Try to use the Clipboard API if available
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard
+                .writeText(currentUrl)
+                .then(() => {
+                  exportStatus.textContent = "Link copied to clipboard!";
+                  setTimeout(() => {
+                    exportStatus.textContent = "";
+                  }, 3000);
+                })
+                .catch((error) => {
+                  console.error("Clipboard write failed:", error);
+                  fallbackCopyToClipboard(currentUrl);
+                });
+            } else {
+              // Fallback for older browsers
+              fallbackCopyToClipboard(currentUrl);
+            }
+          } catch (error) {
+            console.error("Share link error:", error);
+            exportStatus.textContent = "Failed to copy link";
+            setTimeout(() => {
+              exportStatus.textContent = "";
+            }, 3000);
+          }
+        }
+
+        // Fallback clipboard function for older browsers
+        function fallbackCopyToClipboard(text) {
+          const textArea = document.createElement("textarea");
+          textArea.value = text;
+          textArea.style.position = "fixed";
+          textArea.style.left = "-999999px";
+          textArea.style.top = "-999999px";
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+
+          try {
+            document.execCommand("copy");
+            exportStatus.textContent = "Link copied to clipboard!";
+            setTimeout(() => {
+              exportStatus.textContent = "";
+            }, 3000);
+          } catch (error) {
+            console.error("Fallback copy failed:", error);
+            exportStatus.textContent = "Copy failed. Please copy URL manually.";
+            setTimeout(() => {
+              exportStatus.textContent = "";
+            }, 5000);
+          } finally {
+            document.body.removeChild(textArea);
+          }
+        }
+
         // Event listeners
         markdownInput.addEventListener("input", () => {
           debouncedURLUpdate();
@@ -1012,6 +1079,7 @@
         alignmentSelect.addEventListener("change", renderTimeline);
         examplesSelect.addEventListener("change", insertExample);
         exportPngBtn.addEventListener("click", exportToPNG);
+        shareLinkBtn.addEventListener("click", shareLink);
         document.addEventListener("keydown", handleKeyboardShortcuts);
 
         // Initialize
