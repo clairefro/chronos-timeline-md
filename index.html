@@ -449,7 +449,35 @@
         background: var(--bg-tertiary);
         border-top: 1px solid var(--border-primary);
         display: flex;
+        flex-direction: column;
         gap: 1rem;
+        align-items: flex-start;
+      }
+
+      .export-options {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .export-option-label {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 14px;
+        color: var(--text-secondary);
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .export-option-label input[type="checkbox"] {
+        margin: 0;
+      }
+
+      .export-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
         align-items: center;
       }
 
@@ -703,6 +731,12 @@
           padding: 0.75rem;
           flex-direction: column;
           gap: 0.75rem;
+          align-items: stretch;
+        }
+
+        .export-buttons {
+          flex-direction: column;
+          gap: 0.75rem;
         }
 
         .export-btn {
@@ -953,16 +987,24 @@
           </ul>
         </div>
         <div class="export-controls">
-          <button id="export-png-btn" class="export-btn" disabled>
-            Export as PNG
-          </button>
-          <button id="share-link-btn" class="export-btn">
-            Copy Shareable Link!
-          </button>
-          <span
-            id="export-status"
-            style="color: #586069; font-size: 14px"
-          ></span>
+          <div class="export-buttons">
+            <button id="export-png-btn" class="export-btn" disabled>
+              Export as PNG
+            </button>
+            <button id="share-link-btn" class="export-btn">
+              Copy Shareable Link!
+            </button>
+            <span
+              id="export-status"
+              style="color: #586069; font-size: 14px"
+            ></span>
+          </div>
+          <div class="export-options">
+            <label for="transparent-bg-checkbox" class="export-option-label">
+              <input type="checkbox" id="transparent-bg-checkbox" />
+              Transparent background
+            </label>
+          </div>
         </div>
       </div>
     </div>
@@ -1330,6 +1372,9 @@
         const alignmentSelect = document.getElementById("alignment");
         const examplesSelect = document.getElementById("examples-select");
         const exportPngBtn = document.getElementById("export-png-btn");
+        const transparentBgCheckbox = document.getElementById(
+          "transparent-bg-checkbox"
+        );
         const shareLinkBtn = document.getElementById("share-link-btn");
         const exportStatus = document.getElementById("export-status");
         const optionsToggle = document.getElementById("options-toggle");
@@ -1617,6 +1662,34 @@
 # Hover on a timeline item to see its description`,
           },
           {
+            title: "Groups ({})",
+            content: `@ [1892-10-08~1941-08-31] {Marina Tsvetaeva} 1892-1941
+            - [1916] {Marina Tsvetaeva} "Подруга"
+            - [1928] {Marina Tsvetaeva}  "Поэма концов"
+            - [1941] {Marina Tsvetaeva} "Записки о поэзии"
+            
+            @ [1899-08-24~1986-06-14] {Jorge Luis Borges} 1899-1986
+            - [1944] {Jorge Luis Borges} "Ficciones"
+            - [1949] {Jorge Luis Borges} "El Aleph"
+            - [1962] {Jorge Luis Borges} "Labyrinths"`,
+          },
+          {
+            title: "Periods (@)",
+            content: `@ [-300~250] Yayoi Period
+            - [-100] Introduction of rice cultivation
+            - [-57] Japan's first recorded contact with China`,
+          },
+          {
+            title: "Colored Periods",
+            content: `@ [-300~250] #red Yayoi Period
+            - [-100] Introduction of rice cultivation
+            - [-57] Japan's first recorded contact with China
+            
+            @ [250~538] Kofun Period
+            - [250] Construction of keyhole-shaped kofun burial mounds begins
+            - [369] Yamato state sends envoys to Korea`,
+          },
+          {
             title: "Colored Events (#color)",
             content: `- [2001~2009] #red Bush
 - [2009~2017] #blue Obama
@@ -1627,40 +1700,12 @@
 # You can also use custom hex-code colors like #dd6689`,
           },
           {
-            title: "Groups Example ({})",
-            content: `@ [1892-10-08~1941-08-31] {Marina Tsvetaeva} 1892-1941
-- [1916] {Marina Tsvetaeva} "Подруга"
-- [1928] {Marina Tsvetaeva}  "Поэма концов"
-- [1941] {Marina Tsvetaeva} "Записки о поэзии"
-
-@ [1899-08-24~1986-06-14] {Jorge Luis Borges} 1899-1986
-- [1944] {Jorge Luis Borges} "Ficciones"
-- [1949] {Jorge Luis Borges} "El Aleph"
-- [1962] {Jorge Luis Borges} "Labyrinths"`,
-          },
-          {
-            title: "Periods (@)",
-            content: `@ [-300~250] Yayoi Period
-- [-100] Introduction of rice cultivation
-- [-57] Japan's first recorded contact with China`,
-          },
-          {
-            title: "Colored Periods",
-            content: `@ [-300~250] #red Yayoi Period
-- [-100] Introduction of rice cultivation
-- [-57] Japan's first recorded contact with China
-
-@ [250~538] Kofun Period
-- [250] Construction of keyhole-shaped kofun burial mounds begins
-- [369] Yamato state sends envoys to Korea`,
-          },
-          {
             title: "Points (*)",
             content: `- [2024-02-26~2024-03-10] Tournament
-* [2024-02-26] Game 1 | Austin
-* [2024-02-28] Game 2 | Los Angeles
-* [2024-03-06] Game 3 | Tokyo
-* [2024-03-10] Game 4 | Jakarta`,
+            * [2024-02-26] Game 1 | Austin
+            * [2024-02-28] Game 2 | Los Angeles
+            * [2024-03-06] Game 3 | Tokyo
+            * [2024-03-10] Game 4 | Jakarta`,
           },
           {
             title: "Markers (=)",
@@ -1924,8 +1969,19 @@
                   throw new Error("Timeline element not found");
                 }
 
+                // Determine background based on user preference and theme
+                const useTransparentBg = transparentBgCheckbox.checked;
+                const isDarkMode =
+                  document.body.getAttribute("data-theme") === "dark";
+
+                let backgroundColor = null; // Default to transparent
+                if (!useTransparentBg) {
+                  // User wants solid background
+                  backgroundColor = isDarkMode ? null : "#ffffff";
+                }
+
                 return html2canvas(timelineElement, {
-                  backgroundColor: "#ffffff",
+                  backgroundColor: backgroundColor,
                   scale: 2, // Higher resolution
                   useCORS: true,
                   allowTaint: true,
