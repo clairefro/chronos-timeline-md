@@ -914,7 +914,7 @@
           <div class="control-group">
             <!-- <label for="snippets-select">Snippets:</label> -->
             <select id="snippets-select">
-              <option value="">Insert Snippet at Cursor...</option>
+              <option value="">Insert Snippet...</option>
             </select>
           </div>
 
@@ -1843,7 +1843,7 @@
           },
           // Flags
           {
-            category: "Flags",
+            category: "Flags (Options)",
             items: [
               {
                 title: "Order by start date",
@@ -1875,7 +1875,7 @@
 
         function populateSnippetsDropdown() {
           snippetsSelect.innerHTML =
-            '<option value="">Insert Snippet at Cursor...</option>';
+            '<option value="">Insert Snippet...</option>';
 
           chronosSnippets.forEach((category) => {
             // Add category header
