@@ -1,6 +1,6 @@
 {
   "name": "chronos-timeline-md",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Render interactive timelines from simple markdown",
   "main": "dist/cjs-entry.cjs",
   "module": "dist/index.js",
