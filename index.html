@@ -402,6 +402,48 @@
         color: var(--text-primary);
       }
 
+      .options-toggle-container {
+        display: flex;
+        align-items: center;
+      }
+
+      .options-toggle {
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+        border: 1px solid var(--border-primary);
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .options-toggle-icon {
+        transition: transform 0.2s;
+        display: flex;
+        align-items: center;
+      }
+
+      .options-toggle.expanded .options-toggle-icon {
+        transform: rotate(180deg);
+      }
+
+      .options-menu {
+        background: var(--bg-tertiary);
+        padding: 1rem 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .controls {
+        position: relative;
+        border-radius: 6px 6px 0 0;
+      }
+
       .export-controls {
         padding: 1rem;
         background: var(--bg-tertiary);
@@ -647,6 +689,16 @@
           padding: 0.35rem 0.5rem;
         }
 
+        .options-toggle {
+          font-size: 12px;
+          padding: 0.4rem 0.6rem;
+        }
+
+        .options-menu {
+          padding: 0.75rem;
+          gap: 0.5rem;
+        }
+
         .export-controls {
           padding: 0.75rem;
           flex-direction: column;
@@ -729,6 +781,15 @@
           min-width: 100%;
         }
 
+        .options-toggle {
+          font-size: 11px;
+          padding: 0.3rem 0.5rem;
+        }
+
+        .options-menu {
+          padding: 0.5rem;
+        }
+
         .textarea-container textarea {
           font-size: 13px;
           padding: 0.5rem;
@@ -797,38 +858,58 @@
         <div class="panel-header">Edit Markdown Input</div>
         <div class="controls">
           <div class="control-group">
-            <label for="locale-select">Locale:</label>
-            <select id="locale-select">
-              <option value="en" selected>English</option>
-              <option value="de">Deutsch (German)</option>
-              <option value="es">Español (Spanish)</option>
-              <option value="fr">Français (French)</option>
-              <option value="it">Italiano (Italian)</option>
-              <option value="nl">Nederlands (Dutch)</option>
-              <option value="pl">Polski (Polish)</option>
-              <option value="ru">Русский (Russian)</option>
-              <option value="uk">Українська (Ukrainian)</option>
-              <option value="ja">日本語 (Japanese)</option>
-            </select>
-          </div>
-          <div class="control-group">
-            <label for="round-ranges">
-              <input type="checkbox" id="round-ranges" /> Round Ranges
-            </label>
-          </div>
-          <div class="control-group">
-            <label for="alignment">Alignment:</label>
-            <select id="alignment">
-              <option value="left">Left</option>
-              <option value="center">Center</option>
-              <option value="right">Right</option>
-            </select>
-          </div>
-          <div class="control-group">
             <label for="examples-select">Examples:</label>
             <select id="examples-select">
               <option value="">Insert Example...</option>
             </select>
+          </div>
+
+          <div class="options-toggle-container">
+            <button id="options-toggle" class="options-toggle" type="button">
+              <span>Options</span>
+              <span class="options-toggle-icon">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path
+                    d="M3 4.5L6 7.5L9 4.5"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
+            </button>
+          </div>
+
+          <div id="options-menu" class="options-menu" style="display: none">
+            <div class="control-group">
+              <label for="locale-select">Locale:</label>
+              <select id="locale-select">
+                <option value="en" selected>English</option>
+                <option value="de">Deutsch (German)</option>
+                <option value="es">Español (Spanish)</option>
+                <option value="fr">Français (French)</option>
+                <option value="it">Italiano (Italian)</option>
+                <option value="nl">Nederlands (Dutch)</option>
+                <option value="pl">Polski (Polish)</option>
+                <option value="ru">Русский (Russian)</option>
+                <option value="uk">Українська (Ukrainian)</option>
+                <option value="ja">日本語 (Japanese)</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label for="round-ranges">
+                <input type="checkbox" id="round-ranges" /> Round Ranges
+              </label>
+            </div>
+            <div class="control-group">
+              <label for="alignment">Alignment:</label>
+              <select id="alignment">
+                <option value="left">Left</option>
+                <option value="center">Center</option>
+                <option value="right">Right</option>
+              </select>
+            </div>
           </div>
         </div>
         <div class="input-area">
@@ -865,7 +946,9 @@
           <ul>
             <li>Click and drag the timeline left and right</li>
             <li>Scroll to zoom</li>
-            <li>Click the crosshairs icon in lower right to re-fit items</li>
+            <li>
+              Lost? Click the crosshairs icon in lower right to re-fit items
+            </li>
             <li>Try the examples to get started</li>
           </ul>
         </div>
@@ -1249,6 +1332,8 @@
         const exportPngBtn = document.getElementById("export-png-btn");
         const shareLinkBtn = document.getElementById("share-link-btn");
         const exportStatus = document.getElementById("export-status");
+        const optionsToggle = document.getElementById("options-toggle");
+        const optionsMenu = document.getElementById("options-menu");
         const divider = document.getElementById("divider");
         const inputPanel = document.querySelector(".input-panel");
         const outputPanel = document.querySelector(".output-panel");
@@ -1668,6 +1753,18 @@
           examplesSelect.value = "";
         }
 
+        function toggleOptionsMenu() {
+          const isVisible = optionsMenu.style.display !== "none";
+
+          if (isVisible) {
+            optionsMenu.style.display = "none";
+            optionsToggle.classList.remove("expanded");
+          } else {
+            optionsMenu.style.display = "flex";
+            optionsToggle.classList.add("expanded");
+          }
+        }
+
         // Initialize styles
         attachChronosStyles();
 
@@ -1945,6 +2042,7 @@
         roundRangesCheckbox.addEventListener("change", renderTimeline);
         alignmentSelect.addEventListener("change", renderTimeline);
         examplesSelect.addEventListener("change", insertExample);
+        optionsToggle.addEventListener("click", toggleOptionsMenu);
         exportPngBtn.addEventListener("click", exportToPNG);
         shareLinkBtn.addEventListener("click", shareLink);
         document.addEventListener("keydown", handleKeyboardShortcuts);
