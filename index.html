@@ -394,12 +394,25 @@
 
       .control-group select,
       .control-group input {
-        padding: 0.5rem 0.75rem;
+        padding: 0.4rem 0.6rem;
         border: 1px solid var(--border-primary);
         border-radius: 4px;
         font-size: 14px;
         background: var(--bg-secondary);
         color: var(--text-primary);
+      }
+
+      .control-group select optgroup {
+        font-weight: 600;
+        color: var(--text-secondary);
+        background: var(--bg-tertiary);
+      }
+
+      .control-group select option {
+        font-weight: normal;
+        color: var(--text-primary);
+        background: var(--bg-secondary);
+        padding: 0.2rem 0.5rem;
       }
 
       .options-toggle-container {
@@ -892,9 +905,16 @@
         <div class="panel-header">Edit Markdown Input</div>
         <div class="controls">
           <div class="control-group">
-            <label for="examples-select">Examples:</label>
+            <!-- <label for="examples-select">Examples:</label> -->
             <select id="examples-select">
-              <option value="">Insert Example...</option>
+              <option value="">Show Example...</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <!-- <label for="snippets-select">Snippets:</label> -->
+            <select id="snippets-select">
+              <option value="">Insert Snippet at Cursor...</option>
             </select>
           </div>
 
@@ -1371,6 +1391,7 @@
         const roundRangesCheckbox = document.getElementById("round-ranges");
         const alignmentSelect = document.getElementById("alignment");
         const examplesSelect = document.getElementById("examples-select");
+        const snippetsSelect = document.getElementById("snippets-select");
         const exportPngBtn = document.getElementById("export-png-btn");
         const transparentBgCheckbox = document.getElementById(
           "transparent-bg-checkbox"
@@ -1676,18 +1697,18 @@
           {
             title: "Periods (@)",
             content: `@ [-300~250] Yayoi Period
-            - [-100] Introduction of rice cultivation
-            - [-57] Japan's first recorded contact with China`,
+- [-100] Introduction of rice cultivation
+- [-57] Japan's first recorded contact with China`,
           },
           {
             title: "Colored Periods",
             content: `@ [-300~250] #red Yayoi Period
-            - [-100] Introduction of rice cultivation
-            - [-57] Japan's first recorded contact with China
-            
-            @ [250~538] Kofun Period
-            - [250] Construction of keyhole-shaped kofun burial mounds begins
-            - [369] Yamato state sends envoys to Korea`,
+- [-100] Introduction of rice cultivation
+- [-57] Japan's first recorded contact with China
+
+@ [250~538] Kofun Period
+- [250] Construction of keyhole-shaped kofun burial mounds begins
+- [369] Yamato state sends envoys to Korea`,
           },
           {
             title: "Colored Events (#color)",
@@ -1702,10 +1723,10 @@
           {
             title: "Points (*)",
             content: `- [2024-02-26~2024-03-10] Tournament
-            * [2024-02-26] Game 1 | Austin
-            * [2024-02-28] Game 2 | Los Angeles
-            * [2024-03-06] Game 3 | Tokyo
-            * [2024-03-10] Game 4 | Jakarta`,
+  * [2024-02-26] Game 1 | Austin
+  * [2024-02-28] Game 2 | Los Angeles
+  * [2024-03-06] Game 3 | Tokyo
+  * [2024-03-10] Game 4 | Jakarta`,
           },
           {
             title: "Markers (=)",
@@ -1772,9 +1793,163 @@
           },
         ];
 
+        // Chronos snippets for quick insertion at cursor
+        const chronosSnippets = [
+          // Basic Elements
+          {
+            category: "Basic Elements",
+            items: [
+              {
+                title: "Event (single date)",
+                content: "- [2024] Event name",
+              },
+              {
+                title: "Event (date range)",
+                content: "- [2024~2025] Event name",
+              },
+              {
+                title: "Event with description",
+                content: "- [2024] Event name | Description here",
+              },
+              {
+                title: "Event with color",
+                content: "- [2024] #red Event name",
+              },
+              {
+                title: "Event with group",
+                content: "- [2024] {Group Name} Event name",
+              },
+              {
+                title: "Period",
+                content: "@ [2024~2025] Period name",
+              },
+              {
+                title: "Period with color",
+                content: "@ [2024~2025] #blue Period name",
+              },
+              {
+                title: "Point",
+                content: "* [2024] Point name",
+              },
+              {
+                title: "Marker",
+                content: "= [2024] Marker name",
+              },
+              {
+                title: "Comment",
+                content: "# This is a comment",
+              },
+            ],
+          },
+          // Flags
+          {
+            category: "Flags",
+            items: [
+              {
+                title: "Order by start date",
+                content: "> ORDERBY start",
+              },
+              {
+                title: "Order by start (descending)",
+                content: "> ORDERBY -start",
+              },
+              {
+                title: "Order by color and start",
+                content: "> ORDERBY color|start",
+              },
+              {
+                title: "Default view range",
+                content: "> DEFAULTVIEW 2020|2030",
+              },
+              {
+                title: "Hide today marker",
+                content: "> NOTODAY",
+              },
+              {
+                title: "Set timeline height",
+                content: "> HEIGHT 400",
+              },
+            ],
+          },
+        ];
+
+        function populateSnippetsDropdown() {
+          snippetsSelect.innerHTML =
+            '<option value="">Insert Snippet at Cursor...</option>';
+
+          chronosSnippets.forEach((category) => {
+            // Add category header
+            const categoryHeader = document.createElement("optgroup");
+            categoryHeader.label = category.category;
+            snippetsSelect.appendChild(categoryHeader);
+
+            // Add items in this category
+            category.items.forEach((snippet, index) => {
+              const option = document.createElement("option");
+              option.value = `${category.category}|${index}`;
+              option.textContent = snippet.title;
+              categoryHeader.appendChild(option);
+            });
+          });
+        }
+
+        function insertSnippetAtCursor() {
+          const selectedValue = snippetsSelect.value;
+          if (selectedValue === "") return;
+
+          const [categoryName, itemIndex] = selectedValue.split("|");
+          const category = chronosSnippets.find(
+            (cat) => cat.category === categoryName
+          );
+          if (!category) return;
+
+          const snippet = category.items[parseInt(itemIndex)];
+          if (!snippet) return;
+
+          // Get cursor position
+          const cursorPosition = markdownInput.selectionStart;
+          const textBefore = markdownInput.value.substring(0, cursorPosition);
+          const textAfter = markdownInput.value.substring(
+            markdownInput.selectionEnd
+          );
+
+          // Check if we need to add newlines
+          let insertText = snippet.content;
+
+          // Add newline before if not at start and previous char isn't newline
+          if (
+            cursorPosition > 0 &&
+            textBefore.charAt(textBefore.length - 1) !== "\n"
+          ) {
+            insertText = "\n" + insertText;
+          }
+
+          // Add newline after if there's more text and next char isn't newline
+          if (textAfter.length > 0 && textAfter.charAt(0) !== "\n") {
+            insertText = insertText + "\n";
+          }
+
+          // Add to history before making changes
+          addToHistory(markdownInput.value);
+
+          // Insert the snippet
+          markdownInput.value = textBefore + insertText + textAfter;
+
+          // Set cursor position after inserted text
+          const newCursorPosition = cursorPosition + insertText.length;
+          markdownInput.focus();
+          markdownInput.setSelectionRange(newCursorPosition, newCursorPosition);
+
+          // Reset dropdown and update
+          snippetsSelect.value = "";
+          updateURL();
+          renderTimeline();
+          updateSyntaxHighlighting();
+        }
+
         function populateExamplesDropdown() {
           examplesSelect.innerHTML =
-            '<option value="">Insert Example...</option>';
+            '<option value="">Show Example...</option>';
           chronosExamples.forEach((example, index) => {
             const option = document.createElement("option");
             option.value = index;
@@ -2098,6 +2273,7 @@
         roundRangesCheckbox.addEventListener("change", renderTimeline);
         alignmentSelect.addEventListener("change", renderTimeline);
         examplesSelect.addEventListener("change", insertExample);
+        snippetsSelect.addEventListener("change", insertSnippetAtCursor);
         optionsToggle.addEventListener("click", toggleOptionsMenu);
         exportPngBtn.addEventListener("click", exportToPNG);
         shareLinkBtn.addEventListener("click", shareLink);
@@ -2106,6 +2282,7 @@
         // Initialize
         initializeResizer();
         populateExamplesDropdown();
+        populateSnippetsDropdown();
         const hasURLContent = loadFromURL();
         if (!hasURLContent) {
           // Use current date for "You are here" default content
