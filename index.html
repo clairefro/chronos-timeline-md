@@ -678,6 +678,10 @@
           margin-bottom: 0.5rem;
         }
 
+        .header p {
+          font-size: 0.875rem;
+        }
+
         .header-links {
           position: static;
           margin-top: 1rem;
@@ -758,13 +762,15 @@
         }
 
         .control-group {
-          min-width: calc(33% - 0.33rem);
           flex: 1;
+          min-width: 0;
+          flex-shrink: 1;
         }
 
         .options-toggle-container {
-          min-width: auto;
-          flex: 0 0 auto;
+          min-width: 100%;
+          flex: 0 0 100%;
+          margin-top: 0.25rem;
         }
 
         .control-group label {
@@ -773,8 +779,9 @@
 
         .control-group select,
         .control-group input {
-          font-size: 14px;
-          padding: 0.35rem 0.5rem;
+          font-size: 12px;
+          padding: 0.25rem 0.4rem;
+          width: 100%;
         }
 
         .options-toggle {
@@ -950,8 +957,16 @@
       </div>
       <h1>Chronos Timeline Markdown Playground</h1>
       <p>
-        Write chronological markdown on the left, see the timeline visualization
-        on the right. Now with syntax highlighting!
+        Generate interactive timelines from simple, shareable text. See
+        <a
+          href="https://github.com/clairefro/chronos-timeline-md/blob/main/CHRONOS_SYNTAX_GUIDE.md"
+          target="_blank"
+          rel="nofollow noreferrer"
+          >docs</a
+        >. Powered by
+        <a href="https://visjs.org/" target="_blank" rel="nofollow noreferrer"
+          >vis-timeline</a
+        >
       </p>
     </div>
 
@@ -960,14 +975,12 @@
         <div class="panel-header">Edit Markdown Input</div>
         <div class="controls">
           <div class="control-group">
-            <!-- <label for="examples-select">Examples:</label> -->
             <select id="examples-select">
               <option value="">Show Example...</option>
             </select>
           </div>
 
           <div class="control-group">
-            <!-- <label for="snippets-select">Snippets:</label> -->
             <select id="snippets-select">
               <option value="">Insert Snippet...</option>
             </select>
@@ -1787,10 +1800,10 @@
           {
             title: "Points (*)",
             content: `- [2024-02-26~2024-03-10] Tournament
-  * [2024-02-26] Game 1 | Austin
-  * [2024-02-28] Game 2 | Los Angeles
-  * [2024-03-06] Game 3 | Tokyo
-  * [2024-03-10] Game 4 | Jakarta`,
+* [2024-02-26] Game 1 | Austin
+* [2024-02-28] Game 2 | Los Angeles
+* [2024-03-06] Game 3 | Tokyo
+* [2024-03-10] Game 4 | Jakarta`,
           },
           {
             title: "Markers (=)",
@@ -1810,7 +1823,7 @@
 - [2020~2030] #red Event A`,
           },
           {
-            title: "Options: Ordering by Color and Start date",
+            title: "Order by Color and Start date",
             content: `> ORDERBY color|start
 
 - [2026~2028] Event D
@@ -1819,7 +1832,7 @@
 - [2020~2030] #red Event A`,
           },
           {
-            title: "Options: Default View",
+            title: "Default View Range",
             content: `> DEFAULTVIEW -3000|3000
 # Offset the default centered view with custom start|end dates
 
