@@ -392,6 +392,30 @@
         color: var(--text-secondary);
       }
 
+      .control-group label:has(input[type="checkbox"]) {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        cursor: pointer;
+      }
+
+      /* Fallback for browsers that don't support :has() */
+      .control-group label input[type="checkbox"] {
+        margin-right: 0.3rem;
+      }
+
+      /* Ensure parent label displays as flex when containing checkbox */
+      label:has(input[type="checkbox"]),
+      label input[type="checkbox"] {
+        vertical-align: middle;
+      }
+
+      label:has(input[type="checkbox"]) {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+
       .control-group select,
       .control-group input {
         padding: 0.4rem 0.6rem;
@@ -717,7 +741,13 @@
         }
 
         .control-group {
-          min-width: calc(50% - 0.25rem);
+          min-width: calc(33% - 0.33rem);
+          flex: 1;
+        }
+
+        .options-toggle-container {
+          min-width: auto;
+          flex: 0 0 auto;
         }
 
         .control-group label {
@@ -738,6 +768,14 @@
         .options-menu {
           padding: 0.75rem;
           gap: 0.5rem;
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          align-items: center;
+        }
+
+        .options-menu .control-group {
+          min-width: auto;
+          flex: none;
         }
 
         .export-controls {
@@ -1640,6 +1678,7 @@
             markdownInput.value = previousContent;
             updateURL();
             renderTimeline();
+            updateSyntaxHighlighting();
             return true;
           }
           return false;
@@ -1652,6 +1691,7 @@
             markdownInput.value = nextContent;
             updateURL();
             renderTimeline();
+            updateSyntaxHighlighting();
             return true;
           }
           return false;
@@ -2078,6 +2118,11 @@
 
         // Keyboard shortcuts
         function handleKeyboardShortcuts(event) {
+          // Only handle shortcuts when textarea is focused
+          if (document.activeElement !== markdownInput) {
+            return;
+          }
+
           if (
             (event.ctrlKey || event.metaKey) &&
             event.key === "z" &&
