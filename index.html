@@ -236,8 +236,8 @@
       }
 
       .chronos-error-message-container {
-        color: rgb(223, 0, 0) !important;
-        background-color: #ffd0d0;
+        color: var(--error-text) !important;
+        background-color: var(--error-bg);
       }
 
       .input-area {
@@ -572,7 +572,7 @@
         justify-content: center;
         flex-direction: column;
         height: 200px;
-        color: #586069;
+        color: var(--text-secondary);
         gap: 1rem;
         animation: pulse 2s infinite;
       }
@@ -700,7 +700,7 @@
           flex: none;
           height: 50vh;
           min-height: 300px;
-          border-bottom: 1px solid #e1e4e8;
+          border-bottom: 1px solid var(--border-primary);
           border-right: none;
         }
 
@@ -722,11 +722,28 @@
           left: 0;
           right: 0;
           height: 8px;
-          background: #f6f8fa;
-          border-top: 1px solid #e1e4e8;
-          border-bottom: 1px solid #e1e4e8;
+          background: var(--bg-tertiary);
+          border-top: 1px solid var(--border-primary);
+          border-bottom: 1px solid var(--border-primary);
           cursor: row-resize;
           z-index: 10;
+        }
+
+        /* Add drag indicator lines to mobile divider */
+        .input-panel::before {
+          content: "";
+          position: absolute;
+          bottom: -1px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 20px;
+          height: 4px;
+          background: var(--text-secondary);
+          border-radius: 1px;
+          box-shadow: 0 -2px 0 var(--text-secondary),
+            0 2px 0 var(--text-secondary);
+          z-index: 11;
+          pointer-events: none;
         }
 
         .input-panel {
@@ -995,6 +1012,12 @@
               </label>
             </div>
             <div class="control-group">
+              <label for="use-utc">
+                <input type="checkbox" id="use-utc" checked /> Use UTC Time
+                (recommended)
+              </label>
+            </div>
+            <div class="control-group">
               <label for="alignment">Alignment:</label>
               <select id="alignment">
                 <option value="left">Left</option>
@@ -1054,7 +1077,7 @@
             </button>
             <span
               id="export-status"
-              style="color: #586069; font-size: 14px"
+              style="color: var(--text-secondary); font-size: 14px"
             ></span>
           </div>
           <div class="export-options">
@@ -1427,6 +1450,7 @@
         const timelineContainer = document.getElementById("timeline-container");
         const localeSelect = document.getElementById("locale-select");
         const roundRangesCheckbox = document.getElementById("round-ranges");
+        const useUtcCheckbox = document.getElementById("use-utc");
         const alignmentSelect = document.getElementById("alignment");
         const examplesSelect = document.getElementById("examples-select");
         const snippetsSelect = document.getElementById("snippets-select");
@@ -2062,7 +2086,7 @@
                 align: alignmentSelect.value,
                 clickToUse: false,
                 roundRanges: roundRangesCheckbox.checked,
-                useUtc: true,
+                useUtc: useUtcCheckbox.checked,
                 useAI: false,
               },
               callbacks: {
@@ -2316,6 +2340,7 @@
         markdownInput.addEventListener("scroll", syncScroll);
         localeSelect.addEventListener("change", handleLocaleChange);
         roundRangesCheckbox.addEventListener("change", renderTimeline);
+        useUtcCheckbox.addEventListener("change", renderTimeline);
         alignmentSelect.addEventListener("change", renderTimeline);
         examplesSelect.addEventListener("change", insertExample);
         snippetsSelect.addEventListener("change", insertSnippetAtCursor);
