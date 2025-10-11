@@ -18,6 +18,7 @@ export const CHRONOS_DEFAULT_CSS = `
   --chronos-radius: 6px;
   --chronos-radius-small: 3px;
   --chronos-icon-color: #586069;
+  --chronos-bg-text: #000000;
   
   /* Color palette for timeline items */
   --chronos-color-red: #dc3545;
@@ -91,8 +92,8 @@ export const CHRONOS_DEFAULT_CSS = `
 
 .vis-custom-time,
 .vis-custom-time-marker {
-  color: var(--chronos-text-normal) !important;
-  background-color: var(--chronos-bg-secondary) !important;
+  color: var(--chronos-bg-secondary) !important;
+  background-color: var(--chronos-text-normal) !important;
 }
 
 .chronos-timeline-container .vis-item.vis-background {
@@ -101,7 +102,7 @@ export const CHRONOS_DEFAULT_CSS = `
 }
 
 .chronos-timeline-container .vis-item.vis-background .vis-item-content {
-  color: var(--chronos-bg-primary);
+  color: var(--chronos-bg-text) !important;
 }
 
 /* Ensure points and events appear above background periods */
@@ -213,6 +214,42 @@ export const CHRONOS_DEFAULT_CSS = `
   border-bottom-color: var(--chronos-border);
 }
 
+[data-theme="light"],
+body:not([data-theme]) {
+  --chronos-bg-primary: #ffffff;
+  --chronos-bg-secondary: #f6f8fa;
+  --chronos-text-normal: #24292e;
+  --chronos-text-muted: #586069;
+  --chronos-text-on-accent: #ffffff;
+  --chronos-accent: #0366d6;
+  --chronos-accent-hover: #0366d6e6;
+  --chronos-accent-alpha: rgba(3, 102, 214, 0.2);
+  --chronos-border: #e1e4e8;
+  --chronos-border-active: rgba(3, 102, 214, 0.5);
+  --chronos-interactive: #0366d6;
+  --chronos-interactive-hover: #005cc5;
+  --chronos-icon-color: #586069;
+  --chronos-bg-text: #000000;
+  
+  /* Light theme color palette */
+  --chronos-color-red: #dc3545;
+  --chronos-color-red-rgb: 220, 53, 69;
+  --chronos-color-green: #28a745;
+  --chronos-color-green-rgb: 40, 167, 69;
+  --chronos-color-blue: #007bff;
+  --chronos-color-blue-rgb: 0, 123, 255;
+  --chronos-color-yellow: #ffc107;
+  --chronos-color-yellow-rgb: 255, 193, 7;
+  --chronos-color-orange: #fd7e14;
+  --chronos-color-orange-rgb: 253, 126, 20;
+  --chronos-color-purple: #6f42c1;
+  --chronos-color-purple-rgb: 111, 66, 193;
+  --chronos-color-pink: #e83e8c;
+  --chronos-color-pink-rgb: 232, 62, 140;
+  --chronos-color-cyan: #17a2b8;
+  --chronos-color-cyan-rgb: 23, 162, 184;
+}
+
 /* Dark theme support */
 @media (prefers-color-scheme: dark) {
   :root {
@@ -229,6 +266,7 @@ export const CHRONOS_DEFAULT_CSS = `
     --chronos-interactive: #58a6ff;
     --chronos-interactive-hover: #388bfd;
     --chronos-icon-color: #8b949e;
+    --chronos-bg-text: #ffffff;
     
     /* Dark theme color palette */
     --chronos-color-red: #f85149;
@@ -248,5 +286,40 @@ export const CHRONOS_DEFAULT_CSS = `
     --chronos-color-cyan: #39d0d8;
     --chronos-color-cyan-rgb: 57, 208, 216;
   }
+}
+
+[data-theme="dark"] {
+  --chronos-bg-primary: #0d1117;
+  --chronos-bg-secondary: #161b22;
+  --chronos-text-normal: #f0f6fc;
+  --chronos-text-muted: #8b949e;
+  --chronos-text-on-accent: #ffffff;
+  --chronos-accent: #58a6ff;
+  --chronos-accent-hover: #58a6ffe6;
+  --chronos-accent-alpha: rgba(88, 166, 255, 0.2);
+  --chronos-border: #30363d;
+  --chronos-border-active: rgba(88, 166, 255, 0.5);
+  --chronos-interactive: #58a6ff;
+  --chronos-interactive-hover: #388bfd;
+  --chronos-icon-color: #8b949e;
+  --chronos-bg-text: #ffffff;
+  
+  /* Dark theme color palette */
+  --chronos-color-red: #f85149;
+  --chronos-color-red-rgb: 248, 81, 73;
+  --chronos-color-green: #3fb950;
+  --chronos-color-green-rgb: 63, 185, 80;
+  --chronos-color-blue: #58a6ff;
+  --chronos-color-blue-rgb: 88, 166, 255;
+  --chronos-color-yellow: #d29922;
+  --chronos-color-yellow-rgb: 210, 153, 34;
+  --chronos-color-orange: #fb8500;
+  --chronos-color-orange-rgb: 251, 133, 0;
+  --chronos-color-purple: #a855f7;
+  --chronos-color-purple-rgb: 168, 85, 247;
+  --chronos-color-pink: #f0649c;
+  --chronos-color-pink-rgb: 240, 100, 156;
+  --chronos-color-cyan: #39d0d8;
+  --chronos-color-cyan-rgb: 57, 208, 216;
 }
 `;
