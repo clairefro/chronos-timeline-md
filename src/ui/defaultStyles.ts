@@ -19,7 +19,7 @@ export const CHRONOS_DEFAULT_CSS = `
   --chronos-radius-small: 3px;
   --chronos-icon-color: #586069;
   --chronos-bg-text: #000000;
-  
+
   /* Color palette for timeline items */
   --chronos-color-red: #dc3545;
   --chronos-color-red-rgb: 220, 53, 69;
@@ -215,6 +215,22 @@ export const CHRONOS_DEFAULT_CSS = `
   border-bottom-color: var(--chronos-border);
 }
 
+.chronos-timeline-container .vis-foreground > .vis-group.chronos-group-nested,
+.chronos-timeline-container .vis-labelset > .vis-label.chronos-group-nested {
+  border-bottom-color: var(--chronos-border-nested);
+  background-color: var(--chronos-bg-nested);
+}
+
+.chronos-timeline-container .vis-labelset > .vis-label.chronos-group-nested {
+  color: var(--chronos-text-nested);
+  font-size: 0.95em;
+}
+
+.chronos-timeline-container .vis-foreground > .vis-group.chronos-group-parent,
+.chronos-timeline-container .vis-labelset > .vis-label.chronos-group-parent {
+  border-bottom-color: var(--chronos-border-parent);
+}
+
 .chronos-timeline-container .vis-label {
   color: var(--chronos-text-muted);
 }
@@ -230,12 +246,16 @@ body:not([data-theme]) {
   --chronos-accent-hover: #0366d6e6;
   --chronos-accent-alpha: rgba(3, 102, 214, 0.2);
   --chronos-border: #e1e4e8;
+  --chronos-border-parent: #c9d1d9;
+  --chronos-border-nested: #d7dde4;
+  --chronos-bg-nested: #f3f6fa;
+  --chronos-text-nested: #4f5b67;
   --chronos-border-active: rgba(3, 102, 214, 0.5);
   --chronos-interactive: #0366d6;
   --chronos-interactive-hover: #005cc5;
   --chronos-icon-color: #586069;
   --chronos-bg-text: #000000;
-  
+
   /* Light theme color palette */
   --chronos-color-red: #dc3545;
   --chronos-color-red-rgb: 220, 53, 69;
@@ -267,12 +287,16 @@ body:not([data-theme]) {
     --chronos-accent-hover: #58a6ffe6;
     --chronos-accent-alpha: rgba(88, 166, 255, 0.2);
     --chronos-border: #30363d;
+    --chronos-border-parent: #3a4048;
+    --chronos-border-nested: #3d4450;
+    --chronos-bg-nested: #1f242b;
+    --chronos-text-nested: #b1bac4;
     --chronos-border-active: rgba(88, 166, 255, 0.5);
     --chronos-interactive: #58a6ff;
     --chronos-interactive-hover: #388bfd;
     --chronos-icon-color: #8b949e;
     --chronos-bg-text: #ffffff;
-    
+
     /* Dark theme color palette */
     --chronos-color-red: #f85149;
     --chronos-color-red-rgb: 248, 81, 73;
@@ -308,7 +332,7 @@ body:not([data-theme]) {
   --chronos-interactive-hover: #388bfd;
   --chronos-icon-color: #8b949e;
   --chronos-bg-text: #ffffff;
-  
+
   /* Dark theme color palette */
   --chronos-color-red: #f85149;
   --chronos-color-red-rgb: 248, 81, 73;

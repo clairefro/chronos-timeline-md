@@ -51,7 +51,15 @@ export interface ChronosPluginSettings {
   colorMap?: Record<string, string>;
 }
 
-export type Group = { id: number; content: string };
+export type Group = {
+  id: number;
+  content: string;
+  parentId?: number;
+  nestedGroups?: number[];
+  showNested?: boolean;
+  className?: string;
+  treeLevel?: number;
+};
 
 export type Flags = {
   orderBy?: string[];
@@ -84,7 +92,7 @@ export type ConstructItemParams = {
   start: string;
   separator: string | undefined;
   end: string | undefined;
-  groupName: string | undefined;
+  groupPath: string[];
   color: string | undefined;
   lineNumber: number;
   type: "default" | "background" | "point";

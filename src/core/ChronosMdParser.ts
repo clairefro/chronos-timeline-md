@@ -17,7 +17,7 @@ export class ChronosMdParser {
   private items: ChronosDataItem[] = [];
   private markers: Marker[] = [];
   private groups: Group[] = [];
-  private groupMap: { [key: string]: number } = {};
+  private groupPathMap: { [key: string]: Group } = {};
   private locale: string;
   private flags: Flags = {};
   private settings!: ChronosPluginSettings;
@@ -66,18 +66,18 @@ export class ChronosMdParser {
 
   private _parseTimeItem(line: string, lineNumber: number) {
     const itemTypeP = `[-@=\\*]`;
-    const dateP = `(-?\\d{1,}(-?(\\d{2})?-?(\\d{2})?T?(\\d{2})?:?(\\d{2})?:?(\\d{2})?)?)`;
+    const dateP = `-?\\d{1,}(?:-?(?:\\d{2})?-?(?:\\d{2})?T?(?:\\d{2})?:?(?:\\d{2})?:?(?:\\d{2})?)?`;
     const optSp = `\\s*`;
 
-    const separatorP = `([^-\\d\\s]*?)?`;
-    const colorP = `(#(\\w+))?`;
-    const groupP = `(\\{([^}]+)\\})?`;
+    const separatorP = `(?<separator>[^-\\d\\s]*?)?`;
+    const colorP = `(?<color>#\\w+)?`;
+    const groupP = `(?<groupBlock>(?:\\s*\\{[^}]+\\})*)`;
 
-    const contentP = `(.+?)`;
-    const descriptionP = `(\\|\\s*(?<!\\[\\[[^\\]]*)\\s*(.*))?`;
+    const contentP = `(?<content>.+?)`;
+    const descriptionP = `(?:\\|\\s*(?<!\\[\\[[^\\]]*)\\s*(?<description>.*))?`;
 
     const re = new RegExp(
-      `${itemTypeP}${optSp}\\[${optSp}${dateP}?${optSp}${separatorP}${optSp}${dateP}?${optSp}\\]${optSp}${colorP}${optSp}${groupP}${optSp}${contentP}${optSp}${descriptionP}$`,
+      `^${itemTypeP}${optSp}\\[${optSp}(?<start>${dateP})?${optSp}${separatorP}${optSp}(?<end>${dateP})?${optSp}\\]${optSp}${colorP}${optSp}${groupP}${optSp}${contentP}${optSp}${descriptionP}$`,
     );
 
     const match = line.match(re);
@@ -85,31 +85,13 @@ export class ChronosMdParser {
       this._addParserError(lineNumber, `Invalid format: ${line}`);
       return null;
     } else {
-      const [
-        ,
-        start,
-        ,
-        ,
-        ,
-        ,
-        ,
-        ,
-        separator,
-        end,
-        ,
-        ,
-        ,
-        ,
-        ,
-        ,
-        ,
-        color,
-        ,
-        groupName,
-        content,
-        ,
-        description,
-      ] = match;
+      const start = match.groups?.start;
+      const end = match.groups?.end;
+      const separator = match.groups?.separator;
+      const color = match.groups?.color;
+      const groupBlock = match.groups?.groupBlock;
+      const description = match.groups?.description;
+      const content = match.groups?.content ?? "";
 
       const now = new Date().toISOString().split("T")[0];
 
@@ -128,7 +110,7 @@ export class ChronosMdParser {
             : toPaddedISOZ(now)
           : undefined,
         color,
-        groupName,
+        groupPath: this._parseGroupBlock(groupBlock),
         content,
         description,
         cLink: link,
@@ -141,7 +123,7 @@ export class ChronosMdParser {
     start,
     separator,
     end,
-    groupName,
+    groupPath,
     color,
     lineNumber,
     type = "default",
@@ -149,7 +131,9 @@ export class ChronosMdParser {
   }: ConstructItemParams) {
     this._validateDates(start, end, separator, lineNumber);
 
-    const groupId = groupName ? this._getOrCreateGroupId(groupName) : null;
+    const groupId = groupPath.length
+      ? this._getOrCreateGroupId(groupPath)
+      : null;
 
     let style = "";
     if (color) {
@@ -194,7 +178,7 @@ export class ChronosMdParser {
         separator,
         end,
         color,
-        groupName,
+        groupPath,
         content,
         description,
         cLink,
@@ -206,7 +190,7 @@ export class ChronosMdParser {
           start,
           separator,
           end,
-          groupName,
+          groupPath,
           color,
           lineNumber,
           type: "default",
@@ -222,7 +206,7 @@ export class ChronosMdParser {
     const components = this._parseTimeItem(line, lineNumber);
 
     if (components) {
-      const { start, separator, end, color, groupName, content, description } =
+      const { start, separator, end, color, groupPath, content, description } =
         components;
       this.items.push(
         this._constructItem({
@@ -230,7 +214,7 @@ export class ChronosMdParser {
           start,
           separator,
           end,
-          groupName,
+          groupPath,
           color,
           lineNumber,
           type: "background",
@@ -247,7 +231,7 @@ export class ChronosMdParser {
         start,
         separator,
         color,
-        groupName,
+        groupPath,
         content,
         description,
         cLink,
@@ -258,7 +242,7 @@ export class ChronosMdParser {
           start,
           separator,
           end: undefined,
-          groupName,
+          groupPath,
           color,
           lineNumber,
           type: "point",
@@ -369,15 +353,47 @@ export class ChronosMdParser {
     }
   }
 
-  private _getOrCreateGroupId(groupName: string): number {
-    if (this.groupMap[groupName] !== undefined) {
-      return this.groupMap[groupName];
-    } else {
-      const groupId = this.groups.length + 1;
-      this.groups.push({ id: groupId, content: groupName });
-      this.groupMap[groupName] = groupId;
-      return groupId;
-    }
+  private _getOrCreateGroupId(groupPath: string[]): number {
+    let parentPathKey = "";
+    let parentId: number | null = null;
+    let lastId = 0;
+
+    groupPath.forEach((rawName, depthIndex) => {
+      const name = rawName.trim();
+      if (!name) return;
+
+      const pathKey = parentPathKey ? `${parentPathKey}::${name}` : name;
+
+      let group = this.groupPathMap[pathKey];
+      if (!group) {
+        const groupId = this.groups.length + 1;
+        group = {
+          id: groupId,
+          content: name,
+          treeLevel: depthIndex,
+          ...(parentId !== null ? { parentId } : {}),
+        };
+        this.groups.push(group);
+        this.groupPathMap[pathKey] = group;
+      }
+
+      if (parentId !== null) {
+        const parentGroup = this.groupPathMap[parentPathKey];
+        if (parentGroup) {
+          if (!parentGroup.nestedGroups) parentGroup.nestedGroups = [];
+          if (!parentGroup.nestedGroups.includes(group.id)) {
+            parentGroup.nestedGroups.push(group.id);
+          }
+          parentGroup.showNested = true;
+        }
+      }
+
+      parentId = group.id;
+      parentPathKey = pathKey;
+      lastId = group.id;
+    });
+
+    return lastId;
   }
 
   private _extractWikiLink(text: string): string | undefined {
@@ -558,5 +574,19 @@ export class ChronosMdParser {
     this._clearMarkers();
     this._clearGroups();
     this._clearFlags();
+    this.groupPathMap = {};
+  }
+
+  private _parseGroupBlock(groupBlock?: string): string[] {
+    if (!groupBlock) return [];
+    const groups: string[] = [];
+    const re = /\{([^}]+)\}/g;
+    let match = re.exec(groupBlock);
+    while (match) {
+      const name = match[1]?.trim();
+      if (name) groups.push(name);
+      match = re.exec(groupBlock);
+    }
+    return groups;
   }
 }

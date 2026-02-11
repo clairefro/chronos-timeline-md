@@ -532,7 +532,19 @@ export class ChronosTimeline {
 
   private _createDataGroups(rawGroups: Group[]) {
     return new DataSet<Group>(
-      rawGroups.map((g) => ({ id: g.id, content: g.content })),
+      rawGroups.map((g) => ({
+        id: g.id,
+        content: g.content,
+        parentId: g.parentId,
+        nestedGroups: g.nestedGroups,
+        showNested: g.showNested,
+        treeLevel: g.treeLevel,
+        className: g.parentId
+          ? "chronos-group-nested"
+          : g.nestedGroups && g.nestedGroups.length
+            ? "chronos-group-parent"
+            : undefined,
+      })),
     );
   }
 
