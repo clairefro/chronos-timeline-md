@@ -228,7 +228,7 @@ export class ChronosTimeline {
     const colorToClass = new Map<string, string>();
 
     const result = items.map((item: any) => {
-      const color = /background-color:\s*([^;]+);/.exec(item.style || "")?.[1];
+      const color = /--chronos-item-color:\s*([^;]+);/.exec(item.style || "")?.[1];
       if (!color) return item;
       let cls = colorToClass.get(color);
       if (!cls) {

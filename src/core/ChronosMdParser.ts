@@ -153,16 +153,20 @@ export class ChronosMdParser {
 
     let style = "";
     if (color) {
-      style += `background-color: ${this._mapToThemeColor(
+      const mapped = this._mapToThemeColor(
         color as Color,
         type === "background" ? Opacity.Opaque : Opacity.Solid,
-      )};`;
+      );
+      // Consumed by ChronosTimeline to color the connector dot/line
+      style += `--chronos-item-color: ${mapped};`;
+      style +=
+        type === "point"
+          ? `background-color: transparent; border: 2px solid ${mapped};`
+          : `background-color: ${mapped};`;
     }
 
     if (type === "point") {
-      style += color
-        ? "color: black !important;"
-        : "color: var(--text-normal) !important;";
+      style += "color: var(--text-normal) !important;";
     }
 
     const isLink = (type === "point" || type === "default") && cLink;
