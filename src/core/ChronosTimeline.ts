@@ -362,14 +362,31 @@ export class ChronosTimeline {
     );
     this._addMarkers(timeline, markers);
     this._setupTooltip(timeline, items);
-    this._createRefitButton(timeline);
+    this._createRefitButton(timeline, markers);
     this._handleZoomWorkaround(timeline, groups);
 
     // Hosts should attach timeline event handlers directly using timeline.on(...)
 
     this.timeline = timeline;
 
-    !hasDefaultViewFlag && setTimeout(() => timeline.fit(), MS_UNTIL_REFIT);
+    !hasDefaultViewFlag &&
+      setTimeout(() => this._fit(timeline, markers), MS_UNTIL_REFIT);
+  }
+
+  // timeline.fit() ignores custom-time markers, so include them manually.
+  private _fit(timeline: Timeline, markers: Marker[]) {
+    if (!markers.length) return timeline.fit();
+
+    const times = markers.map((m) => new Date(m.start).getTime());
+    const range = timeline.getItemRange();
+    if (range.min) times.push(range.min.getTime());
+    if (range.max) times.push(range.max.getTime());
+
+    const min = Math.min(...times);
+    const max = Math.max(...times);
+    // Single point: pad by a year so it is centered with context.
+    const pad = max > min ? (max - min) * 0.1 : 365 * 24 * 60 * 60 * 1000;
+    timeline.setWindow(min - pad, max + pad);
   }
 
   private _handleParseError(error: Error) {
@@ -506,7 +523,7 @@ export class ChronosTimeline {
     }
   }
 
-  private _createRefitButton(timeline: Timeline) {
+  private _createRefitButton(timeline: Timeline, markers: Marker[]) {
     const refitButton = document.createElement("button");
     refitButton.className = "chronos-timeline-refit-button";
 
@@ -516,7 +533,7 @@ export class ChronosTimeline {
 
     refitButton.appendChild(document.importNode(svgElement, true));
     this.setTooltip(refitButton, "Fit all");
-    refitButton.addEventListener("click", () => timeline.fit());
+    refitButton.addEventListener("click", () => this._fit(timeline, markers));
 
     this.container.appendChild(refitButton);
   }
