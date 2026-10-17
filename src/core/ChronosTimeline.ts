@@ -220,6 +220,38 @@ export class ChronosTimeline {
     };
   }
 
+  // vis-timeline applies item.style only to the box; the connector dot/line
+  // are separate elements that share className, so color them via a class.
+  private _applyItemColorClasses(items: ChronosDataItem[]): ChronosDataItem[] {
+    const doc = this.container.ownerDocument;
+    const prefix = `chronos-ic-${Math.random().toString(36).slice(2, 8)}`;
+    const colorToClass = new Map<string, string>();
+
+    const result = items.map((item: any) => {
+      const color = /background-color:\s*([^;]+);/.exec(item.style || "")?.[1];
+      if (!color) return item;
+      let cls = colorToClass.get(color);
+      if (!cls) {
+        cls = `${prefix}-${colorToClass.size}`;
+        colorToClass.set(color, cls);
+      }
+      return { ...item, className: `${item.className || ""} ${cls}`.trim() };
+    });
+
+    const rules = [...colorToClass].map(
+      ([color, cls]) =>
+        `.chronos-timeline-container .vis-item.${cls}.vis-line,.chronos-timeline-container .vis-item.${cls}.vis-dot{background-color:${color};border-color:${color};color:${color};}`,
+    );
+    this.container
+      .querySelectorAll("style[data-chronos-item-colors]")
+      .forEach((el) => el.remove());
+    const style = doc.createElement("style");
+    style.setAttribute("data-chronos-item-colors", "1");
+    style.textContent = rules.join("\n");
+    this.container.appendChild(style);
+    return result;
+  }
+
   private _renderFromResult({
     items,
     markers,
@@ -323,7 +355,11 @@ export class ChronosTimeline {
       }
     }
 
-    const timeline = this._createTimeline(items, groups, options);
+    const timeline = this._createTimeline(
+      this._applyItemColorClasses(items),
+      groups,
+      options,
+    );
     this._addMarkers(timeline, markers);
     this._setupTooltip(timeline, items);
     this._createRefitButton(timeline);
