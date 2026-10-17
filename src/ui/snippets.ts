@@ -190,6 +190,24 @@ See available [Colors](#colors)
 * [2024-03-10] Game 4 | Jakarta
 \`\`\`
 
+#### With color
+
+Colored points are outlined.
+
+**Syntax**
+
+\`\`\`
+* [Date] #Color Point Name | Description
+\`\`\`
+
+\`\`\`chronos
+- [2024-02-26~2024-03-10] Tournament
+* [2024-02-26] #green Game 1 | Win
+* [2024-02-28] #red Game 2 | Loss
+* [2024-03-06] #green Game 3 | Win
+* [2024-03-10] #blue Game 4 | Draw
+\`\`\`
+
 ## Markers
 
 **Syntax**

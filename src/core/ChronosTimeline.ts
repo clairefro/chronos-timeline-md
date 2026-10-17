@@ -228,7 +228,9 @@ export class ChronosTimeline {
     const colorToClass = new Map<string, string>();
 
     const result = items.map((item: any) => {
-      const color = /--chronos-item-color:\s*([^;]+);/.exec(item.style || "")?.[1];
+      const color = /--chronos-item-color:\s*([^;]+);/.exec(
+        item.style || "",
+      )?.[1];
       if (!color) return item;
       let cls = colorToClass.get(color);
       if (!cls) {
@@ -444,14 +446,17 @@ export class ChronosTimeline {
     });
     // Marker elements are rendered asynchronously; color them in DOM order.
     setTimeout(() => {
-      const els = this.container.querySelectorAll<HTMLElement>(".vis-custom-time");
+      const els =
+        this.container.querySelectorAll<HTMLElement>(".vis-custom-time");
       markers.forEach((marker, i) => {
         const el = els[i];
         if (!marker.color || !el) return;
         el.style.backgroundColor = marker.color;
-        el.querySelectorAll<HTMLElement>(".vis-custom-time-marker").forEach((l) => {
-          l.style.backgroundColor = marker.color!;
-        });
+        el.querySelectorAll<HTMLElement>(".vis-custom-time-marker").forEach(
+          (l) => {
+            l.style.backgroundColor = marker.color!;
+          },
+        );
       });
     }, MS_UNTIL_REFIT);
   }

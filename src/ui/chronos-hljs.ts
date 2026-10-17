@@ -175,10 +175,15 @@ export const chronosLanguageDefinition = {
     },
     // Markers (lines starting with =)
     {
-      className: "built_in",
-      begin: "^\\s*=",
+      className: "attribute",
+      begin: "^(?=\\s*=)",
       end: "$",
       contains: [
+        // Only the indicator gets the marker color
+        {
+          className: "built_in",
+          match: "^\\s*=",
+        },
         // Date in brackets
         {
           className: "string",
@@ -192,6 +197,12 @@ export const chronosLanguageDefinition = {
                 "-?\\d{1,4}(-\\d{2})?(-\\d{2})?(T\\d{2}(:\\d{2})?(:\\d{2})?)?",
             },
           ],
+        },
+        // Colors
+        {
+          className: "literal",
+          begin: "#\\w+\\b",
+          relevance: 5,
         },
       ],
     },
