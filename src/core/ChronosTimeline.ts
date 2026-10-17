@@ -442,6 +442,18 @@ export class ChronosTimeline {
         // ignore if method missing in bundled timeline
       }
     });
+    // Marker elements are rendered asynchronously; color them in DOM order.
+    setTimeout(() => {
+      const els = this.container.querySelectorAll<HTMLElement>(".vis-custom-time");
+      markers.forEach((marker, i) => {
+        const el = els[i];
+        if (!marker.color || !el) return;
+        el.style.backgroundColor = marker.color;
+        el.querySelectorAll<HTMLElement>(".vis-custom-time-marker").forEach((l) => {
+          l.style.backgroundColor = marker.color!;
+        });
+      });
+    }, MS_UNTIL_REFIT);
   }
 
   private _setupTooltip(timeline: Timeline, items: ChronosDataItem[]) {

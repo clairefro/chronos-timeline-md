@@ -4,6 +4,7 @@ import { DataItem } from "vis-timeline";
 export interface Marker {
   start: string;
   content: string;
+  color?: string;
 }
 
 export interface ChronosDataItem extends DataItem {

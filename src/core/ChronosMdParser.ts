@@ -275,14 +275,17 @@ export class ChronosMdParser {
   }
 
   private _parseMarker(line: string, lineNumber: number) {
-    const markerMatch = line.match(/^=\s*\[(.*?)]\s*(.*)?$/);
+    const markerMatch = line.match(/^=\s*\[(.*?)]\s*(?:#(\w+)\s*)?(.*)?$/);
 
     if (markerMatch) {
-      const [, start, content] = markerMatch;
+      const [, start, color, content] = markerMatch;
 
       this.markers.push({
         start: toUTCDate(start).toISOString(),
         content: content || "",
+        color: color
+          ? this._mapToThemeColor(color as Color, Opacity.Solid)
+          : undefined,
       });
     } else {
       this._addParserError(lineNumber, `Invalid marker format: ${line}`);
