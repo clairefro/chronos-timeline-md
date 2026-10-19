@@ -415,6 +415,8 @@ To give items a specific color, you can include an available color after the dat
 
 **Events** and **Periods** can be grouped into "swimlanes" by specifying a `Group Name` in curly brackets `{}` after the `Date` (or `Color`, if present). Group names are case sensitive and may contain spaces.
 
+You can also create **nested groups** by chaining multiple group blocks. Each subsequent `{}` becomes a child of the previous group.
+
 The order of items does not matter, but the example below lumps items together by group for human legibility.
 
 **Example**
@@ -432,6 +434,33 @@ The order of items does not matter, but the example below lumps items together b
 ```
 
 ![groups example](./docs/ex-groups.png)
+
+**Nested group example**
+
+```sh
+@ [2000~2025] {Product} Core Product Era
+
+- [2002-03] {Product} {Design} Brand system created
+- [2008-07] {Product} {Design} Redesign initiative
+- [2018-02] {Product} {Design} Design tokens adopted
+
+- [2005-01] {Product} {Operations} First SRE hire
+- [2012-08] {Product} {Operations} 24/7 on-call rotation
+- [2020-04] {Product} {Operations} Cloud migration complete
+
+- [2001-06] {Product} {Platform} First platform prototype
+- [2004-09] {Product} {Platform} v1.0 launch
+- [2010-05] {Product} {Platform} {Mobile} Mobile app release
+- [2016-11] {Product} {Platform} Major re-architecture
+
+@ [1998~2025] {Company} Company Journey
+- [1999-05] {Company} Founded
+- [2003-10] {Company} Series A
+- [2013-09] {Company} International expansion
+- [2022-06] {Company} IPO
+```
+
+![groups example](./docs/ex-groups-nested.png)
 
 ## Advanced example
 
