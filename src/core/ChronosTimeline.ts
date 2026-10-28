@@ -357,13 +357,12 @@ export class ChronosTimeline {
       }
     }
 
-    const timeline = this._createTimeline(
-      this._applyItemColorClasses(items),
-      groups,
-      options,
-    );
+    // Colored items are copies; the tooltip must use the same objects the
+    // timeline DataSet normalized (e.g. start/end converted to Date).
+    const coloredItems = this._applyItemColorClasses(items);
+    const timeline = this._createTimeline(coloredItems, groups, options);
     this._addMarkers(timeline, markers);
-    this._setupTooltip(timeline, items);
+    this._setupTooltip(timeline, coloredItems);
     this._createRefitButton(timeline, markers);
     this._handleZoomWorkaround(timeline, groups);
 
