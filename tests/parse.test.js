@@ -190,3 +190,44 @@ test("Parse — Happy path and invocations", async (t) => {
     }
   );
 });
+
+test("Parse — Period wiki links", async (t) => {
+  const first = (src) => parseChronos(src).items[0];
+
+  await t.test("link in content", () => {
+    const item = first("@ [2020~2022] Period [[note]]");
+    assert.strictEqual(item.cLink, "note");
+    assert.match(item.className, /is-link/);
+  });
+
+  await t.test("link in description is hidden from content", () => {
+    const item = first("@ [2020~2022] Period name | [[path/to/note]]");
+    assert.strictEqual(item.cLink, "path/to/note");
+    assert.strictEqual(item.content, "Period name");
+    assert.strictEqual(item.cDescription, "[[path/to/note]]");
+    assert.match(item.className, /is-link/);
+  });
+
+  await t.test("link with heading", () => {
+    const item = first("@ [2020~2022] Period | [[note#Heading]]");
+    assert.strictEqual(item.cLink, "note#Heading");
+  });
+
+  await t.test("link with alias", () => {
+    const item = first("@ [2020~2022] Period | [[note|Alias]]");
+    assert.ok(item.cLink.startsWith("note"));
+    assert.match(item.className, /is-link/);
+  });
+
+  await t.test("first link wins", () => {
+    const item = first("@ [2020~2022] Period [[a]] | [[b]]");
+    assert.strictEqual(item.cLink, "a");
+  });
+
+  await t.test("no link keeps inline description", () => {
+    const item = first("@ [2020~2022] Period | plain text");
+    assert.strictEqual(item.cLink, undefined);
+    assert.strictEqual(item.content, "Period | plain text");
+    assert.doesNotMatch(item.className, /is-link/);
+  });
+});

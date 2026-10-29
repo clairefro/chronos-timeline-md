@@ -169,7 +169,8 @@ export class ChronosMdParser {
       style += "color: var(--text-normal) !important;";
     }
 
-    const isLink = (type === "point" || type === "default") && cLink;
+    const isLink = (type === "point" || type === "default" || type === "background") &&
+      cLink;
 
     let classes = "";
     classes += isLink ? "is-link" : "";
@@ -226,11 +227,23 @@ export class ChronosMdParser {
     const components = this._parseTimeItem(line, lineNumber);
 
     if (components) {
-      const { start, separator, end, color, groupName, content, description } =
-        components;
-      this.items.push(
-        this._constructItem({
-          content: description ? content + " | " + description : content,
+      const {
+        start,
+        separator,
+        end,
+        color,
+        groupName,
+        content,
+        description,
+        cLink,
+      } = components;
+      // Linked periods keep the description out of the content (like events);
+      // unlinked periods keep rendering "content | description" inline.
+      const hasLink = !!cLink;
+      this.items.push({
+        ...this._constructItem({
+          content:
+            description && !hasLink ? content + " | " + description : content,
           start,
           separator,
           end,
@@ -238,8 +251,11 @@ export class ChronosMdParser {
           color,
           lineNumber,
           type: "background",
+          cLink,
         }),
-      );
+        cDescription: hasLink ? description || undefined : undefined,
+        cLink,
+      });
     }
   }
 

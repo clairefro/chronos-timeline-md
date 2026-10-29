@@ -156,6 +156,13 @@ export const CHRONOS_DEFAULT_CSS = `
   cursor: pointer;
 }
 
+/* vis-timeline background items are non-interactive by default */
+.chronos-timeline-container .vis-item.vis-background.is-link,
+.chronos-timeline-container .vis-item.vis-background.is-link .vis-item-content {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
 .chronos-timeline-container .is-link .vis-item-content {
   text-transform: none;
   text-decoration: underline;

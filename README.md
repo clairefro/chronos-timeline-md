@@ -214,6 +214,18 @@ For complete syntax documentation, see **[CHRONOS_SYNTAX_GUIDE.md](./CHRONOS_SYN
   = [2023-01-01] Important marker
 ```
 
+# Note linking
+
+Note linking works for Event (`-`), Point (`*`) and Period (`@`) items. The first `[[wikilink]]` in the content or description becomes the item's link (`cLink`).
+
+```
+- [2023] Event [[note]]
+* [2023-06-15] Point | [[path/to/note]]
+@ [2020~2025] Period | [[note#Heading]]
+```
+
+For linked periods the description is stored in `cDescription` (shown in the tooltip) and not appended to the content. Periods without a link still render `content | description` inline.
+
 # With modifiers
 
 ```
