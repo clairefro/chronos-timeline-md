@@ -467,16 +467,58 @@ npm unlink chronos-timeline-md
 npm install
 ```
 
-### Publishing
+### Publishing to npm
 
-(Note to self :P)
+`npm publish` ships whatever is in your **current working folder**.
 
 ```bash
-# Update version in package.json
-npm version patch|minor|major
+# 1. Get onto main with everything merged (merge your PR on GitHub first)
+git checkout main
+git pull origin main
+git status                      # must say "working tree clean"
 
-# Publish to npm
+# 2. Make sure the feature you are releasing is actually here
+git log --oneline -5            # your PR's commits should be listed
+
+# 3. Install, test, and build from scratch
+npm install
+npm test
+npm run clean && npm run build
+
+# 4. Preview exactly what will be published
+npm pack --dry-run              # must list dist/index.js and dist/index.d.ts
+
+# 5. Bump the version (creates a commit and a git tag; patch | minor | major)
+npm version patch
+
+# 6. Publish (the same clean + build runs automatically first)
 npm publish
+
+# 7. Push the version commit and tag
+git push origin main --follow-tags
+```
+
+Rules of thumb:
+
+- **Never publish from a feature branch.** `git branch --show-current` must print `main`.
+- **A published version can't be changed or reused.** If something is wrong, fix it and publish the next patch version.
+- **Use `npm version`, don't edit the version by hand.** If you did, `git status` will show `package.json` as modified.
+- **Version meaning:** `patch` = bug fix, `minor` = new feature, `major` = breaking change.
+
+Verify the release afterwards:
+
+```bash
+npm view chronos-timeline-md version                  # shows the new version
+npm pack chronos-timeline-md@<version> --dry-run      # should list dist/index.d.ts
+```
+
+Then update the consuming plugin, and note that the plugin bundles the library into its own `main.js`, so it needs a rebuild and a new plugin release too:
+
+```bash
+cd ~/path/to/obsidian-plugin
+npm install chronos-timeline-md@latest
+npm ls chronos-timeline-md --depth=0                  # confirm the new version
+npm run build
 ```
 
 ## Browser Support
