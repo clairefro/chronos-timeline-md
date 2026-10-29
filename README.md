@@ -475,7 +475,7 @@ npm install
 # 1. Get onto main with everything merged (merge your PR on GitHub first)
 git checkout main
 git pull origin main
-git status                      # must say "working tree clean"
+git status
 
 # 2. Make sure the feature you are releasing is actually here
 git log --oneline -5            # your PR's commits should be listed
