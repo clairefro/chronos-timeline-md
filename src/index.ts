@@ -158,7 +158,19 @@ export type {
   ChronosPluginSettings,
   ChronosTimelineConstructor,
   CoreParseOptions,
+  ChronosThemeConfig,
+  ChronosDataSetDataItem,
+  ConstructItemParams,
 } from "./utils/types";
+
+// Types from the vis-timeline peer dependency that appear in this library's
+// public API, re-exported so consumers don't need to import them separately.
+export type {
+  DataItem,
+  Timeline,
+  TimelineOptions,
+  TimelineEventPropertiesResult,
+} from "vis-timeline";
 
 // Main export - ChronosTimeline class
 export { ChronosTimeline };

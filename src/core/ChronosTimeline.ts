@@ -473,6 +473,8 @@ export class ChronosTimeline {
       this._hideTooltipForItem(event.event.target);
     });
 
+    this._setupPeriodTooltip(timeline, items);
+
     // Fallback approach - direct DOM event handling
     // This handles cases where vis-timeline events don't fire properly for layered items
     setTimeout(() => {
@@ -500,6 +502,63 @@ export class ChronosTimeline {
     }, 150); // Small delay to ensure timeline is fully rendered
   }
 
+  // Background items (periods) live in a separate vis panel under the center
+  // panel, so vis never emits itemover for them. Hit-test them by time/group.
+  private _setupPeriodTooltip(timeline: Timeline, items: ChronosDataItem[]) {
+    const periods = items.filter(
+      (i: any) => i.type === "background" && i.start,
+    ) as any[];
+    if (!periods.length) return;
+
+    const center = this.container.querySelector(
+      ".vis-timeline .vis-panel.vis-center",
+    ) as HTMLElement | null;
+    const host = center || this.container;
+
+    let activeEl: HTMLElement | null = null;
+    let activePeriod: any = null;
+
+    const clear = () => {
+      if (activeEl) this._hideTooltipForItem(activeEl);
+      activeEl = null;
+      activePeriod = null;
+      host.style.cursor = "";
+    };
+
+    host.addEventListener("mousemove", (e: MouseEvent) => {
+      const props = timeline.getEventProperties(e);
+      const t = props.time ? props.time.getTime() : NaN;
+      if (props.item !== null && props.item !== undefined) return clear();
+      if (Number.isNaN(t)) return clear();
+
+      const period = periods.find((p) => {
+        const start = new Date(p.start).getTime();
+        const end = p.end ? new Date(p.end).getTime() : start;
+        const sameGroup =
+          p.group === undefined || p.group === null || p.group === props.group;
+        return sameGroup && start <= t && t <= end;
+      });
+      if (!period) return clear();
+
+      host.style.cursor = period.cLink ? "pointer" : "";
+      const target = e.target as HTMLElement;
+      if (period === activePeriod && target === activeEl) return;
+      if (activeEl && activeEl !== target) this._hideTooltipForItem(activeEl);
+      activePeriod = period;
+      activeEl = target;
+      this.setTooltip(target, this._tooltipText(period));
+    });
+    host.addEventListener("mouseleave", clear);
+  }
+
+  private _tooltipText(item: ChronosDataSetDataItem) {
+    return `${item.content} (${smartDateRange(
+      new Date(item.start).toISOString(),
+      item.end ? new Date(item.end).toISOString() : null,
+      this.settings.selectedLocale,
+    )})${item.cDescription ? " \n " + item.cDescription : ""}`;
+  }
+
   private _showTooltipForItem(
     itemId: string,
     targetElement: HTMLElement,
@@ -507,11 +566,7 @@ export class ChronosTimeline {
   ) {
     const item = itemsDataSet.get(itemId) as unknown as ChronosDataSetDataItem;
     if (item) {
-      const text = `${item.content} (${smartDateRange(
-        item.start.toISOString(),
-        item.end?.toISOString() ?? null,
-        this.settings.selectedLocale,
-      )})${item.cDescription ? " \n " + item.cDescription : ""}`;
+      const text = this._tooltipText(item);
 
       // Find the actual timeline item element for better targeting
       const timelineElement = this.container.querySelector(".vis-timeline");
