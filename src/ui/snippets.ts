@@ -144,10 +144,10 @@ See available [Colors](#colors)
 **Full Syntax**
 
 \`\`\`
-@ [Date~Date] #Color {Group Name} Period Name
+@ [Date~Date] #Color {Group Name} Period Name | Description
 \`\`\`
 
-- Color, Group Name, and Period Name are optional
+- Color, Group Name, Period Name, and Description are optional
 
 ### Examples
 
@@ -176,11 +176,14 @@ See available [Colors](#colors)
 
 ## Points
 
-**Syntax**
+**Full Syntax**
 
 \`\`\`
-* [Date] Point Name | Description
+* [Date] #color {Group Name} Point Name | Description
 \`\`\`
+- Color, Group Name, and Description are optional
+
+#### Example
 
 \`\`\`chronos
 - [2024-02-26~2024-03-10] Tournament
