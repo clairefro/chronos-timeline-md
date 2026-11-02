@@ -24,6 +24,8 @@ function parseChronos(
     align: "left",
     clickToUse: false,
     roundRanges: !!options.roundRanges,
+    overflowRangeTitles: options.overflowRangeTitles !== false,
+    translucentRanges: !!options.translucentRanges,
     useUtc: true,
     useAI: false,
   };

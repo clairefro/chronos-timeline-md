@@ -316,6 +316,14 @@ export class ChronosTimeline {
     }
     // Add the chronos-timeline-container class to the container
     this.container.classList.add("chronos-timeline-container");
+    this.container.classList.toggle(
+      "chronos-range-overflow",
+      this.settings.overflowRangeTitles !== false,
+    );
+    this.container.classList.toggle(
+      "chronos-range-translucent",
+      !!this.settings.translucentRanges,
+    );
 
     // Apply theme configurations
     this._applyThemeConfig();
