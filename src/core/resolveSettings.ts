@@ -48,6 +48,13 @@ export function parseSettingFlag(
     }
     return { error: "Must provide left, center or right for ALIGN flag" };
   }
+  if (name === "axis") {
+    const value = arg?.trim().toLowerCase();
+    if (value === "top" || value === "bottom") {
+      return { overrides: { axisPosition: value } };
+    }
+    return { error: "Must provide top or bottom for AXIS flag" };
+  }
   return null;
 }
 

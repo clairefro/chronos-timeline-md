@@ -349,6 +349,17 @@ Flags override your global settings for a single timeline. Each has a \`NO\` cou
 - [2020~2024] Centered text
 \`\`\`
 
+## Axis position
+
+**AXIS - Put the time axis on top (top|bottom)**
+
+\`\`\`chronos
+> AXIS top
+
+- [2020~2022] Event A
+- [2021~2024] #red Event B
+\`\`\`
+
 ## Gap between items
 
 \`> GAP px\` sets the gap in pixels between items. Use \`> GAP horizontal|vertical\` to set them separately.

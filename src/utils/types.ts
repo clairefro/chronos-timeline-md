@@ -47,6 +47,8 @@ export interface ChronosDocumentSettings {
   translucentEvents?: boolean;
   useUtc: boolean;
   align: "left" | "center" | "right";
+  // Where the time axis is drawn (default: bottom)
+  axisPosition?: "top" | "bottom";
 }
 
 /** Settings only the host app decides; documents cannot override these. */

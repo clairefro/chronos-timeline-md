@@ -217,6 +217,7 @@ export class ChronosTimeline {
       selectable: true,
       minHeight: "200px",
       align: this.resolvedSettings.align,
+      orientation: { axis: this.resolvedSettings.axisPosition ?? "bottom" },
       moment: (date: any) => chronosMoment(date, this.resolvedSettings),
     };
   }

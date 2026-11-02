@@ -258,6 +258,7 @@ Some flags override settings passed in by the host app (e.g. your plugin's globa
 | `> OVERFLOWTITLES` / `> NOOVERFLOWTITLES` | `overflowRangeTitles` |
 | `> UTC` / `> NOUTC`                       | `useUtc`              |
 | `> ALIGN left\|center\|right`             | `align`               |
+| `> AXIS top\|bottom`                       | `axisPosition`        |
 
 The locale is host-only and can't be set from markdown.
 

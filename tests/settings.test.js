@@ -65,3 +65,17 @@ test("invalid GAP values are parse errors", () => {
     assert.throws(() => parseChronos(`- [2020] x\n${bad}`), /GAP/, bad);
   }
 });
+
+test("> AXIS top|bottom sets axisPosition", () => {
+  assert.deepStrictEqual(parseChronos("- [2020] x\n> AXIS top").overrides, {
+    axisPosition: "top",
+  });
+  assert.deepStrictEqual(parseChronos("- [2020] x\n> axis BOTTOM").overrides, {
+    axisPosition: "bottom",
+  });
+});
+
+test("invalid AXIS value is a parse error", () => {
+  assert.throws(() => parseChronos("- [2020] x\n> AXIS left"), /AXIS/);
+  assert.throws(() => parseChronos("- [2020] x\n> AXIS"), /AXIS/);
+});

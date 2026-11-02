@@ -175,7 +175,7 @@ export class ChronosHighlighter {
     }
 
     // Flags/Options
-    if (line.match(/^\s*>\s*(ORDERBY|DEFAULTVIEW|NOTODAY|NOSTACK|HEIGHT|GAP|NO(?:ROUNDED|TRANSLUCENT|OVERFLOWTITLES|UTC)|ROUNDED|TRANSLUCENT|OVERFLOWTITLES|UTC|ALIGN)\b/)) {
+    if (line.match(/^\s*>\s*(ORDERBY|DEFAULTVIEW|NOTODAY|NOSTACK|HEIGHT|GAP|NO(?:ROUNDED|TRANSLUCENT|OVERFLOWTITLES|UTC)|ROUNDED|TRANSLUCENT|OVERFLOWTITLES|UTC|ALIGN|AXIS)\b/)) {
       return this.highlightFlag(line);
     }
 
@@ -206,7 +206,7 @@ export class ChronosHighlighter {
   private highlightFlag(line: string): string {
     return line
       .replace(
-        /^(\s*>\s*)(ORDERBY|DEFAULTVIEW|NOTODAY|NOSTACK|HEIGHT|GAP|NO(?:ROUNDED|TRANSLUCENT|OVERFLOWTITLES|UTC)|ROUNDED|TRANSLUCENT|OVERFLOWTITLES|UTC|ALIGN)(\b.*)/,
+        /^(\s*>\s*)(ORDERBY|DEFAULTVIEW|NOTODAY|NOSTACK|HEIGHT|GAP|NO(?:ROUNDED|TRANSLUCENT|OVERFLOWTITLES|UTC)|ROUNDED|TRANSLUCENT|OVERFLOWTITLES|UTC|ALIGN|AXIS)(\b.*)/,
         '$1<span class="chronos-flag-keyword">$2</span><span class="chronos-flag-args">$3</span>'
       )
       .replace(
