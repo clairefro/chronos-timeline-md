@@ -185,7 +185,8 @@ export const CHRONOS_DEFAULT_CSS = `
 }
 
 /* Outline the title in the box color so it stays readable where it runs past the box edge.
-   Hard-edged (no blur); translucent boxes use the same tint as the box. */
+   Hard-edged (no blur). For translucent boxes the outline is the box color pre-blended over the
+   timeline background (opaque), so it matches what the box looks like instead of compounding alpha. */
 .chronos-timeline-container.chronos-range-overflow .vis-item.vis-range {
   --chronos-range-outline: var(--chronos-item-color, var(--chronos-interactive));
 }
@@ -194,7 +195,7 @@ export const CHRONOS_DEFAULT_CSS = `
   --chronos-range-outline: color-mix(
     in srgb,
     var(--chronos-item-color, var(--chronos-interactive)) 75%,
-    transparent
+    var(--chronos-bg-secondary)
   );
 }
 
