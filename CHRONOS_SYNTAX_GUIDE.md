@@ -35,6 +35,9 @@ Powered by [vis.js](https://visjs.org/)
   - [HEIGHT flag](#height-flag)
   - [ORDERBY flag](#orderby-flag)
   - [DEFAULTVIEW flag](#defaultview-flag)
+  - [GAP flag](#gap-flag)
+  - [AXIS flag](#axis-flag)
+  - [Display setting flags](#display-setting-flags)
 - [Modifiers](#modifiers)
   - [Colors `#color`](#colors-color)
   - [Groups `{}`](#groups-)
@@ -380,6 +383,68 @@ You can use YYYY-MM-DD timestamps for the start and end date, with the minimum r
 ```
 
 ![default view example](./docs/ex-default-view.png)
+
+### GAP flag
+
+Set the gap between items, in pixels. One number applies to both directions. Use `horizontal|vertical` to set them separately. The default is 10 for both.
+
+```
+> GAP <horizontal px>|<vertical px>
+```
+
+```sh
+> GAP 20
+
+- [2020~2022] Event A
+- [2021~2024] #red Event B
+- [2023~2025] #blue Event C
+```
+
+Horizontal and vertical gaps set separately (10px between items on the same row, 30px between stacked rows):
+
+```sh
+> GAP 10|30
+
+- [2020~2022] Event A
+- [2021~2024] #red Event B
+- [2023~2025] #blue Event C
+```
+
+### AXIS flag
+
+Choose where the time axis is drawn: `top` or `bottom` (default).
+
+```sh
+> AXIS top
+
+- [2020~2022] Event A
+- [2021~2024] #red Event B
+```
+
+### Display setting flags
+
+These flags override the host app's settings (for example your Obsidian plugin settings) for a single timeline. Settings precedence is: library defaults < host app settings < flags in the timeline.
+
+| Flag                                      | Effect                                                                |
+| ----------------------------------------- | --------------------------------------------------------------------- |
+| `> ROUNDED` / `> NOROUNDED`               | Round the ends of period ranges on / off                              |
+| `> TRANSLUCENT` / `> NOTRANSLUCENT`       | Borderless, semi-transparent events on / off                          |
+| `> OVERFLOWTITLES` / `> NOOVERFLOWTITLES` | Let long range titles run past the range box on / off (on by default) |
+| `> UTC` / `> NOUTC`                       | Interpret dates as UTC / local time                                   |
+| `> ALIGN left\|center\|right`             | Align item text                                                       |
+
+If a flag and its `NO` version both appear, the later line wins.
+
+```sh
+> TRANSLUCENT
+> NOROUNDED
+> ALIGN center
+
+- [2020~2022] Event A
+- [2021~2024] #red Event B
+```
+
+The locale can only be set by the host app, not from markdown.
 
 ## Modifiers
 
