@@ -42,7 +42,6 @@ const minimalSettings = {
   clickToUse: false,
   roundRanges: false,
   useUtc: true,
-  useAI: false,
 };
 
 const sample = [

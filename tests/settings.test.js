@@ -32,3 +32,36 @@ test("setting flags are case-insensitive and tolerated anywhere", () => {
 test("no flags yields no overrides", () => {
   assert.deepStrictEqual(parseChronos(src()).overrides, {});
 });
+
+test("> UTC / > NOUTC and > ALIGN set overrides", () => {
+  const r = parseChronos("- [2020] x\n> NOUTC\n> ALIGN center");
+  assert.deepStrictEqual(r.overrides, { useUtc: false, align: "center" });
+});
+
+test("invalid ALIGN value is a parse error", () => {
+  assert.throws(() => parseChronos("- [2020] x\n> ALIGN middle"), /ALIGN/);
+});
+
+test("locale is not overridable from markdown", () => {
+  assert.throws(() => parseChronos("- [2020] x\n> LOCALE fr"), /Unrecognized flag/);
+});
+
+test("> GAP sets item gap, one value applies to both axes", () => {
+  assert.deepStrictEqual(parseChronos("- [2020] x\n> GAP 12").flags.gap, {
+    horizontal: 12,
+    vertical: 12,
+  });
+});
+
+test("> GAP h|v sets axes separately", () => {
+  assert.deepStrictEqual(parseChronos("- [2020] x\n> GAP 5|30").flags.gap, {
+    horizontal: 5,
+    vertical: 30,
+  });
+});
+
+test("invalid GAP values are parse errors", () => {
+  for (const bad of ["> GAP", "> GAP abc", "> GAP -3", "> GAP 1|2|3"]) {
+    assert.throws(() => parseChronos(`- [2020] x\n${bad}`), /GAP/, bad);
+  }
+});

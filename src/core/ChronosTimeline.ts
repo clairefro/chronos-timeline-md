@@ -4,7 +4,7 @@ import crosshairsSvg from "../assets/icons/crosshairs.svg";
 import {
   Marker,
   Group,
-  ChronosPluginSettings,
+  ChronosSettings,
   ChronosTimelineConstructor,
   ChronosDataItem,
   ChronosDataSetDataItem,
@@ -44,9 +44,9 @@ export class ChronosTimeline {
   };
   static prompts: { system: string } = { system: systemPrompt };
   private container: HTMLElement;
-  private settings: ChronosPluginSettings;
+  private settings: ChronosSettings;
   // host settings merged with overrides from flags in the rendered document
-  private resolvedSettings: ChronosPluginSettings;
+  private resolvedSettings: ChronosSettings;
   private parser: ChronosMdParser;
   private callbacks:
     | {
@@ -63,14 +63,14 @@ export class ChronosTimeline {
 
   constructor(
     containerOrOptions: HTMLElement | ChronosTimelineConstructor,
-    optionsOrUndefined?: ChronosPluginSettings,
+    optionsOrUndefined?: ChronosSettings,
   ) {
     // Support both constructor signatures:
     // new ChronosTimeline(container, options)
     // new ChronosTimeline({container, settings, ...})
 
     let container: HTMLElement;
-    let settings: ChronosPluginSettings;
+    let settings: ChronosSettings;
     let callbacks:
       | { setTooltip?: (el: Element, text: string) => void }
       | undefined;
@@ -167,7 +167,7 @@ export class ChronosTimeline {
   static render(
     container: HTMLElement,
     source: string,
-    options?: ChronosPluginSettings,
+    options?: ChronosSettings,
   ): ChronosTimeline {
     const timeline = new ChronosTimeline(container, options);
     timeline.render(source);
@@ -216,8 +216,8 @@ export class ChronosTimeline {
       zoomable: true,
       selectable: true,
       minHeight: "200px",
-      align: this.settings.align,
-      moment: (date: any) => chronosMoment(date, this.settings),
+      align: this.resolvedSettings.align,
+      moment: (date: any) => chronosMoment(date, this.resolvedSettings),
     };
   }
 
@@ -350,6 +350,12 @@ export class ChronosTimeline {
     }
     if (flags?.noStack) {
       options.stack = false;
+    }
+    if (flags?.gap) {
+      options.margin = {
+        ...(options.margin as object),
+        item: { horizontal: flags.gap.horizontal, vertical: flags.gap.vertical },
+      };
     }
     if (flags?.height) {
       options.height = `${flags.height}px`;

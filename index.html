@@ -1960,6 +1960,29 @@
 - [2020~2030] #red Event A`,
           },
           {
+            title: "ROUNDED - Rounded range ends",
+            content: `> ROUNDED
+
+- [2020~2022] Event A
+- [2021~2024] #red Event B`,
+          },
+          {
+            title: "TRANSLUCENT - Translucent events",
+            content: `> TRANSLUCENT
+
+- [2020~2022] Event A
+- [2021~2024] #red Event B
+- [2023] #blue Single date`,
+          },
+          {
+            title: "GAP - Gap between items",
+            content: `> GAP 20
+
+- [2020~2022] Event A
+- [2021~2024] #red Event B
+- [2023~2025] #blue Event C`,
+          },
+          {
             title: "Default View Range",
             content: `> DEFAULTVIEW -3000|3000
 # Offset the default centered view with custom start|end dates
@@ -2065,32 +2088,56 @@
             category: "Flags (Options)",
             items: [
               {
-                title: "Order by start date",
+                title: "ORDERBY - Order by start date",
                 content: "> ORDERBY start",
               },
               {
-                title: "Order by start (descending)",
+                title: "ORDERBY - Order by start (descending)",
                 content: "> ORDERBY -start",
               },
               {
-                title: "Order by color and start",
+                title: "ORDERBY - Order by color and start",
                 content: "> ORDERBY color|start",
               },
               {
-                title: "Default view range",
+                title: "DEFAULTVIEW - Default view range",
                 content: "> DEFAULTVIEW 2020|2030",
               },
               {
-                title: "Hide today marker",
+                title: "NOTODAY - Hide today marker",
                 content: "> NOTODAY",
               },
               {
-                title: "Don't stack items",
+                title: "NOSTACK - Don't stack items",
                 content: "> NOSTACK",
               },
               {
-                title: "Set timeline height",
+                title: "HEIGHT - Set timeline height",
                 content: "> HEIGHT 400",
+              },
+              {
+                title: "GAP - Gap between items in px (or horizontal|vertical)",
+                content: "> GAP 10|20",
+              },
+              {
+                title: "ROUNDED - Rounded range ends",
+                content: "> ROUNDED",
+              },
+              {
+                title: "TRANSLUCENT - Translucent events",
+                content: "> TRANSLUCENT",
+              },
+              {
+                title: "NOOVERFLOWTITLES - Keep long range titles inside the box",
+                content: "> NOOVERFLOWTITLES",
+              },
+              {
+                title: "NOUTC - Local time instead of UTC",
+                content: "> NOUTC",
+              },
+              {
+                title: "ALIGN - Align item text (left|center|right)",
+                content: "> ALIGN center",
               },
             ],
           },

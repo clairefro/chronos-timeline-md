@@ -3,7 +3,7 @@ import { ChronosMdParser } from "./core/ChronosMdParser";
 import { DEFAULT_LOCALE } from "./utils/constants";
 import type {
   ParseResult,
-  ChronosPluginSettings,
+  ChronosSettings,
   CoreParseOptions,
 } from "./utils/types";
 import { ChronosTimeline } from "./core/ChronosTimeline";
@@ -19,7 +19,7 @@ function parseChronos(
 ): ParseResult {
   const locale = options.selectedLocale || DEFAULT_LOCALE;
 
-  const minimalSettings: ChronosPluginSettings = {
+  const minimalSettings: ChronosSettings = {
     selectedLocale: locale,
     align: "left",
     clickToUse: false,
@@ -29,7 +29,7 @@ function parseChronos(
   };
 
   const parser = new ChronosMdParser(locale);
-  return parser.parse(source, minimalSettings as ChronosPluginSettings);
+  return parser.parse(source, minimalSettings as ChronosSettings);
 }
 
 function renderChronos(
@@ -37,13 +37,13 @@ function renderChronos(
   source: string,
   options: CoreParseOptions = {}
 ) {
-  const settings: ChronosPluginSettings = {
+  const settings: ChronosSettings = {
     selectedLocale: options.selectedLocale || DEFAULT_LOCALE,
     ...(options.roundRanges !== undefined && {
       roundRanges: options.roundRanges,
     }),
     ...options?.settings,
-  } as ChronosPluginSettings;
+  } as ChronosSettings;
 
   // Handle enhanced theme configuration
   const themeConfig = settings?.theme;
@@ -164,7 +164,7 @@ export type {
   Marker,
   Group,
   Flags,
-  ChronosPluginSettings,
+  ChronosSettings,
   ChronosTimelineConstructor,
   CoreParseOptions,
 } from "./utils/types";

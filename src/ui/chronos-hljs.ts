@@ -9,7 +9,7 @@ export const chronosLanguageDefinition = {
   aliases: ["chronos-md", "chronos-markdown"],
   case_insensitive: false,
   keywords: {
-    built_in: "ORDERBY DEFAULTVIEW NOTODAY HEIGHT start end color",
+    built_in: "ORDERBY DEFAULTVIEW NOTODAY NOSTACK HEIGHT GAP ROUNDED NOROUNDED TRANSLUCENT NOTRANSLUCENT OVERFLOWTITLES NOOVERFLOWTITLES UTC NOUTC ALIGN start end color left center right",
   },
   contains: [
     // Comments (markdown headers)
@@ -22,9 +22,9 @@ export const chronosLanguageDefinition = {
     // Flags/Options
     {
       className: "meta",
-      begin: "^\\s*>\\s*(ORDERBY|DEFAULTVIEW|NOTODAY|HEIGHT)\\b",
+      begin: "^\\s*>\\s*(ORDERBY|DEFAULTVIEW|NOTODAY|NOSTACK|HEIGHT|GAP|NO(?:ROUNDED|TRANSLUCENT|OVERFLOWTITLES|UTC)|ROUNDED|TRANSLUCENT|OVERFLOWTITLES|UTC|ALIGN)\\b",
       end: "$",
-      keywords: "ORDERBY DEFAULTVIEW NOTODAY HEIGHT",
+      keywords: "ORDERBY DEFAULTVIEW NOTODAY NOSTACK HEIGHT GAP ROUNDED NOROUNDED TRANSLUCENT NOTRANSLUCENT OVERFLOWTITLES NOOVERFLOWTITLES UTC NOUTC ALIGN",
       contains: [
         {
           className: "string",

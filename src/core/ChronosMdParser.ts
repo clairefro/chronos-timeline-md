@@ -5,7 +5,7 @@ import {
   Group,
   ConstructItemParams,
   Flags,
-  ChronosPluginSettings,
+  ChronosSettings,
 } from "../utils/types";
 import { Color, Opacity } from "../utils/enums";
 import { DEFAULT_LOCALE } from "../utils/constants";
@@ -13,19 +13,9 @@ import { toPaddedISOZ, toUTCDate, validateUTCDate } from "../parser/utcUtil";
 import { FLAGS_PREFIX } from "../flags";
 import {
   ChronosSettingOverrides,
+  parseSettingFlag,
   resolveSettings,
 } from "./resolveSettings";
-
-// Flags that override settings. Collected before items are built because
-// settings like roundRanges affect how each item is constructed.
-const SETTING_FLAGS: Record<string, ChronosSettingOverrides> = {
-  rounded: { roundRanges: true },
-  norounded: { roundRanges: false },
-  translucent: { translucentEvents: true },
-  notranslucent: { translucentEvents: false },
-  overflowtitles: { overflowRangeTitles: true },
-  nooverflowtitles: { overflowRangeTitles: false },
-};
 
 export class ChronosMdParser {
   private errors: string[] = [];
@@ -35,22 +25,30 @@ export class ChronosMdParser {
   private groupMap: { [key: string]: number } = {};
   private locale: string;
   private flags: Flags = {};
-  private settings!: ChronosPluginSettings;
+  private settings!: ChronosSettings;
   private overrides: ChronosSettingOverrides = {};
 
   constructor(locale = DEFAULT_LOCALE) {
     this.locale = locale;
   }
 
-  parse(data: string, settings: ChronosPluginSettings): ParseResult {
+  parse(data: string, settings: ChronosSettings): ParseResult {
     const lines = data.split("\n");
     this._resetVars();
 
-    lines.forEach((line) => {
+    // Settings flags are collected first because settings like roundRanges
+    // affect how each item is constructed.
+    lines.forEach((line, i) => {
       line = line.trim();
       if (!line.startsWith(FLAGS_PREFIX)) return;
-      const name = line.slice(FLAGS_PREFIX.length).trim().split(/\s+/)[0];
-      Object.assign(this.overrides, SETTING_FLAGS[name?.toLowerCase()]);
+      const [name, ...rest] = line.slice(FLAGS_PREFIX.length).trim().split(/\s+/);
+      const result = parseSettingFlag(name ?? "", rest.join(" "));
+      if (!result) return;
+      if ("error" in result) {
+        this._addParserError(i + 1, `${result.error}: ${line}`);
+      } else {
+        Object.assign(this.overrides, result.overrides);
+      }
     });
     this.settings = resolveSettings(settings, this.overrides);
 
@@ -383,20 +381,32 @@ export class ChronosMdParser {
           this._addParserError(lineNumber, `${e.message}: ${line}`);
         }
         break;
-      case "rounded":
-      case "norounded":
-      case "translucent":
-      case "notranslucent":
-      case "overflowtitles":
-      case "nooverflowtitles":
-        // applied in the pre-pass in parse()
-        break;
       case "notoday":
         this.flags.noToday = true;
         break;
       case "nostack":
         this.flags.noStack = true;
         break;
+      case "gap": {
+        const parts = flagContent.map((p) => p.trim());
+        const nums = parts.map((p) => (p === "" ? NaN : Number(p)));
+        if (
+          !parts.length ||
+          parts.length > 2 ||
+          nums.some((n) => !Number.isFinite(n) || n < 0)
+        ) {
+          this._addParserError(
+            lineNumber,
+            `Must provide a gap in pixels, or horizontal|vertical, for GAP flag (ex: 10 or 10|20): ${line}`,
+          );
+          return;
+        }
+        this.flags.gap = {
+          horizontal: nums[0],
+          vertical: nums[1] ?? nums[0],
+        };
+        break;
+      }
       case "height":
         if (!flagContent.length) {
           this._addParserError(
@@ -424,6 +434,8 @@ export class ChronosMdParser {
         this.flags.height = Number(arg);
         break;
       default:
+        // setting flags are handled in the pre-pass in parse()
+        if (parseSettingFlag(flagName, flagContent.join(" "))) break;
         this._addParserError(lineNumber, `Unrecognized flag: ${line}`);
         break;
     }

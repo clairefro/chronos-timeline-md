@@ -302,6 +302,65 @@ Colored points are outlined.
 - [2020~2030] #red  Event A
 \`\`\`
 
+## Display options
+
+Flags override your global settings for a single timeline. Each has a \`NO\` counterpart (e.g. \`> NOROUNDED\`) to turn the option off.
+
+**ROUNDED - Rounded range ends**
+
+\`\`\`chronos
+> ROUNDED
+
+- [2020~2022] Event A
+- [2021~2024] #red Event B
+\`\`\`
+
+**TRANSLUCENT - Translucent events**
+
+\`\`\`chronos
+> TRANSLUCENT
+
+- [2020~2022] Event A
+- [2021~2024] #red Event B
+- [2023] #blue Single date
+\`\`\`
+
+**NOOVERFLOWTITLES - Keep long range titles inside the box**
+
+\`\`\`chronos
+> NOOVERFLOWTITLES
+
+- [2020~2021] A very long range title that would otherwise run past the box
+\`\`\`
+
+**NOUTC - Local time instead of UTC**
+
+\`\`\`chronos
+> NOUTC
+
+- [2024-06-01T12:00] Noon, in your local time
+\`\`\`
+
+**ALIGN - Align item text (left|center|right)**
+
+\`\`\`chronos
+> ALIGN center
+
+- [2020~2024] Centered text
+\`\`\`
+
+## Gap between items
+
+\`> GAP px\` sets the gap in pixels between items. Use \`> GAP horizontal|vertical\` to set them separately.
+
+\`\`\`chronos
+> GAP 20
+
+- [2020~2022] Event A
+- [2021~2024] #red Event B
+- [2023~2025] #blue Event C
+\`\`\`
+
 ## Default view dates
 
 Use the \`> DEFAULTVIEW start|end\` flag to specify default start and end dates for your timeline's initial load

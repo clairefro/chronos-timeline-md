@@ -245,16 +245,21 @@ Can be placed anywhere in your chronos markdown, on its own line
 > NOTODAY
 > NOSTACK
 > HEIGHT 400
+> GAP 10|20
 
 ```
 
 Some flags override settings passed in by the host app (e.g. your plugin's global settings) for this timeline only:
 
-| Flag                                   | Overrides             |
-| -------------------------------------- | --------------------- |
-| `> ROUNDED` / `> NOROUNDED`            | `roundRanges`         |
-| `> TRANSLUCENT` / `> NOTRANSLUCENT`    | `translucentEvents`   |
+| Flag                                      | Overrides             |
+| ----------------------------------------- | --------------------- |
+| `> ROUNDED` / `> NOROUNDED`               | `roundRanges`         |
+| `> TRANSLUCENT` / `> NOTRANSLUCENT`       | `translucentEvents`   |
 | `> OVERFLOWTITLES` / `> NOOVERFLOWTITLES` | `overflowRangeTitles` |
+| `> UTC` / `> NOUTC`                       | `useUtc`              |
+| `> ALIGN left\|center\|right`             | `align`               |
+
+The locale is host-only and can't be set from markdown.
 
 Precedence: library defaults < host `settings` < flags in the document.
 

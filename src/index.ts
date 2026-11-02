@@ -2,7 +2,7 @@ import { ChronosMdParser } from "./core/ChronosMdParser";
 import { DEFAULT_LOCALE } from "./utils/constants";
 import type {
   ParseResult,
-  ChronosPluginSettings,
+  ChronosSettings,
   CoreParseOptions,
 } from "./utils/types";
 import { ChronosTimeline } from "./core/ChronosTimeline";
@@ -19,7 +19,7 @@ function parseChronos(
   const locale = options.selectedLocale || DEFAULT_LOCALE;
 
   // Deprecated flat options are only a fallback; `options.settings` wins.
-  const minimalSettings: ChronosPluginSettings = {
+  const minimalSettings: ChronosSettings = {
     selectedLocale: locale,
     align: "left",
     clickToUse: false,
@@ -29,7 +29,7 @@ function parseChronos(
   };
 
   const parser = new ChronosMdParser(locale);
-  return parser.parse(source, minimalSettings as ChronosPluginSettings);
+  return parser.parse(source, minimalSettings as ChronosSettings);
 }
 
 function renderChronos(
@@ -37,13 +37,13 @@ function renderChronos(
   source: string,
   options: CoreParseOptions = {}
 ) {
-  const settings: ChronosPluginSettings = {
+  const settings: ChronosSettings = {
     selectedLocale: options.selectedLocale || DEFAULT_LOCALE,
     ...(options.roundRanges !== undefined && {
       roundRanges: options.roundRanges,
     }),
     ...options?.settings,
-  } as ChronosPluginSettings;
+  } as ChronosSettings;
 
   // Handle enhanced theme configuration
   const themeConfig = settings?.theme;
@@ -153,14 +153,16 @@ function scopeCssForRootClass(cssText: string, rootClass: string) {
 // Add version to ChronosTimeline class
 ChronosTimeline.version = pkg.version;
 
-export type { ChronosSettingOverrides } from "./core/resolveSettings";
 export type {
   ParseResult,
+  ChronosSettings,
+  ChronosDocumentSettings,
+  ChronosHostSettings,
+  ChronosSettingOverrides,
   ChronosDataItem,
   Marker,
   Group,
   Flags,
-  ChronosPluginSettings,
   ChronosTimelineConstructor,
   CoreParseOptions,
   ChronosThemeConfig,

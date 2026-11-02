@@ -1,4 +1,3 @@
-import type { ChronosSettingOverrides } from "../core/resolveSettings";
 // Converted from ambient declarations to concrete exports for the portable lib
 import { DataItem } from "vis-timeline";
 
@@ -39,25 +38,31 @@ export interface ChronosThemeConfig {
   disableDefaultStyles?: boolean;
 }
 
-export interface ChronosPluginSettings {
-  selectedLocale: string;
-  /** @deprecated unused by the core lib (legacy API key field); do not store secrets here */
-  key?: string;
-  align: "left" | "center" | "right";
-  clickToUse: boolean;
+/** Settings a markdown document can override locally via flags (e.g. `> ROUNDED`). */
+export interface ChronosDocumentSettings {
   roundRanges: boolean;
   // Let long range titles continue past the range box (default: true)
   overflowRangeTitles?: boolean;
   // Draw events (ranged or single-date) as borderless, semi-transparent boxes (default: false)
   translucentEvents?: boolean;
   useUtc: boolean;
-  /** @deprecated unused by the core lib; AI features belong to the host app */
-  useAI?: boolean;
+  align: "left" | "center" | "right";
+}
+
+/** Settings only the host app decides; documents cannot override these. */
+export interface ChronosHostSettings {
+  selectedLocale: string;
+  clickToUse: boolean;
   // Enhanced theming configuration
   theme?: ChronosThemeConfig;
   /** @deprecated use `theme.colorMap` instead */
   colorMap?: Record<string, string>;
 }
+
+export type ChronosSettings = ChronosDocumentSettings & ChronosHostSettings;
+
+/** Per-document overrides collected from flags in the markdown. */
+export type ChronosSettingOverrides = Partial<ChronosDocumentSettings>;
 
 export type Group = { id: number; content: string };
 
@@ -67,6 +72,8 @@ export type Flags = {
   noToday?: boolean;
   height?: number;
   noStack?: boolean;
+  // Gap in pixels between items (vis-timeline margin.item)
+  gap?: { horizontal: number; vertical: number };
 };
 
 export interface ParseResult {
@@ -83,7 +90,7 @@ export type CoreParseOptions = {
   selectedLocale?: string;
   /** @deprecated use `settings.roundRanges` */
   roundRanges?: boolean;
-  settings?: Partial<ChronosPluginSettings>;
+  settings?: Partial<ChronosSettings>;
   callbacks?: {
     setTooltip?: (el: Element, text: string) => void;
   };
@@ -105,7 +112,7 @@ export type ConstructItemParams = {
 
 export type ChronosTimelineConstructor = {
   container: HTMLElement;
-  settings: ChronosPluginSettings;
+  settings: ChronosSettings;
   // Optional runtime hooks and styling overrides for host environments
   callbacks?: {
     // Optional tooltip setter override for host environments (e.g. Obsidian)
