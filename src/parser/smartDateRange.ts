@@ -1,23 +1,39 @@
 import { isRtl } from "../utils/knownLocales";
 import { toUTCDate } from "./utcUtil";
 
-// Locale-aware "year + era" (e.g. "101 BCE", "紀元前101年", "101 г. до н. э.")
-function _yearWithEra(date: Date, locale: string) {
-  let out: string;
+// Year as typed: -100 -> 100 BCE, 0 -> 1 BCE (no year 0), 100 -> 100 CE
+function _literalYear(date: Date) {
+  const y = date.getUTCFullYear();
+  return y <= 0 ? Math.max(1, -y) : y;
+}
+
+// Formats with Intl, then swaps in the literal year so month/day stay correct
+function _formatWithEra(
+  date: Date,
+  locale: string,
+  opts: Intl.DateTimeFormatOptions
+) {
+  let formatter: Intl.DateTimeFormat;
   try {
-    out = new Intl.DateTimeFormat(locale, {
-      year: "numeric",
-      era: "short",
-      timeZone: "UTC",
-    }).format(date);
+    formatter = new Intl.DateTimeFormat(locale, opts);
   } catch {
-    out = new Intl.DateTimeFormat("en", {
-      year: "numeric",
-      era: "short",
-      timeZone: "UTC",
-    }).format(date);
+    formatter = new Intl.DateTimeFormat("en", opts);
   }
+  const literalYear = String(_literalYear(date));
+  const out = formatter
+    .formatToParts(date)
+    .map((part) => (part.type === "year" ? literalYear : part.value))
+    .join("");
   return _eraToCE(out, locale);
+}
+
+// Locale-aware "year + era" (e.g. "100 BCE", "紀元前100年", "100 г. до н. э.")
+function _yearWithEra(date: Date, locale: string) {
+  return _formatWithEra(date, locale, {
+    year: "numeric",
+    era: "short",
+    timeZone: "UTC",
+  });
 }
 
 function _eraToCE(text: string, locale: string) {
@@ -71,10 +87,10 @@ export function smartDateRange(
     start.getUTCFullYear() <= 0 || (!!end && end.getUTCFullYear() <= 0);
   const fy = (d: Date) =>
     showEra ? _yearWithEra(d, locale) : `${d.getUTCFullYear()}`;
-  const fmt = (d: Date, opts: Intl.DateTimeFormatOptions) => {
-    const out = d.toLocaleDateString(locale, opts);
-    return showEra ? _eraToCE(out, locale) : out;
-  };
+  const fmt = (d: Date, opts: Intl.DateTimeFormatOptions) =>
+    showEra
+      ? _formatWithEra(d, locale, opts)
+      : d.toLocaleDateString(locale, opts);
 
   const monthOptions = { month: "short", timeZone: "UTC" };
   const fullDateOptions = {

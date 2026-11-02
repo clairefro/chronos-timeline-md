@@ -69,16 +69,10 @@ export function validateUTCDate(partialIsoStr: string): void {
 		throw new Error(`Invalid second: ${minute}. Must be between 00-59`);
 	}
 
-	const date = new Date(
-		Date.UTC(
-			parsedYear,
-			parsedMonth,
-			parsedDay,
-			parsedHour,
-			parsedMinute,
-			parsedSecond,
-		),
-	);
+	// Date.UTC maps years 0-99 to 1900-1999, so set the real year afterwards
+	const date = new Date(0);
+	date.setUTCFullYear(parsedYear, parsedMonth, parsedDay);
+	date.setUTCHours(parsedHour, parsedMinute, parsedSecond, 0);
 
 	const isActualDate =
 		date.getUTCMonth() === parsedMonth &&
@@ -103,17 +97,10 @@ export function toUTCDate(partialIsoStr: string) {
 
 	const [_, year, month, day, hour, minute, second] = match;
 
-	const utcDate = new Date(
-		Date.UTC(
-			parseInt(year),
-			parseInt(month) - 1,
-			parseInt(day),
-			parseInt(hour),
-			parseInt(minute),
-			parseInt(second),
-		),
-	);
-	utcDate.setUTCFullYear(parseInt(year));
+	// Date.UTC maps years 0-99 to 1900-1999, so set the real year afterwards
+	const utcDate = new Date(0);
+	utcDate.setUTCFullYear(parseInt(year), parseInt(month) - 1, parseInt(day));
+	utcDate.setUTCHours(parseInt(hour), parseInt(minute), parseInt(second), 0);
 
 	if (isNaN(utcDate as unknown as number)) throw new Error("Date is invalid");
 
