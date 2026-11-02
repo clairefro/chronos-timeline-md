@@ -398,6 +398,5 @@ You can also use valid six-digit color hexcodes. Upper or lowercase is fine.
 example (Lavendar): 
 - #A379C9
 - #a379c9
-- #c0ffee
 
 `;
