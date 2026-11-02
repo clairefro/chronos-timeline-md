@@ -482,6 +482,7 @@ export class ChronosTimeline {
     });
 
     this._setupPeriodTooltip(timeline, items);
+    this._setupPeriodTitleClip(timeline);
 
     // Fallback approach - direct DOM event handling
     // This handles cases where vis-timeline events don't fire properly for layered items
@@ -508,6 +509,47 @@ export class ChronosTimeline {
         });
       }
     }, 150); // Small delay to ensure timeline is fully rendered
+  }
+
+  // With overflowing titles, a period's title must stop where the next period
+  // (by start time) begins instead of running over it. Re-applied after every redraw.
+  private _setupPeriodTitleClip(timeline: Timeline) {
+    const apply = () => {
+      const periods = Array.from(
+        this.container.querySelectorAll<HTMLElement>(".vis-item.vis-background"),
+      )
+        .map((el) => ({
+          el,
+          content: el.querySelector<HTMLElement>(".vis-item-content"),
+          rect: el.getBoundingClientRect(),
+        }))
+        .filter((p) => p.content);
+
+      periods.forEach((p) => {
+        const content = p.content!;
+        content.style.clipPath = "";
+        if (this.settings.overflowRangeTitles === false) return;
+
+        const textRight = content.getBoundingClientRect().right;
+        let cutX = Infinity;
+        periods.forEach((o) => {
+          if (o === p) return;
+          const startsLater = o.rect.left > p.rect.left + 0.5;
+          const sameRow =
+            o.rect.top < p.rect.bottom && o.rect.bottom > p.rect.top;
+          if (startsLater && sameRow && o.rect.left < textRight) {
+            cutX = Math.min(cutX, o.rect.left);
+          }
+        });
+        if (cutX !== Infinity) {
+          content.style.clipPath = `inset(-1em ${textRight - cutX}px -1em -1em)`;
+        }
+      });
+    };
+
+    timeline.on("changed", apply);
+    timeline.on("rangechange", apply);
+    timeline.on("rangechanged", apply);
   }
 
   // Background items (periods) live in a separate vis panel under the center
