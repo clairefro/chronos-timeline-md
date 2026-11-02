@@ -99,7 +99,18 @@ export function toUTCDate(partialIsoStr: string) {
 
 	// Date.UTC maps years 0-99 to 1900-1999, so set the real year afterwards
 	const utcDate = new Date(0);
-	utcDate.setUTCFullYear(parseInt(year), parseInt(month) - 1, parseInt(day));
+	// There is no year 0: anything in year 0 is placed in year 1 (CE).
+	// Year 1 isn't a leap year, so Feb 29 clamps to Feb 28.
+	const isYearZero = parseInt(year) === 0;
+	const dayNum =
+		isYearZero && parseInt(month) === 2 && parseInt(day) === 29
+			? 28
+			: parseInt(day);
+	utcDate.setUTCFullYear(
+		isYearZero ? 1 : parseInt(year),
+		parseInt(month) - 1,
+		dayNum,
+	);
 	utcDate.setUTCHours(parseInt(hour), parseInt(minute), parseInt(second), 0);
 
 	if (isNaN(utcDate as unknown as number)) throw new Error("Date is invalid");
