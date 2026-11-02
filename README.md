@@ -254,7 +254,7 @@ Some flags override settings passed in by the host app (e.g. your plugin's globa
 | Flag                                      | Overrides             |
 | ----------------------------------------- | --------------------- |
 | `> ROUNDED` / `> NOROUNDED`               | `roundRanges`         |
-| `> TRANSLUCENT` / `> NOTRANSLUCENT`       | `translucentEvents`   |
+| `> TRANSLUCENT` / `> NOTRANSLUCENT`       | `translucentItems`   |
 | `> OVERFLOWTITLES` / `> NOOVERFLOWTITLES` | `overflowRangeTitles` |
 | `> UTC` / `> NOUTC`                       | `useUtc`              |
 | `> ALIGN left\|center\|right`             | `align`               |
@@ -274,7 +274,7 @@ interface CoreParseOptions {
     selectedLocale?: string;
     roundRanges?: boolean;
     overflowRangeTitles?: boolean; // default true: long range titles run past the box
-    translucentEvents?: boolean; // default false: borderless, semi-transparent events (ranged and single-date)
+    translucentItems?: boolean; // default false: borderless, semi-transparent items (events, points, markers)
     align?: "left" | "center" | "right";
     clickToUse?: boolean;
     useUtc?: boolean;

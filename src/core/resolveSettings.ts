@@ -17,7 +17,7 @@ type BooleanOverrideKey = {
 // `> NAME` sets the setting to true, `> NONAME` sets it to false
 const BOOLEAN_FLAGS: Record<string, BooleanOverrideKey> = {
   rounded: "roundRanges",
-  translucent: "translucentEvents",
+  translucent: "translucentItems",
   overflowtitles: "overflowRangeTitles",
   utc: "useUtc",
 };

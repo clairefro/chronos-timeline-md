@@ -1108,7 +1108,7 @@
             <div class="control-group">
               <label for="translucent-events">
                 <input type="checkbox" id="translucent-events" />
-                Semi-transparent Events
+                Translucent items
               </label>
             </div>
             <div class="control-group">
@@ -1549,7 +1549,7 @@
         const localeSelect = document.getElementById("locale-select");
         const roundRangesCheckbox = document.getElementById("round-ranges");
         const useUtcCheckbox = document.getElementById("use-utc");
-        const translucentEventsCheckbox =
+        const translucentItemsCheckbox =
           document.getElementById("translucent-events");
         const overflowRangeTitlesCheckbox = document.getElementById(
           "overflow-range-titles",
@@ -1967,7 +1967,7 @@
 - [2021~2024] #red Event B`,
           },
           {
-            title: "TRANSLUCENT - Translucent events",
+            title: "TRANSLUCENT - Translucent items",
             content: `> TRANSLUCENT
 
 - [2020~2022] Event A
@@ -2135,7 +2135,7 @@
                 content: "> ROUNDED",
               },
               {
-                title: "TRANSLUCENT - Translucent events",
+                title: "TRANSLUCENT - Translucent items",
                 content: "> TRANSLUCENT",
               },
               {
@@ -2300,7 +2300,7 @@
                 clickToUse: false,
                 roundRanges: roundRangesCheckbox.checked,
                 overflowRangeTitles: overflowRangeTitlesCheckbox.checked,
-                translucentEvents: translucentEventsCheckbox.checked,
+                translucentItems: translucentItemsCheckbox.checked,
                 useUtc: useUtcCheckbox.checked,
                 useAI: false,
               },
@@ -2600,7 +2600,7 @@
         localeSelect.addEventListener("change", handleLocaleChange);
         roundRangesCheckbox.addEventListener("change", renderTimeline);
         overflowRangeTitlesCheckbox.addEventListener("change", renderTimeline);
-        translucentEventsCheckbox.addEventListener("change", renderTimeline);
+        translucentItemsCheckbox.addEventListener("change", renderTimeline);
         useUtcCheckbox.addEventListener("change", renderTimeline);
         alignmentSelect.addEventListener("change", renderTimeline);
         examplesSelect.addEventListener("change", insertExample);

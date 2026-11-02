@@ -26,7 +26,7 @@ test("> NOROUNDED flag overrides host setting on", () => {
 
 test("setting flags are case-insensitive and tolerated anywhere", () => {
   const r = parseChronos(`- [2020~2021] Range\n> translucent`);
-  assert.deepStrictEqual(r.overrides, { translucentEvents: true });
+  assert.deepStrictEqual(r.overrides, { translucentItems: true });
 });
 
 test("no flags yields no overrides", () => {

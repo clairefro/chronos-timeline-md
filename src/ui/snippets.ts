@@ -315,7 +315,7 @@ Flags override your global settings for a single timeline. Each has a \`NO\` cou
 - [2021~2024] #red Event B
 \`\`\`
 
-**TRANSLUCENT - Translucent events**
+**TRANSLUCENT - Translucent items**
 
 \`\`\`chronos
 > TRANSLUCENT

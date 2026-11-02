@@ -326,8 +326,8 @@ export class ChronosTimeline {
       this.resolvedSettings.overflowRangeTitles !== false,
     );
     this.container.classList.toggle(
-      "chronos-event-translucent",
-      !!this.resolvedSettings.translucentEvents,
+      "chronos-translucent",
+      !!this.resolvedSettings.translucentItems,
     );
 
     // Apply theme configurations

@@ -147,11 +147,11 @@ export const CHRONOS_DEFAULT_CSS = `
 }
 
 /* Events (ranged and single-date): borderless, translucent (stronger than periods). Toggled by
-   .chronos-event-translucent (setting translucentEvents). Colored events set --chronos-item-color inline. */
-.chronos-timeline-container.chronos-event-translucent .vis-item.vis-range:not(.vis-background),
-.chronos-timeline-container.chronos-event-translucent .vis-item.vis-box,
-.chronos-timeline-container.chronos-event-translucent .vis-item.vis-range:not(.vis-background).vis-selected,
-.chronos-timeline-container.chronos-event-translucent .vis-item.vis-box.vis-selected {
+   .chronos-translucent (setting translucentItems). Colored events set --chronos-item-color inline. */
+.chronos-timeline-container.chronos-translucent .vis-item.vis-range:not(.vis-background),
+.chronos-timeline-container.chronos-translucent .vis-item.vis-box,
+.chronos-timeline-container.chronos-translucent .vis-item.vis-range:not(.vis-background).vis-selected,
+.chronos-timeline-container.chronos-translucent .vis-item.vis-box.vis-selected {
   /* transparent border keeps the same 1px footprint as solid events */
   border: 1px solid transparent;
   background-color: color-mix(
@@ -160,6 +160,14 @@ export const CHRONOS_DEFAULT_CSS = `
     transparent
   );
   color: var(--chronos-text-on-accent);
+}
+
+/* Translucent mode also softens the point dots, their connector lines and custom time markers,
+   using the same 75% strength as the event boxes. */
+.chronos-timeline-container.chronos-translucent .vis-item.vis-dot,
+.chronos-timeline-container.chronos-translucent .vis-item.vis-line,
+.chronos-timeline-container.chronos-translucent .vis-custom-time {
+  opacity: 0.75;
 }
 
 /* Long range titles continue past the box edge. Toggled by .chronos-range-overflow (setting overflowRangeTitles). */
@@ -191,7 +199,7 @@ export const CHRONOS_DEFAULT_CSS = `
   --chronos-range-outline: var(--chronos-item-color, var(--chronos-interactive));
 }
 
-.chronos-timeline-container.chronos-range-overflow.chronos-event-translucent .vis-item.vis-range {
+.chronos-timeline-container.chronos-range-overflow.chronos-translucent .vis-item.vis-range {
   --chronos-range-outline: color-mix(
     in srgb,
     var(--chronos-item-color, var(--chronos-interactive)) 75%,

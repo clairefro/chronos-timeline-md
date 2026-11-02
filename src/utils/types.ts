@@ -44,7 +44,7 @@ export interface ChronosDocumentSettings {
   // Let long range titles continue past the range box (default: true)
   overflowRangeTitles?: boolean;
   // Draw events (ranged or single-date) as borderless, semi-transparent boxes (default: false)
-  translucentEvents?: boolean;
+  translucentItems?: boolean;
   useUtc: boolean;
   align: "left" | "center" | "right";
   // Where the time axis is drawn (default: bottom)
