@@ -44,6 +44,10 @@ export interface ChronosPluginSettings {
   align: "left" | "center" | "right";
   clickToUse: boolean;
   roundRanges: boolean;
+  // Let long range titles continue past the range box (default: true)
+  overflowRangeTitles?: boolean;
+  // Draw range events as borderless, semi-transparent boxes (default: false)
+  translucentRanges?: boolean;
   useUtc: boolean;
   useAI: boolean;
   // Enhanced theming configuration
@@ -72,6 +76,8 @@ export interface ParseResult {
 export type CoreParseOptions = {
   selectedLocale?: string;
   roundRanges?: boolean;
+  overflowRangeTitles?: boolean;
+  translucentRanges?: boolean;
   settings?: Partial<ChronosPluginSettings>;
   callbacks?: {
     setTooltip?: (el: Element, text: string) => void;

@@ -146,6 +146,57 @@ export const CHRONOS_DEFAULT_CSS = `
   pointer-events: auto;
 }
 
+/* Range events: borderless, translucent (stronger than periods). Toggled by .chronos-range-translucent
+   (setting translucentRanges). Colored ranges set --chronos-item-color inline. */
+.chronos-timeline-container.chronos-range-translucent .vis-item.vis-range:not(.vis-background),
+.chronos-timeline-container.chronos-range-translucent .vis-item.vis-range:not(.vis-background).vis-selected {
+  /* transparent border keeps the same 1px footprint as solid ranges */
+  border: 1px solid transparent;
+  background-color: color-mix(
+    in srgb,
+    var(--chronos-item-color, var(--chronos-interactive)) 75%,
+    transparent
+  );
+  color: var(--chronos-text-on-accent);
+}
+
+/* Long range titles continue past the box edge. Toggled by .chronos-range-overflow (setting overflowRangeTitles). */
+.chronos-timeline-container.chronos-range-overflow .vis-item.vis-range:not(.vis-background),
+.chronos-timeline-container.chronos-range-overflow .vis-item.vis-range:not(.vis-background) .vis-item-overflow {
+  overflow: visible;
+}
+
+.chronos-timeline-container.chronos-range-overflow .vis-item.vis-range:not(.vis-background) .vis-item-content {
+  white-space: nowrap;
+  overflow: visible;
+}
+
+/* Outline the title in the box color so it stays readable where it runs past the box edge.
+   Hard-edged (no blur); translucent boxes use the same tint as the box. */
+.chronos-timeline-container.chronos-range-overflow .vis-item.vis-range {
+  --chronos-range-outline: var(--chronos-item-color, var(--chronos-interactive));
+}
+
+.chronos-timeline-container.chronos-range-overflow.chronos-range-translucent .vis-item.vis-range {
+  --chronos-range-outline: color-mix(
+    in srgb,
+    var(--chronos-item-color, var(--chronos-interactive)) 75%,
+    transparent
+  );
+}
+
+.chronos-timeline-container.chronos-range-overflow .vis-item.vis-range:not(.vis-background) .vis-item-content {
+  text-shadow:
+    -1px 0 0 var(--chronos-range-outline),
+    1px 0 0 var(--chronos-range-outline),
+    0 -1px 0 var(--chronos-range-outline),
+    0 1px 0 var(--chronos-range-outline),
+    -1px -1px 0 var(--chronos-range-outline),
+    1px -1px 0 var(--chronos-range-outline),
+    -1px 1px 0 var(--chronos-range-outline),
+    1px 1px 0 var(--chronos-range-outline);
+}
+
 .chronos-timeline-container .vis-range.with-caps {
   border-radius: 50px;
   padding-left: 8px;

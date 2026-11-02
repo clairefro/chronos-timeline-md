@@ -159,10 +159,14 @@ export class ChronosMdParser {
       );
       // Consumed by ChronosTimeline to color the connector dot/line
       style += `--chronos-item-color: ${mapped};`;
-      style +=
-        type === "point"
-          ? `background-color: transparent; border: 2px solid ${mapped};`
-          : `background-color: ${mapped};`;
+      if (type === "point") {
+        style += `background-color: transparent; border: 2px solid ${mapped};`;
+      } else if (
+        !(type === "default" && end && this.settings.translucentRanges)
+      ) {
+        // With translucentRanges, range events are tinted from --chronos-item-color in CSS instead
+        style += `background-color: ${mapped};`;
+      }
     }
 
     if (type === "point") {

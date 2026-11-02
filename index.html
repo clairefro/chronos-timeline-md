@@ -1092,6 +1092,16 @@
               </label>
             </div>
             <div class="control-group">
+              <label for="overflow-range-titles">
+                <input type="checkbox" id="overflow-range-titles" checked /> Overflow Range Titles
+              </label>
+            </div>
+            <div class="control-group">
+              <label for="translucent-ranges">
+                <input type="checkbox" id="translucent-ranges" /> Semi-transparent Ranges
+              </label>
+            </div>
+            <div class="control-group">
               <label for="use-utc">
                 <input type="checkbox" id="use-utc" checked /> Use UTC Time
                 (recommended)
@@ -1529,6 +1539,12 @@
         const localeSelect = document.getElementById("locale-select");
         const roundRangesCheckbox = document.getElementById("round-ranges");
         const useUtcCheckbox = document.getElementById("use-utc");
+        const translucentRangesCheckbox = document.getElementById(
+          "translucent-ranges",
+        );
+        const overflowRangeTitlesCheckbox = document.getElementById(
+          "overflow-range-titles",
+        );
         const alignmentSelect = document.getElementById("alignment");
         const examplesSelect = document.getElementById("examples-select");
         const snippetsSelect = document.getElementById("snippets-select");
@@ -2216,6 +2232,8 @@
                 align: alignmentSelect.value,
                 clickToUse: false,
                 roundRanges: roundRangesCheckbox.checked,
+                overflowRangeTitles: overflowRangeTitlesCheckbox.checked,
+                translucentRanges: translucentRangesCheckbox.checked,
                 useUtc: useUtcCheckbox.checked,
                 useAI: false,
               },
@@ -2357,6 +2375,46 @@
                   scale: 2, // Higher resolution
                   useCORS: true,
                   allowTaint: true,
+                  // html2canvas can't parse color(), color-mix(), oklch() etc.; bake them to rgba()
+                  onclone: (clonedDoc) => {
+                    const ctx = document
+                      .createElement("canvas")
+                      .getContext("2d", { willReadFrequently: true });
+                    const toRgba = (value) => {
+                      ctx.clearRect(0, 0, 1, 1);
+                      ctx.fillStyle = "#000";
+                      ctx.fillStyle = value;
+                      ctx.fillRect(0, 0, 1, 1);
+                      const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
+                      return `rgba(${r}, ${g}, ${b}, ${(a / 255).toFixed(3)})`;
+                    };
+                    const unsupported =
+                      /\b(color|color-mix|oklch|oklab|lab|lch|hwb)\(/;
+                    const colorProps = [
+                      "color",
+                      "background-color",
+                      "border-top-color",
+                      "border-right-color",
+                      "border-bottom-color",
+                      "border-left-color",
+                      "outline-color",
+                      "text-decoration-color",
+                    ];
+                    const view = clonedDoc.defaultView;
+                    clonedDoc.querySelectorAll("*").forEach((el) => {
+                      const cs = view.getComputedStyle(el);
+                      colorProps.forEach((prop) => {
+                        const value = cs.getPropertyValue(prop);
+                        if (value && unsupported.test(value)) {
+                          el.style.setProperty(prop, toRgba(value), "important");
+                        }
+                      });
+                      const shadow = cs.getPropertyValue("text-shadow");
+                      if (shadow && unsupported.test(shadow)) {
+                        el.style.setProperty("text-shadow", "none", "important");
+                      }
+                    });
+                  },
                 });
               })
               .then((canvas) => {
@@ -2466,6 +2524,8 @@
         markdownInput.addEventListener("scroll", syncScroll);
         localeSelect.addEventListener("change", handleLocaleChange);
         roundRangesCheckbox.addEventListener("change", renderTimeline);
+        overflowRangeTitlesCheckbox.addEventListener("change", renderTimeline);
+        translucentRangesCheckbox.addEventListener("change", renderTimeline);
         useUtcCheckbox.addEventListener("change", renderTimeline);
         alignmentSelect.addEventListener("change", renderTimeline);
         examplesSelect.addEventListener("change", insertExample);
