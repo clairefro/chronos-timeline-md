@@ -61,7 +61,7 @@ test("> GAP h|v sets axes separately", () => {
 });
 
 test("invalid GAP values are parse errors", () => {
-  for (const bad of ["> GAP", "> GAP abc", "> GAP -3", "> GAP 1|2|3"]) {
+  for (const bad of ["> GAP", "> GAP abc", "> GAP -3", "> GAP 1|2|3", "> GAP |", "> GAP 5|x"]) {
     assert.throws(() => parseChronos(`- [2020] x\n${bad}`), /GAP/, bad);
   }
 });
@@ -78,4 +78,15 @@ test("> AXIS top|bottom sets axisPosition", () => {
 test("invalid AXIS value is a parse error", () => {
   assert.throws(() => parseChronos("- [2020] x\n> AXIS left"), /AXIS/);
   assert.throws(() => parseChronos("- [2020] x\n> AXIS"), /AXIS/);
+});
+
+test("> GAP |v and > GAP h| leave the other axis unset", () => {
+  assert.deepStrictEqual(parseChronos("- [2020] x\n> GAP |20").flags.gap, {
+    horizontal: undefined,
+    vertical: 20,
+  });
+  assert.deepStrictEqual(parseChronos("- [2020] x\n> GAP 8|").flags.gap, {
+    horizontal: 8,
+    vertical: undefined,
+  });
 });

@@ -355,7 +355,14 @@ export class ChronosTimeline {
     if (flags?.gap) {
       options.margin = {
         ...(options.margin as object),
-        item: { horizontal: flags.gap.horizontal, vertical: flags.gap.vertical },
+        item: {
+          ...(flags.gap.horizontal !== undefined && {
+            horizontal: flags.gap.horizontal,
+          }),
+          ...(flags.gap.vertical !== undefined && {
+            vertical: flags.gap.vertical,
+          }),
+        },
       };
     }
     if (flags?.height) {

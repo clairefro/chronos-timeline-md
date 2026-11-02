@@ -362,7 +362,7 @@ Flags override your global settings for a single timeline. Each has a \`NO\` cou
 
 ## Gap between items
 
-\`> GAP px\` sets the gap in pixels between items. Use \`> GAP horizontal|vertical\` to set them separately.
+\`> GAP px\` sets the gap in pixels between items. Use \`> GAP horizontal|vertical\` to set them separately, or leave a side empty (e.g. \`> GAP |30\`) to keep its default.
 
 \`\`\`chronos
 > GAP 20

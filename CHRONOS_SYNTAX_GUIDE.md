@@ -386,14 +386,27 @@ You can use YYYY-MM-DD timestamps for the start and end date, with the minimum r
 
 ### GAP flag
 
-Set the gap between items, in pixels. One number applies to both directions. Use `horizontal|vertical` to set them separately. The default is 10 for both.
+Set the gap between items, in pixels. One number applies to both directions. Use `horizontal|vertical` to set them separately. Leave one side empty to keep its default and only set the other. The default is 10 for both.
 
 ```
+> GAP <horizontal and vertical px>
 > GAP <horizontal px>|<vertical px>
+> GAP |<vertical px>
+> GAP <horizontal px>|
 ```
 
 ```sh
 > GAP 20
+
+- [2020~2022] Event A
+- [2021~2024] #red Event B
+- [2023~2025] #blue Event C
+```
+
+Only the vertical gap (horizontal keeps its default of 10px):
+
+```sh
+> GAP |30
 
 - [2020~2022] Event A
 - [2021~2024] #red Event B

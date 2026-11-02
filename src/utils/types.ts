@@ -75,7 +75,8 @@ export type Flags = {
   height?: number;
   noStack?: boolean;
   // Gap in pixels between items (vis-timeline margin.item)
-  gap?: { horizontal: number; vertical: number };
+  // An omitted axis keeps the vis-timeline default
+  gap?: { horizontal?: number; vertical?: number };
 };
 
 export interface ParseResult {

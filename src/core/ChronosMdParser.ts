@@ -389,22 +389,25 @@ export class ChronosMdParser {
         break;
       case "gap": {
         const parts = flagContent.map((p) => p.trim());
-        const nums = parts.map((p) => (p === "" ? NaN : Number(p)));
-        if (
-          !parts.length ||
-          parts.length > 2 ||
-          nums.some((n) => !Number.isFinite(n) || n < 0)
-        ) {
+        // An empty side (e.g. "|20") keeps the vis-timeline default for that axis
+        const nums = parts.map((p) => (p === "" ? undefined : Number(p)));
+        const valid =
+          parts.length >= 1 &&
+          parts.length <= 2 &&
+          nums.some((n) => n !== undefined) &&
+          nums.every((n) => n === undefined || (Number.isFinite(n) && n >= 0));
+        if (!valid || (parts.length === 1 && nums[0] === undefined)) {
           this._addParserError(
             lineNumber,
-            `Must provide a gap in pixels, or horizontal|vertical, for GAP flag (ex: 10 or 10|20): ${line}`,
+            `Must provide a gap in pixels for GAP flag (ex: 10, 10|20, 10| or |20): ${line}`,
           );
           return;
         }
-        this.flags.gap = {
-          horizontal: nums[0],
-          vertical: nums[1] ?? nums[0],
-        };
+        // A single value applies to both axes
+        this.flags.gap =
+          parts.length === 1
+            ? { horizontal: nums[0], vertical: nums[0] }
+            : { horizontal: nums[0], vertical: nums[1] };
         break;
       }
       case "height":
