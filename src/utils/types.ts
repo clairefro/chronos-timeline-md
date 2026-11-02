@@ -1,3 +1,4 @@
+import type { ChronosSettingOverrides } from "../core/resolveSettings";
 // Converted from ambient declarations to concrete exports for the portable lib
 import { DataItem } from "vis-timeline";
 
@@ -40,6 +41,7 @@ export interface ChronosThemeConfig {
 
 export interface ChronosPluginSettings {
   selectedLocale: string;
+  /** @deprecated unused by the core lib (legacy API key field); do not store secrets here */
   key?: string;
   align: "left" | "center" | "right";
   clickToUse: boolean;
@@ -49,10 +51,11 @@ export interface ChronosPluginSettings {
   // Draw events (ranged or single-date) as borderless, semi-transparent boxes (default: false)
   translucentEvents?: boolean;
   useUtc: boolean;
-  useAI: boolean;
+  /** @deprecated unused by the core lib; AI features belong to the host app */
+  useAI?: boolean;
   // Enhanced theming configuration
   theme?: ChronosThemeConfig;
-  // Legacy color mapping (deprecated, use theme.colorMap instead)
+  /** @deprecated use `theme.colorMap` instead */
   colorMap?: Record<string, string>;
 }
 
@@ -71,13 +74,15 @@ export interface ParseResult {
   markers: Marker[];
   groups: Group[];
   flags: Flags;
+  /** Setting overrides set by flags in the document (e.g. `> ROUNDED`) */
+  overrides?: ChronosSettingOverrides;
 }
 
 export type CoreParseOptions = {
+  /** @deprecated use `settings.selectedLocale` */
   selectedLocale?: string;
+  /** @deprecated use `settings.roundRanges` */
   roundRanges?: boolean;
-  overflowRangeTitles?: boolean;
-  translucentEvents?: boolean;
   settings?: Partial<ChronosPluginSettings>;
   callbacks?: {
     setTooltip?: (el: Element, text: string) => void;

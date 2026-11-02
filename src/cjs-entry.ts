@@ -24,10 +24,8 @@ function parseChronos(
     align: "left",
     clickToUse: false,
     roundRanges: !!options.roundRanges,
-    overflowRangeTitles: options.overflowRangeTitles !== false,
-    translucentEvents: !!options.translucentEvents,
     useUtc: true,
-    useAI: false,
+    ...options.settings,
   };
 
   const parser = new ChronosMdParser(locale);
@@ -40,7 +38,10 @@ function renderChronos(
   options: CoreParseOptions = {}
 ) {
   const settings: ChronosPluginSettings = {
-    selectedLocale: DEFAULT_LOCALE,
+    selectedLocale: options.selectedLocale || DEFAULT_LOCALE,
+    ...(options.roundRanges !== undefined && {
+      roundRanges: options.roundRanges,
+    }),
     ...options?.settings,
   } as ChronosPluginSettings;
 
@@ -66,7 +67,7 @@ function renderChronos(
   });
 
   // Parse the data first
-  const parsed = parseChronos(source, options);
+  const parsed = parseChronos(source, { ...options, settings });
 
   // Render using the parsed data
   timeline.renderParsed(parsed);

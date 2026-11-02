@@ -11,6 +11,21 @@ import { Color, Opacity } from "../utils/enums";
 import { DEFAULT_LOCALE } from "../utils/constants";
 import { toPaddedISOZ, toUTCDate, validateUTCDate } from "../parser/utcUtil";
 import { FLAGS_PREFIX } from "../flags";
+import {
+  ChronosSettingOverrides,
+  resolveSettings,
+} from "./resolveSettings";
+
+// Flags that override settings. Collected before items are built because
+// settings like roundRanges affect how each item is constructed.
+const SETTING_FLAGS: Record<string, ChronosSettingOverrides> = {
+  rounded: { roundRanges: true },
+  norounded: { roundRanges: false },
+  translucent: { translucentEvents: true },
+  notranslucent: { translucentEvents: false },
+  overflowtitles: { overflowRangeTitles: true },
+  nooverflowtitles: { overflowRangeTitles: false },
+};
 
 export class ChronosMdParser {
   private errors: string[] = [];
@@ -21,15 +36,23 @@ export class ChronosMdParser {
   private locale: string;
   private flags: Flags = {};
   private settings!: ChronosPluginSettings;
+  private overrides: ChronosSettingOverrides = {};
 
   constructor(locale = DEFAULT_LOCALE) {
     this.locale = locale;
   }
 
   parse(data: string, settings: ChronosPluginSettings): ParseResult {
-    this.settings = settings;
     const lines = data.split("\n");
     this._resetVars();
+
+    lines.forEach((line) => {
+      line = line.trim();
+      if (!line.startsWith(FLAGS_PREFIX)) return;
+      const name = line.slice(FLAGS_PREFIX.length).trim().split(/\s+/)[0];
+      Object.assign(this.overrides, SETTING_FLAGS[name?.toLowerCase()]);
+    });
+    this.settings = resolveSettings(settings, this.overrides);
 
     lines.forEach((line, i) => {
       line = line.trim();
@@ -61,7 +84,9 @@ export class ChronosMdParser {
     const markers = this.markers;
     const groups = this.groups;
 
-    return { items, markers, groups, flags };
+    const overrides = this.overrides;
+
+    return { items, markers, groups, flags, overrides };
   }
 
   private _parseTimeItem(line: string, lineNumber: number) {
@@ -358,6 +383,14 @@ export class ChronosMdParser {
           this._addParserError(lineNumber, `${e.message}: ${line}`);
         }
         break;
+      case "rounded":
+      case "norounded":
+      case "translucent":
+      case "notranslucent":
+      case "overflowtitles":
+      case "nooverflowtitles":
+        // applied in the pre-pass in parse()
+        break;
       case "notoday":
         this.flags.noToday = true;
         break;
@@ -577,6 +610,7 @@ export class ChronosMdParser {
 
   private _clearFlags() {
     this.flags = {};
+    this.overrides = {};
   }
 
   private _resetVars() {

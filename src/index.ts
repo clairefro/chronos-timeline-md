@@ -18,15 +18,14 @@ function parseChronos(
 ): ParseResult {
   const locale = options.selectedLocale || DEFAULT_LOCALE;
 
+  // Deprecated flat options are only a fallback; `options.settings` wins.
   const minimalSettings: ChronosPluginSettings = {
     selectedLocale: locale,
     align: "left",
     clickToUse: false,
     roundRanges: !!options.roundRanges,
-    overflowRangeTitles: options.overflowRangeTitles !== false,
-    translucentEvents: !!options.translucentEvents,
     useUtc: true,
-    useAI: false,
+    ...options.settings,
   };
 
   const parser = new ChronosMdParser(locale);
@@ -39,7 +38,10 @@ function renderChronos(
   options: CoreParseOptions = {}
 ) {
   const settings: ChronosPluginSettings = {
-    selectedLocale: DEFAULT_LOCALE,
+    selectedLocale: options.selectedLocale || DEFAULT_LOCALE,
+    ...(options.roundRanges !== undefined && {
+      roundRanges: options.roundRanges,
+    }),
     ...options?.settings,
   } as ChronosPluginSettings;
 
@@ -65,7 +67,7 @@ function renderChronos(
   });
 
   // Parse the data first
-  const parsed = parseChronos(source, options);
+  const parsed = parseChronos(source, { ...options, settings });
 
   // Render using the parsed data
   timeline.renderParsed(parsed);
@@ -151,6 +153,7 @@ function scopeCssForRootClass(cssText: string, rootClass: string) {
 // Add version to ChronosTimeline class
 ChronosTimeline.version = pkg.version;
 
+export type { ChronosSettingOverrides } from "./core/resolveSettings";
 export type {
   ParseResult,
   ChronosDataItem,

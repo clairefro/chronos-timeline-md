@@ -12,6 +12,7 @@ import {
 import { enDateStrToISO } from "../parser/enDateStrToISO";
 import { smartDateRange } from "../parser/smartDateRange";
 import { ChronosMdParser } from "./ChronosMdParser";
+import { resolveSettings, ChronosSettingOverrides } from "./resolveSettings";
 import { orderFunctionBuilder } from "../flags";
 import { chronosMoment } from "./chronosMoment";
 import {
@@ -44,6 +45,8 @@ export class ChronosTimeline {
   static prompts: { system: string } = { system: systemPrompt };
   private container: HTMLElement;
   private settings: ChronosPluginSettings;
+  // host settings merged with overrides from flags in the rendered document
+  private resolvedSettings: ChronosPluginSettings;
   private parser: ChronosMdParser;
   private callbacks:
     | {
@@ -82,7 +85,6 @@ export class ChronosTimeline {
         clickToUse: false,
         roundRanges: false,
         useUtc: true,
-        useAI: false,
       };
       callbacks = undefined;
       cssRootClass = undefined;
@@ -97,6 +99,7 @@ export class ChronosTimeline {
 
     this.container = container;
     this.settings = settings;
+    this.resolvedSettings = settings;
     this.parser = new ChronosMdParser(this.settings.selectedLocale);
     this.callbacks = callbacks;
     this.cssRootClass = cssRootClass;
@@ -173,11 +176,8 @@ export class ChronosTimeline {
 
   render(source: string) {
     try {
-      const { items, markers, groups, flags } = this.parser.parse(
-        source,
-        this.settings,
-      );
-      this._renderFromResult({ items, markers, groups, flags });
+      const result = this.parser.parse(source, this.settings);
+      this._renderFromResult(result);
     } catch (error) {
       this._handleParseError(error as Error);
     }
@@ -188,6 +188,7 @@ export class ChronosTimeline {
     markers: Marker[];
     groups: Group[];
     flags: any;
+    overrides?: ChronosSettingOverrides;
   }) {
     this._renderFromResult(result);
   }
@@ -259,12 +260,15 @@ export class ChronosTimeline {
     markers,
     groups,
     flags,
+    overrides,
   }: {
     items: ChronosDataItem[];
     markers: Marker[];
     groups: Group[];
     flags: any;
+    overrides?: ChronosSettingOverrides;
   }) {
+    this.resolvedSettings = resolveSettings(this.settings, overrides);
     // Ensure default styles are attached to the correct document (useful when
     // hosts render inside iframes or when consumer didn't call attachChronosStyles).
     try {
@@ -318,11 +322,11 @@ export class ChronosTimeline {
     this.container.classList.add("chronos-timeline-container");
     this.container.classList.toggle(
       "chronos-range-overflow",
-      this.settings.overflowRangeTitles !== false,
+      this.resolvedSettings.overflowRangeTitles !== false,
     );
     this.container.classList.toggle(
       "chronos-event-translucent",
-      !!this.settings.translucentEvents,
+      !!this.resolvedSettings.translucentEvents,
     );
 
     // Apply theme configurations
@@ -520,7 +524,7 @@ export class ChronosTimeline {
 
     const apply = () => {
       frame = 0;
-      const overflowOn = this.settings.overflowRangeTitles !== false;
+      const overflowOn = this.resolvedSettings.overflowRangeTitles !== false;
       const els = this.container.querySelectorAll<HTMLElement>(
         ".vis-item.vis-background",
       );

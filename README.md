@@ -248,15 +248,27 @@ Can be placed anywhere in your chronos markdown, on its own line
 
 ```
 
+Some flags override settings passed in by the host app (e.g. your plugin's global settings) for this timeline only:
+
+| Flag                                   | Overrides             |
+| -------------------------------------- | --------------------- |
+| `> ROUNDED` / `> NOROUNDED`            | `roundRanges`         |
+| `> TRANSLUCENT` / `> NOTRANSLUCENT`    | `translucentEvents`   |
+| `> OVERFLOWTITLES` / `> NOOVERFLOWTITLES` | `overflowRangeTitles` |
+
+Precedence: library defaults < host `settings` < flags in the document.
+
 ## Configuration Options
 
 ```typescript
 interface CoreParseOptions {
-  selectedLocale?: string;
-  roundRanges?: boolean;
-  overflowRangeTitles?: boolean; // default true: long range titles run past the box
-  translucentEvents?: boolean; // default false: borderless, semi-transparent events (ranged and single-date)
+  // selectedLocale and roundRanges are also accepted here but deprecated;
+  // put them in `settings` instead.
   settings?: {
+    selectedLocale?: string;
+    roundRanges?: boolean;
+    overflowRangeTitles?: boolean; // default true: long range titles run past the box
+    translucentEvents?: boolean; // default false: borderless, semi-transparent events (ranged and single-date)
     align?: "left" | "center" | "right";
     clickToUse?: boolean;
     useUtc?: boolean;
