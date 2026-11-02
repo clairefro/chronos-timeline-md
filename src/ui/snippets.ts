@@ -204,7 +204,7 @@ Colored points are outlined.
 - [2024-02-26~2024-03-10] Tournament
 * [2024-02-26] #green Game 1 | Win
 * [2024-02-28] #red Game 2 | Loss
-* [2024-03-06] #green Game 3 | Win
+* [2024-03-06] #c0ffee Game 3 | Win
 * [2024-03-10] #blue Game 4 | Draw
 \`\`\`
 
@@ -365,7 +365,8 @@ Flags override your global settings for a single timeline. Each has a \`NO\` cou
 \`> GAP px\` sets the gap in pixels between items. Use \`> GAP horizontal|vertical\` to set them separately, or leave a side empty (e.g. \`> GAP |30\`) to keep its default.
 
 \`\`\`chronos
-> GAP 20
+# changes vertical gap between items to 50px
+> GAP |50
 
 - [2020~2022] Event A
 - [2021~2024] #red Event B
@@ -397,5 +398,6 @@ You can also use valid six-digit color hexcodes. Upper or lowercase is fine.
 example (Lavendar): 
 - #A379C9
 - #a379c9
+- #c0ffee
 
 `;
