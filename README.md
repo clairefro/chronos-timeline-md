@@ -255,7 +255,7 @@ interface CoreParseOptions {
   selectedLocale?: string;
   roundRanges?: boolean;
   overflowRangeTitles?: boolean; // default true: long range titles run past the box
-  translucentRanges?: boolean; // default false: borderless, semi-transparent range events
+  translucentEvents?: boolean; // default false: borderless, semi-transparent events (ranged and single-date)
   settings?: {
     align?: "left" | "center" | "right";
     clickToUse?: boolean;

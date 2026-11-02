@@ -146,11 +146,13 @@ export const CHRONOS_DEFAULT_CSS = `
   pointer-events: auto;
 }
 
-/* Range events: borderless, translucent (stronger than periods). Toggled by .chronos-range-translucent
-   (setting translucentRanges). Colored ranges set --chronos-item-color inline. */
-.chronos-timeline-container.chronos-range-translucent .vis-item.vis-range:not(.vis-background),
-.chronos-timeline-container.chronos-range-translucent .vis-item.vis-range:not(.vis-background).vis-selected {
-  /* transparent border keeps the same 1px footprint as solid ranges */
+/* Events (ranged and single-date): borderless, translucent (stronger than periods). Toggled by
+   .chronos-event-translucent (setting translucentEvents). Colored events set --chronos-item-color inline. */
+.chronos-timeline-container.chronos-event-translucent .vis-item.vis-range:not(.vis-background),
+.chronos-timeline-container.chronos-event-translucent .vis-item.vis-box,
+.chronos-timeline-container.chronos-event-translucent .vis-item.vis-range:not(.vis-background).vis-selected,
+.chronos-timeline-container.chronos-event-translucent .vis-item.vis-box.vis-selected {
+  /* transparent border keeps the same 1px footprint as solid events */
   border: 1px solid transparent;
   background-color: color-mix(
     in srgb,
@@ -177,7 +179,7 @@ export const CHRONOS_DEFAULT_CSS = `
   --chronos-range-outline: var(--chronos-item-color, var(--chronos-interactive));
 }
 
-.chronos-timeline-container.chronos-range-overflow.chronos-range-translucent .vis-item.vis-range {
+.chronos-timeline-container.chronos-range-overflow.chronos-event-translucent .vis-item.vis-range {
   --chronos-range-outline: color-mix(
     in srgb,
     var(--chronos-item-color, var(--chronos-interactive)) 75%,

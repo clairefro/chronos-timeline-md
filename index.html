@@ -1097,8 +1097,8 @@
               </label>
             </div>
             <div class="control-group">
-              <label for="translucent-ranges">
-                <input type="checkbox" id="translucent-ranges" /> Semi-transparent Ranges
+              <label for="translucent-events">
+                <input type="checkbox" id="translucent-events" /> Semi-transparent Events
               </label>
             </div>
             <div class="control-group">
@@ -1539,8 +1539,8 @@
         const localeSelect = document.getElementById("locale-select");
         const roundRangesCheckbox = document.getElementById("round-ranges");
         const useUtcCheckbox = document.getElementById("use-utc");
-        const translucentRangesCheckbox = document.getElementById(
-          "translucent-ranges",
+        const translucentEventsCheckbox = document.getElementById(
+          "translucent-events",
         );
         const overflowRangeTitlesCheckbox = document.getElementById(
           "overflow-range-titles",
@@ -2233,7 +2233,7 @@
                 clickToUse: false,
                 roundRanges: roundRangesCheckbox.checked,
                 overflowRangeTitles: overflowRangeTitlesCheckbox.checked,
-                translucentRanges: translucentRangesCheckbox.checked,
+                translucentEvents: translucentEventsCheckbox.checked,
                 useUtc: useUtcCheckbox.checked,
                 useAI: false,
               },
@@ -2525,7 +2525,7 @@
         localeSelect.addEventListener("change", handleLocaleChange);
         roundRangesCheckbox.addEventListener("change", renderTimeline);
         overflowRangeTitlesCheckbox.addEventListener("change", renderTimeline);
-        translucentRangesCheckbox.addEventListener("change", renderTimeline);
+        translucentEventsCheckbox.addEventListener("change", renderTimeline);
         useUtcCheckbox.addEventListener("change", renderTimeline);
         alignmentSelect.addEventListener("change", renderTimeline);
         examplesSelect.addEventListener("change", insertExample);

@@ -321,8 +321,8 @@ export class ChronosTimeline {
       this.settings.overflowRangeTitles !== false,
     );
     this.container.classList.toggle(
-      "chronos-range-translucent",
-      !!this.settings.translucentRanges,
+      "chronos-event-translucent",
+      !!this.settings.translucentEvents,
     );
 
     // Apply theme configurations

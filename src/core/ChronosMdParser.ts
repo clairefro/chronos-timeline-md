@@ -162,9 +162,9 @@ export class ChronosMdParser {
       if (type === "point") {
         style += `background-color: transparent; border: 2px solid ${mapped};`;
       } else if (
-        !(type === "default" && end && this.settings.translucentRanges)
+        !(type === "default" && this.settings.translucentEvents)
       ) {
-        // With translucentRanges, range events are tinted from --chronos-item-color in CSS instead
+        // With translucentEvents, events are tinted from --chronos-item-color in CSS instead
         style += `background-color: ${mapped};`;
       }
     }
