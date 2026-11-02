@@ -482,6 +482,7 @@ export class ChronosTimeline {
     });
 
     this._setupPeriodTooltip(timeline, items);
+    this._setupPeriodTitleClip(timeline);
 
     // Fallback approach - direct DOM event handling
     // This handles cases where vis-timeline events don't fire properly for layered items
@@ -508,6 +509,74 @@ export class ChronosTimeline {
         });
       }
     }, 150); // Small delay to ensure timeline is fully rendered
+  }
+
+  // With overflowing titles, a period's title must stop where the next period
+  // (by start time) begins instead of running over it. Re-applied after redraws,
+  // at most once per frame: all layout reads first, then all style writes.
+  private _setupPeriodTitleClip(timeline: Timeline) {
+    const win = this.container.ownerDocument.defaultView || window;
+    let frame = 0;
+
+    const apply = () => {
+      frame = 0;
+      const overflowOn = this.settings.overflowRangeTitles !== false;
+      const els = this.container.querySelectorAll<HTMLElement>(
+        ".vis-item.vis-background",
+      );
+      if (!els.length) return;
+
+      const periods: {
+        content: HTMLElement;
+        left: number;
+        top: number;
+        bottom: number;
+        textRight: number;
+      }[] = [];
+      els.forEach((el) => {
+        const content = el.firstElementChild?.firstElementChild as
+          | HTMLElement
+          | null;
+        if (!content) return;
+        const r = el.getBoundingClientRect();
+        periods.push({
+          content,
+          left: r.left,
+          top: r.top,
+          bottom: r.bottom,
+          textRight: overflowOn ? content.getBoundingClientRect().right : 0,
+        });
+      });
+
+      periods.sort((a, b) => a.left - b.left);
+      const clips = periods.map((p, i) => {
+        if (!overflowOn) return "";
+        // Sorted by start: the first later period in the same row that begins
+        // before the title ends is the nearest cut point
+        for (let j = i + 1; j < periods.length; j++) {
+          const o = periods[j];
+          if (o.left >= p.textRight) break;
+          if (o.left > p.left + 0.5 && o.top < p.bottom && o.bottom > p.top) {
+            return `inset(-1em ${p.textRight - o.left}px -1em -1em)`;
+          }
+        }
+        return "";
+      });
+
+      periods.forEach((p, i) => {
+        if (p.content.style.clipPath !== clips[i]) {
+          p.content.style.clipPath = clips[i];
+        }
+      });
+    };
+
+    const schedule = () => {
+      if (!frame) frame = win.requestAnimationFrame(apply);
+    };
+
+    timeline.on("changed", schedule);
+    timeline.on("rangechange", schedule);
+    timeline.on("rangechanged", schedule);
   }
 
   // Background items (periods) live in a separate vis panel under the center

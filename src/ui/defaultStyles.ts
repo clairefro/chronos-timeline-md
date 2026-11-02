@@ -173,6 +173,17 @@ export const CHRONOS_DEFAULT_CSS = `
   overflow: visible;
 }
 
+/* Periods (background items) overflow their titles the same way */
+.chronos-timeline-container.chronos-range-overflow .vis-item.vis-background,
+.chronos-timeline-container.chronos-range-overflow .vis-item.vis-background .vis-item-overflow {
+  overflow: visible;
+}
+
+.chronos-timeline-container.chronos-range-overflow .vis-item.vis-background .vis-item-content {
+  white-space: nowrap;
+  overflow: visible;
+}
+
 /* Outline the title in the box color so it stays readable where it runs past the box edge.
    Hard-edged (no blur); translucent boxes use the same tint as the box. */
 .chronos-timeline-container.chronos-range-overflow .vis-item.vis-range {
