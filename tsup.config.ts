@@ -11,6 +11,7 @@ export default defineConfig([
     splitting: false,
     treeshake: true,
     noExternal: ["vis-timeline"],
+    loader: { ".css": "text" },
     outDir: "dist",
     outExtension: () => ({ js: ".js" }),
     target: "es2020",
@@ -25,6 +26,7 @@ export default defineConfig([
     splitting: false,
     treeshake: true,
     noExternal: ["vis-timeline"],
+    loader: { ".css": "text" },
     outDir: "dist",
     outExtension: () => ({ js: ".cjs" }),
     // Ensure proper CJS exports
@@ -40,6 +42,7 @@ export default defineConfig([
     splitting: false,
     treeshake: true,
     noExternal: ["vis-timeline"],
+    loader: { ".css": "text" },
     globalName: "ChronosTimeline",
     outDir: "dist",
     outExtension: () => ({ js: ".global.js" }),

@@ -1,5 +1,5 @@
 import { Timeline, TimelineOptions } from "vis-timeline";
-import { DataSet } from "vis-timeline/standalone";
+import { DataSet } from "vis-data";
 import crosshairsSvg from "../assets/icons/crosshairs.svg";
 import {
   Marker,
@@ -23,6 +23,7 @@ import {
 } from "../ui/snippets";
 import { systemPrompt } from "../utils/prompts";
 import { CHRONOS_DEFAULT_CSS } from "../ui/defaultStyles";
+import { attachVisTimelineStyles } from "../ui/visTimelineStyles";
 
 const MS_UNTIL_REFIT = 100;
 
@@ -124,6 +125,7 @@ export class ChronosTimeline {
       const disableDefaultStyles = themeConfig?.disableDefaultStyles;
 
       if (doc) {
+        attachVisTimelineStyles(doc);
         if (disableDefaultStyles) {
           if (cssVars) {
             const existingCustomStyle = doc.querySelector(
@@ -282,6 +284,7 @@ export class ChronosTimeline {
       const disableDefaultStyles = themeConfig?.disableDefaultStyles;
 
       if (doc) {
+        attachVisTimelineStyles(doc);
         if (disableDefaultStyles) {
           if (cssVars) {
             const existingCustomStyle = doc.querySelector(

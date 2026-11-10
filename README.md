@@ -295,6 +295,11 @@ interface CoreParseOptions {
 
 ### Custom Styling
 
+The library automatically attaches the required vis-timeline layout styles to
+the timeline's document. These layout styles remain enabled when
+`theme.disableDefaultStyles` is set; that option disables Chronos's default
+theme, not the styles needed to render the timeline.
+
 ```typescript
 const timeline = new ChronosTimeline({
   container: document.getElementById("timeline"),

@@ -7,6 +7,7 @@ import type {
 } from "./utils/types";
 import { ChronosTimeline } from "./core/ChronosTimeline";
 import { CHRONOS_DEFAULT_CSS } from "./ui/defaultStyles";
+import { attachVisTimelineStyles } from "./ui/visTimelineStyles";
 
 // Import version from package.json
 // @ts-ignore
@@ -14,7 +15,7 @@ import pkg from "../package.json";
 
 function parseChronos(
   source: string,
-  options: CoreParseOptions = {}
+  options: CoreParseOptions = {},
 ): ParseResult {
   const locale = options.selectedLocale || DEFAULT_LOCALE;
 
@@ -35,7 +36,7 @@ function parseChronos(
 function renderChronos(
   container: HTMLElement,
   source: string,
-  options: CoreParseOptions = {}
+  options: CoreParseOptions = {},
 ) {
   const settings: ChronosSettings = {
     selectedLocale: options.selectedLocale || DEFAULT_LOCALE,
@@ -56,7 +57,7 @@ function renderChronos(
     undefined,
     cssVars,
     options.cssRootClass,
-    disableDefaultStyles
+    disableDefaultStyles,
   );
 
   const timeline = new ChronosTimeline({
@@ -80,13 +81,14 @@ function attachChronosStyles(
   css: string = CHRONOS_DEFAULT_CSS,
   cssVars?: Record<string, string>,
   cssRootClass?: string,
-  disableDefaultStyles?: boolean
+  disableDefaultStyles?: boolean,
 ) {
+  attachVisTimelineStyles(doc);
   // If default styles are disabled, only apply custom CSS variables
   if (disableDefaultStyles) {
     if (cssVars) {
       const existingCustomStyle = doc.querySelector(
-        'style[data-chronos-custom="1"]'
+        'style[data-chronos-custom="1"]',
       );
       if (!existingCustomStyle) {
         const style = doc.createElement("style");
@@ -145,7 +147,7 @@ function scopeCssForRootClass(cssText: string, rootClass: string) {
   // Ensure container selectors are targeted at the host-classed container element.
   out = out.replace(
     /\.chronos-timeline-container/g,
-    `${classSel}.chronos-timeline-container`
+    `${classSel}.chronos-timeline-container`,
   );
   return out;
 }

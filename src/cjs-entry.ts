@@ -8,6 +8,7 @@ import type {
 } from "./utils/types";
 import { ChronosTimeline } from "./core/ChronosTimeline";
 import { CHRONOS_DEFAULT_CSS } from "./ui/defaultStyles";
+import { attachVisTimelineStyles } from "./ui/visTimelineStyles";
 
 // Import version from package.json
 // @ts-ignore
@@ -82,6 +83,7 @@ function attachChronosStyles(
   cssRootClass?: string,
   disableDefaultStyles?: boolean
 ) {
+  attachVisTimelineStyles(doc);
   // If default styles are disabled, only apply custom CSS variables
   if (disableDefaultStyles) {
     if (cssVars) {

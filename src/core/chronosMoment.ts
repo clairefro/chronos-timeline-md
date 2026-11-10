@@ -1,5 +1,5 @@
 import { ChronosSettings } from "../utils/types";
-import { moment } from "vis-timeline/standalone";
+import moment from "moment/min/moment-with-locales";
 
 const chronosMomentInstance = (moment as any).clone?.() || moment;
 
