@@ -1187,6 +1187,9 @@
             <button id="export-png-btn" class="export-btn" disabled>
               Export as PNG
             </button>
+            <button id="export-svg-btn" class="export-btn" disabled>
+              Export as SVG
+            </button>
             <button id="share-link-btn" class="export-btn">
               Copy Shareable Link
             </button>
@@ -1573,6 +1576,7 @@
         const examplesSelect = document.getElementById("examples-select");
         const snippetsSelect = document.getElementById("snippets-select");
         const exportPngBtn = document.getElementById("export-png-btn");
+        const exportSvgBtn = document.getElementById("export-svg-btn");
         const transparentBgCheckbox = document.getElementById(
           "transparent-bg-checkbox",
         );
@@ -2344,18 +2348,18 @@
 
             if (hasErrors) {
               // Parse errors are already displayed by ChronosTimeline
-              exportPngBtn.disabled = true;
+              setExportButtonsDisabled(true);
             } else if (currentTimeline.parsed.items.length === 0) {
               timelineContainer.innerHTML =
                 '<div class="loading">No timeline items found. Try adding dates in your markdown</div>';
-              exportPngBtn.disabled = true;
+              setExportButtonsDisabled(true);
             } else {
-              exportPngBtn.disabled = false;
+              setExportButtonsDisabled(false);
             }
           } catch (error) {
             console.error("Timeline rendering error:", error);
             timelineContainer.innerHTML = `<div class="error-message">Error: ${error.message}</div>`;
-            exportPngBtn.disabled = true;
+            setExportButtonsDisabled(true);
           }
         }
 
@@ -2430,7 +2434,7 @@
 
           try {
             exportStatus.textContent = "Generating PNG...";
-            exportPngBtn.disabled = true;
+            setExportButtonsDisabled(true);
 
             // Create a canvas from the timeline container
             import("https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.esm.js")
@@ -2533,16 +2537,99 @@
                 }, 3000);
               })
               .finally(() => {
-                exportPngBtn.disabled = false;
+                setExportButtonsDisabled(false);
               });
           } catch (error) {
             console.error("PNG export error:", error);
             exportStatus.textContent = "Export failed. Try again.";
-            exportPngBtn.disabled = false;
+            setExportButtonsDisabled(false);
             setTimeout(() => {
               exportStatus.textContent = "";
             }, 3000);
           }
+        }
+
+        function setExportButtonsDisabled(disabled) {
+          exportPngBtn.disabled = disabled;
+          exportSvgBtn.disabled = disabled;
+        }
+
+        // SVG Export functionality
+        // Clones the rendered timeline into an SVG <foreignObject>, baking each element's
+        // computed styles inline so the file renders the same without our stylesheets.
+        function exportToSVG() {
+          if (!currentTimeline || !currentTimeline.timeline) {
+            exportStatus.textContent = "No timeline to export";
+            return;
+          }
+
+          try {
+            const timelineElement =
+              timelineContainer.querySelector(".vis-timeline");
+            if (!timelineElement) {
+              throw new Error("Timeline element not found");
+            }
+
+            const { width, height } = timelineElement.getBoundingClientRect();
+            const clone = timelineElement.cloneNode(true);
+            const sourceNodes = [
+              timelineElement,
+              ...timelineElement.querySelectorAll("*"),
+            ];
+            const cloneNodes = [clone, ...clone.querySelectorAll("*")];
+
+            sourceNodes.forEach((source, i) => {
+              const target = cloneNodes[i];
+              const computed = getComputedStyle(source);
+              let cssText = "";
+              for (const prop of computed) {
+                cssText += `${prop}:${computed.getPropertyValue(prop)};`;
+              }
+              target.setAttribute("style", cssText);
+            });
+
+            clone.querySelectorAll("script").forEach((el) => el.remove());
+
+            const useTransparentBg = transparentBgCheckbox.checked;
+            const isDarkMode =
+              document.body.getAttribute("data-theme") === "dark";
+            const background = useTransparentBg
+              ? ""
+              : `<rect width="100%" height="100%" fill="${
+                  isDarkMode
+                    ? getComputedStyle(timelineElement).backgroundColor ||
+                      "#161b22"
+                    : "#ffffff"
+                }"/>`;
+
+            clone.setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
+            const body = new XMLSerializer().serializeToString(clone);
+            const svg =
+              `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">` +
+              background +
+              `<foreignObject width="100%" height="100%">${body}</foreignObject></svg>`;
+
+            const url = URL.createObjectURL(
+              new Blob([svg], { type: "image/svg+xml;charset=utf-8" }),
+            );
+            const link = document.createElement("a");
+            link.download = `chronos-timeline-${
+              new Date().toISOString().split("T")[0]
+            }.svg`;
+            link.href = url;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+            exportStatus.textContent = "SVG exported successfully!";
+          } catch (error) {
+            console.error("SVG export error:", error);
+            exportStatus.textContent = "Export failed. Try again.";
+          }
+          setTimeout(() => {
+            exportStatus.textContent = "";
+          }, 3000);
         }
 
         // Share Link functionality
@@ -2622,6 +2709,7 @@
         snippetsSelect.addEventListener("change", insertSnippetAtCursor);
         optionsToggle.addEventListener("click", toggleOptionsMenu);
         exportPngBtn.addEventListener("click", exportToPNG);
+        exportSvgBtn.addEventListener("click", exportToSVG);
         shareLinkBtn.addEventListener("click", shareLink);
         document.addEventListener("keydown", handleKeyboardShortcuts);
 
