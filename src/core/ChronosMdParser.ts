@@ -182,9 +182,9 @@ export class ChronosMdParser {
       );
       // Consumed by ChronosTimeline to color the connector dot/line
       style += `--chronos-item-color: ${mapped};`;
-      if (type === "point") {
-        style += `background-color: transparent; border: 2px solid ${mapped};`;
-      } else if (
+      // Points are colored via --chronos-item-color (dot only); a border here
+      // would outline the whole point container.
+      if (type !== "point" && 
         !(type === "default" && this.settings.translucentItems)
       ) {
         // With translucentItems, events are tinted from --chronos-item-color in CSS instead
