@@ -503,6 +503,7 @@ export class ChronosTimeline {
     });
 
     this._setupPeriodTooltip(timeline, items);
+    this._setupStickyTitles(timeline);
     this._setupPeriodTitleClip(timeline);
 
     // Fallback approach - direct DOM event handling
@@ -530,6 +531,73 @@ export class ChronosTimeline {
         });
       }
     }, 150); // Small delay to ensure timeline is fully rendered
+  }
+
+  // vis positions a range title against the whole box, so it scrolls out of
+  // view with the box's clipped edge. Re-place it within the visible part of
+  // the box (per the ALIGN setting) so it stays readable until the item exits.
+  // vis rewrites each item's transforms on every redraw, so a MutationObserver
+  // (microtask, before paint) re-applies the placement without a visible frame.
+  private _setupStickyTitles(timeline: Timeline) {
+    const root = this.container.querySelector<HTMLElement>(".vis-timeline");
+    const win = this.container.ownerDocument.defaultView || window;
+    if (!root || !win.MutationObserver) return;
+
+    const apply = () => {
+      const view = this.container.querySelector<HTMLElement>(
+        ".vis-timeline .vis-panel.vis-center",
+      );
+      if (!view) return;
+      const v = view.getBoundingClientRect();
+      const align = this.resolvedSettings.align;
+      const overflowOn = this.resolvedSettings.overflowRangeTitles !== false;
+
+      const moves: { content: HTMLElement; x: number }[] = [];
+      this.container
+        .querySelectorAll<HTMLElement>(
+          ".vis-item.vis-range, .vis-item.vis-background",
+        )
+        .forEach((el) => {
+          const content = el.firstElementChild?.firstElementChild as
+            | HTMLElement
+            | null;
+          if (!content) return;
+          const r = el.getBoundingClientRect();
+          // Fully visible boxes are already placed correctly by vis
+          if (r.left >= v.left && r.right <= v.right) return;
+
+          const cw = content.offsetWidth;
+          const visLeft = Math.max(v.left - r.left, 0);
+          const visWidth = Math.max(Math.min(v.right - r.left, r.width) - visLeft, 0);
+          const free = Math.max(visWidth - cw, 0);
+          let x =
+            align === "center"
+              ? visLeft + free / 2
+              : align === "right"
+                ? visLeft + free
+                : visLeft;
+          // Slide out with the item instead of outliving it
+          x = Math.min(x, overflowOn ? r.width : Math.max(r.width - cw, 0));
+          moves.push({ content, x: Math.max(x, 0) });
+        });
+
+      moves.forEach(({ content, x }) => {
+        content.style.transform = `translateX(${x}px)`;
+      });
+    };
+
+    const observer = new win.MutationObserver(() => {
+      apply();
+      // Discard the mutations caused by our own writes
+      observer.takeRecords();
+    });
+    observer.observe(root, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ["style"],
+    });
+    timeline.on("destroy", () => observer.disconnect());
   }
 
   // With overflowing titles, a period's title must stop where the next period
