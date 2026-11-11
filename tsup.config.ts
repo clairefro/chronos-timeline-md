@@ -7,7 +7,6 @@ export default defineConfig([
     format: ["esm"],
     dts: true,
     sourcemap: true,
-    clean: true,
     splitting: false,
     treeshake: true,
     noExternal: ["vis-timeline"],

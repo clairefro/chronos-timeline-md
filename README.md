@@ -494,47 +494,60 @@ npm install
 
 ### Publishing to npm
 
-`npm publish` ships whatever is in your **current working folder**.
+Merge your PR on GitHub first, then release from a clean, up-to-date `main`:
 
 ```bash
-# 1. Get onto main with everything merged (merge your PR on GitHub first)
 git checkout main
 git pull origin main
-git status
+npm run release -- patch              # patch | minor | major
+```
 
-# 2. Make sure the feature you are releasing is actually here
-git log --oneline -5            # your PR's commits should be listed
+`patch` = bug fix, `minor` = new feature, `major` = breaking change.
 
-# 3. Install, test, and build from scratch
+`npm run release` ([scripts/release.cjs](scripts/release.cjs)) does everything in order and stops at the first failure:
+
+1. Refuses to run unless you are on `main` with no uncommitted changes, then pulls.
+2. Bumps the version with `npm version` (creates the version commit and git tag).
+3. Runs `npm install`, then `npm run build` (cleans `dist/` and builds the ESM, CJS and IIFE bundles plus types), then `npm test`.
+4. Runs `scripts/check-package.cjs`, which fails if any of `dist/index.js`, `dist/cjs-entry.cjs`, `dist/iife-entry.global.js` or `dist/index.d.ts` is missing from the package.
+5. Packs and publishes that exact, checked tarball, then deletes it.
+6. Pushes the version commit and tag (`git push origin main --follow-tags`).
+
+Each step is run explicitly, so it works even with `ignore-scripts=true` in your npm config (in that case a bare `npm publish` skips the build and can ship a stale or incomplete `dist/`).
+
+To rehearse, use `npm run release -- patch --dry-run`. It runs every step but makes `npm publish` a dry run and does not push. The local version commit and tag are still created; the script prints the commands to undo them.
+
+<details>
+<summary>Manual steps (what the script automates)</summary>
+
+`npm publish` ships whatever is in your **current working folder**, so build first.
+
+```bash
+git checkout main && git pull origin main && git status
+npm version patch                       # bump + commit + tag
 npm install
+npm run build                           # always use this, not bare `tsup`
 npm test
-npm run clean && npm run build
-
-# 4. Preview exactly what will be published
-npm pack --dry-run              # must list dist/index.js and dist/index.d.ts
-
-# 5. Bump the version (creates a commit and a git tag; patch | minor | major)
-npm version patch
-
-# 6. Publish (the same clean + build runs automatically first)
-npm publish
-
-# 7. Push the version commit and tag
+node scripts/check-package.cjs          # verifies all published entry points
+npm pack --ignore-scripts
+npm publish ./chronos-timeline-md-<version>.tgz
 git push origin main --follow-tags
 ```
+
+</details>
 
 Rules of thumb:
 
 - **Never publish from a feature branch.** `git branch --show-current` must print `main`.
 - **A published version can't be changed or reused.** If something is wrong, fix it and publish the next patch version.
 - **Use `npm version`, don't edit the version by hand.** If you did, `git status` will show `package.json` as modified.
-- **Version meaning:** `patch` = bug fix, `minor` = new feature, `major` = breaking change.
+- **Build with `npm run build`, not bare `tsup`.** It cleans `dist/` first; `npm run dev` (`tsup --watch`) does not, so `dist/` can contain stale files.
 
 Verify the release afterwards:
 
 ```bash
 npm view chronos-timeline-md version                  # shows the new version
-npm pack chronos-timeline-md@<version> --dry-run      # should list dist/index.d.ts
+npm pack chronos-timeline-md@<version> --dry-run      # check all four dist entry points
 ```
 
 Then update the consuming plugin, and note that the plugin bundles the library into its own `main.js`, so it needs a rebuild and a new plugin release too:

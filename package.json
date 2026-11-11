@@ -26,12 +26,13 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsup && npm run fix-dts",
+    "build": "npm run clean && tsup && npm run fix-dts",
     "fix-dts": "if [ -f dist/index.d.mts ]; then mv dist/index.d.mts dist/index.d.ts; fi",
     "dev": "tsup --watch",
     "clean": "rm -rf dist",
     "playground": "node serve.cjs",
-    "prepublishOnly": "npm run clean && npm run build",
+    "prepublishOnly": "npm run build && node scripts/check-package.cjs",
+    "release": "node scripts/release.cjs",
     "test": "node --test tests/*"
   },
   "keywords": [

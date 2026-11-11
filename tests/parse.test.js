@@ -53,6 +53,14 @@ const sample = [
   "= [2020-04-01] Marker Label",
 ].join("\n");
 
+test("named and hex point colors do not add a point border", () => {
+  for (const color of ["green", "c0ffee"]) {
+    const [point] = parseChronos(`* [2024-03-06] #${color} Game`).items;
+    assert.match(point.style, /--chronos-item-color:/);
+    assert.doesNotMatch(point.style, /(?:^|;)\s*(?:border|background-color)\s*:/);
+  }
+});
+
 test("Parse — Happy path and invocations", async (t) => {
   await t.test(
     "HELPER: parseChronos returns expected items, markers, groups and flags",
